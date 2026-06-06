@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+html { scroll-behavior: smooth; }
+body {
+  background: #f7f2e8;
+  color: #0b1220;
+}
+::selection { background: #d4af37; color: #071827; }
+.noise {
+  background-image: radial-gradient(rgba(7,24,39,.08) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.glass {
+  background: rgba(255,255,255,.72);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,.55);
+}
