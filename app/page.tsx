@@ -8,7 +8,7 @@ type DirectusResponse<T> = { data?: T | T[] | null };
 
 async function getItem<T>(collection: string, fallback: T): Promise<T> {
   try {
-    const res = await fetch(`${directusUrl}/items/${collection}?fields=*.*`, { cache: 'no-store' });
+    const res = await fetch(`${directusUrl}/items/${collection}?fields=*`, { cache: 'no-store' });
     if (!res.ok) return fallback;
     const json = (await res.json()) as DirectusResponse<T>;
     if (Array.isArray(json.data)) return (json.data[0] as T) || fallback;
@@ -20,7 +20,7 @@ async function getItem<T>(collection: string, fallback: T): Promise<T> {
 
 async function getItems<T>(collection: string, fallback: T[]): Promise<T[]> {
   try {
-    const res = await fetch(`${directusUrl}/items/${collection}?fields=*.*&filter[is_published][_eq]=true&sort=sort`, { cache: 'no-store' });
+    const res = await fetch(`${directusUrl}/items/${collection}?fields=*&filter[is_published][_eq]=true&sort=sort`, { cache: 'no-store' });
     if (!res.ok) return fallback;
     const json = (await res.json()) as DirectusResponse<T>;
     return Array.isArray(json.data) ? json.data : fallback;
