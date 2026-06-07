@@ -2,8 +2,9 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json ./
 
+RUN npm install next@14.2.23 react@18.3.1 react-dom@18.3.1 framer-motion lucide-react
 RUN npm install
 
 COPY . .
