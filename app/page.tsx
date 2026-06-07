@@ -29,6 +29,38 @@ async function getItems<T>(collection: string, fallback: T[]): Promise<T[]> {
   }
 }
 
+function assetUrl(file?: string | null) {
+  if (!file) return undefined;
+  if (typeof file === 'string' && file.startsWith('http')) return file;
+  return `${directusUrl}/assets/${file}`;
+}
+
+function normalizeAssets(site: any, home: any, about: any, services: any[], portfolio: any[], blog: any[]) {
+  return {
+    site,
+    home: {
+      ...home,
+      hero_image_url: home.hero_image_url || assetUrl(home.hero_image),
+    },
+    about: {
+      ...about,
+      image_url: about.image_url || assetUrl(about.about_image),
+    },
+    services: services.map((item) => ({
+      ...item,
+      image_url: item.image_url || assetUrl(item.image),
+    })),
+    portfolio: portfolio.map((item) => ({
+      ...item,
+      image_url: item.image_url || assetUrl(item.image),
+    })),
+    blog: blog.map((item) => ({
+      ...item,
+      image_url: item.image_url || assetUrl(item.featured_image || item.image),
+    })),
+  };
+}
+
 const fallback: SiteData = {
   site: {
     site_name: 'D-Solution',
@@ -88,5 +120,16 @@ export default async function Home() {
     getItems('flex_sections', fallback.flex),
   ]);
 
-  return <HomeClient data={{ site, home, about, contact, services, portfolio, blog, flex }} />;
+  const normalized = normalizeAssets(site, home, about, services, portfolio, blog);
+
+  return <HomeClient data={{
+    site: normalized.site,
+    home: normalized.home,
+    about: normalized.about,
+    contact,
+    services: normalized.services,
+    portfolio: normalized.portfolio,
+    blog: normalized.blog,
+    flex,
+  }} />;
 }

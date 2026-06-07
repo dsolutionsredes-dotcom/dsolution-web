@@ -16,6 +16,7 @@ export type SiteData = {
   };
   home: {
     eyebrow?: string;
+    hero_image?: string;
     hero_title?: string;
     hero_subtitle?: string;
     primary_button_text?: string;
@@ -27,6 +28,7 @@ export type SiteData = {
   };
   about: {
     eyebrow?: string;
+    about_image?: string;
     title?: string;
     intro?: string;
     difference?: string;
@@ -46,9 +48,9 @@ export type SiteData = {
     tiktok?: string;
     n8n_webhook_url?: string;
   };
-  services: Array<{ title?: string; description?: string; icon?: string; image_url?: string; button_text?: string; button_url?: string }>;
-  portfolio: Array<{ title?: string; category?: string; description?: string; project_url?: string; image_url?: string }>;
-  blog: Array<{ title?: string; excerpt?: string; category?: string; slug?: string; image_url?: string }>;
+  services: Array<{ title?: string; description?: string; icon?: string; image?: string; image_url?: string; button_text?: string; button_url?: string }>;
+  portfolio: Array<{ title?: string; category?: string; description?: string; project_url?: string; image?: string; image_url?: string }>;
+  blog: Array<{ title?: string; excerpt?: string; category?: string; slug?: string; featured_image?: string; image_url?: string }>;
   flex: Array<{ title?: string; subtitle?: string; content?: string; section_type?: string; is_published?: boolean }>;
 };
 
@@ -158,7 +160,11 @@ export default function HomeClient({ data }: Props) {
               const Icon = iconList[i % iconList.length];
               return (
                 <motion.article key={`${s.title}-${i}`} initial={{ opacity: 0, y: 26 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: .45, delay: i * .04 }} whileHover={{ y: -6 }} className="group rounded-2xl border border-slate-200 bg-white p-7 shadow-[0_12px_35px_rgba(0,33,71,.08)]">
-                  <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#002147] text-[#D4AF37]"><Icon size={27} /></div>
+                  {s.image_url ? (
+                    <div className="mb-6 h-36 overflow-hidden rounded-2xl"><ImageBox src={s.image_url} alt={s.title || 'Servicio'} /></div>
+                  ) : (
+                    <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#002147] text-[#D4AF37]"><Icon size={27} /></div>
+                  )}
                   <h3 className="text-xl font-semibold text-[#002147]">{s.title}</h3>
                   <p className="mt-3 min-h-[84px] leading-7 text-slate-600">{s.description}</p>
                   <a href={getActionUrl(s.button_url, '#contacto')} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#002147] group-hover:text-[#D4AF37]">
@@ -241,8 +247,11 @@ export default function HomeClient({ data }: Props) {
               { title: 'Cómo un buen video multiplica resultados', category: 'Audiovisual', excerpt: 'Próximamente.' },
               { title: 'IA y automatización para negocios', category: 'IA', excerpt: 'Próximamente.' },
             ]).map((post, i) => (
-              <article key={`${post.title}-${i}`} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_12px_35px_rgba(0,33,71,.07)]">
-                <p className="text-xs font-bold uppercase tracking-[.18em] text-[#D4AF37]">{post.category}</p><h3 className="mt-3 text-xl font-semibold text-[#002147]">{post.title}</h3><p className="mt-3 leading-7 text-slate-600">{post.excerpt}</p>
+              <article key={`${post.title}-${i}`} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_35px_rgba(0,33,71,.07)]">
+                {post.image_url && <div className="h-40"><ImageBox src={post.image_url} alt={post.title || 'Blog'} /></div>}
+                <div className="p-5">
+                  <p className="text-xs font-bold uppercase tracking-[.18em] text-[#D4AF37]">{post.category}</p><h3 className="mt-3 text-xl font-semibold text-[#002147]">{post.title}</h3><p className="mt-3 leading-7 text-slate-600">{post.excerpt}</p>
+                </div>
               </article>
             ))}
           </div>
