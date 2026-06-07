@@ -8,7 +8,7 @@ type DirectusResponse<T> = { data?: T | T[] | null };
 
 async function getItem<T>(collection: string, fallback: T): Promise<T> {
   try {
-    const res = await fetch(`${directusUrl}/items/${collection}`, { cache: 'no-store' });
+    const res = await fetch(`${directusUrl}/items/${collection}?fields=*.*`, { cache: 'no-store' });
     if (!res.ok) return fallback;
     const json = (await res.json()) as DirectusResponse<T>;
     if (Array.isArray(json.data)) return (json.data[0] as T) || fallback;
@@ -20,7 +20,7 @@ async function getItem<T>(collection: string, fallback: T): Promise<T> {
 
 async function getItems<T>(collection: string, fallback: T[]): Promise<T[]> {
   try {
-    const res = await fetch(`${directusUrl}/items/${collection}?filter[is_published][_eq]=true&sort=sort`, { cache: 'no-store' });
+    const res = await fetch(`${directusUrl}/items/${collection}?fields=*.*&filter[is_published][_eq]=true&sort=sort`, { cache: 'no-store' });
     if (!res.ok) return fallback;
     const json = (await res.json()) as DirectusResponse<T>;
     return Array.isArray(json.data) ? json.data : fallback;
@@ -29,10 +29,24 @@ async function getItems<T>(collection: string, fallback: T[]): Promise<T[]> {
   }
 }
 
-function assetUrl(file?: string | null) {
+function getFileId(file: unknown): string | undefined {
   if (!file) return undefined;
-  if (typeof file === 'string' && file.startsWith('http')) return file;
-  return `${directusUrl}/assets/${file}`;
+  if (typeof file === 'string') return file;
+  if (typeof file === 'object') {
+    const item = file as { id?: string; filename_disk?: string; directus_files_id?: string | { id?: string } };
+    if (typeof item.id === 'string') return item.id;
+    if (typeof item.filename_disk === 'string') return item.filename_disk;
+    if (typeof item.directus_files_id === 'string') return item.directus_files_id;
+    if (item.directus_files_id && typeof item.directus_files_id === 'object' && typeof item.directus_files_id.id === 'string') return item.directus_files_id.id;
+  }
+  return undefined;
+}
+
+function assetUrl(file?: unknown) {
+  const fileId = getFileId(file);
+  if (!fileId) return undefined;
+  if (fileId.startsWith('http')) return fileId;
+  return `${directusUrl}/assets/${fileId}`;
 }
 
 function normalizeAssets(site: any, home: any, about: any, services: any[], portfolio: any[], blog: any[]) {
