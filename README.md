@@ -1,27 +1,12 @@
-# D-Solution Web - Fase 2
+# D-Solution Web Fase 3
 
-Proyecto Next.js con Tailwind CSS y Framer Motion.
+Web Next.js conectada a Directus.
 
-## Previsualizar en tu PC
+Variables necesarias en EasyPanel:
 
-```bash
-npm install
-npm run dev
+```
+NEXT_PUBLIC_DIRECTUS_URL=https://admin.d-solution.org
+DIRECTUS_URL=https://admin.d-solution.org
 ```
 
-Abre: http://localhost:3000
-
-## Build para producción
-
-```bash
-npm run build
-npm run start
-```
-
-## EasyPanel / Docker
-
-El proyecto incluye `Dockerfile`. En EasyPanel puedes crear una app desde GitHub usando Dockerfile y exponer el puerto 3000.
-
-## Próxima fase
-
-Fase 3: conectar Directus + PostgreSQL para editar textos, imágenes, servicios, blog y portafolio desde panel admin.
+Después de subir estos archivos a GitHub, hacer Deploy en EasyPanel.
