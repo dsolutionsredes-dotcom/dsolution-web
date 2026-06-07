@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import ChatwootWidget from '@/components/ChatwootWidget';
 
 export const metadata: Metadata = {
   title: 'D-Solution | Agencia Digital en Barcelona',
@@ -9,7 +10,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        {children}
+        <ChatwootWidget />
+      </body>
     </html>
   );
 }

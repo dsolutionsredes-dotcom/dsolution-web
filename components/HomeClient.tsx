@@ -1,120 +1,282 @@
 'use client';
 
-import { Camera, Code2, Megaphone, Sparkles, Workflow, Globe2 } from 'lucide-react';
+import { Camera, Code2, Megaphone, Sparkles, Bot, Palette, ArrowRight, CheckCircle2, Mail, MapPin, Phone } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import SectionTitle from '@/components/SectionTitle';
 import { motion } from '@/components/Motion';
 
 export type SiteData = {
-  site: { site_name?: string; footer_text?: string; seo_title?: string; seo_description?: string };
-  home: { eyebrow?: string; hero_title?: string; hero_subtitle?: string; primary_button_text?: string; primary_button_url?: string; secondary_button_text?: string; secondary_button_url?: string; trusted_logos?: string };
-  about: { eyebrow?: string; title?: string; intro?: string; difference?: string; where_we_work?: string; mission?: string; years_experience?: number; projects_count?: number };
-  contact: { email?: string; whatsapp?: string; city?: string; country?: string; instagram?: string; facebook?: string; tiktok?: string; n8n_webhook_url?: string };
-  services: Array<{ title?: string; description?: string; icon?: string }>;
-  portfolio: Array<{ title?: string; category?: string; description?: string; project_url?: string }>;
-  blog: Array<{ title?: string; excerpt?: string; category?: string; slug?: string }>;
-  flex: Array<{ title?: string; subtitle?: string; content?: string; section_type?: string }>;
+  site: {
+    site_name?: string;
+    footer_text?: string;
+    seo_title?: string;
+    seo_description?: string;
+    primary_color?: string;
+    secondary_color?: string;
+    background_color?: string;
+  };
+  home: {
+    eyebrow?: string;
+    hero_title?: string;
+    hero_subtitle?: string;
+    primary_button_text?: string;
+    primary_button_url?: string;
+    secondary_button_text?: string;
+    secondary_button_url?: string;
+    trusted_logos?: string;
+    hero_image_url?: string;
+  };
+  about: {
+    eyebrow?: string;
+    title?: string;
+    intro?: string;
+    difference?: string;
+    where_we_work?: string;
+    mission?: string;
+    years_experience?: number;
+    projects_count?: number;
+    image_url?: string;
+  };
+  contact: {
+    email?: string;
+    whatsapp?: string;
+    city?: string;
+    country?: string;
+    instagram?: string;
+    facebook?: string;
+    tiktok?: string;
+    n8n_webhook_url?: string;
+  };
+  services: Array<{ title?: string; description?: string; icon?: string; image_url?: string; button_text?: string; button_url?: string }>;
+  portfolio: Array<{ title?: string; category?: string; description?: string; project_url?: string; image_url?: string }>;
+  blog: Array<{ title?: string; excerpt?: string; category?: string; slug?: string; image_url?: string }>;
+  flex: Array<{ title?: string; subtitle?: string; content?: string; section_type?: string; is_published?: boolean }>;
 };
 
 type Props = { data: SiteData };
 
-const iconList = [Megaphone, Camera, Code2, Workflow, Sparkles, Globe2];
-const process = ['Escuchamos tu idea', 'Diseñamos la estrategia', 'Creamos la experiencia', 'Medimos y mejoramos'];
+const iconList = [Camera, Camera, Megaphone, Palette, Code2, Bot, Sparkles];
+const steps = ['Diagnóstico claro', 'Estrategia personalizada', 'Producción y desarrollo', 'Optimización continua'];
 
-function normalizeLogos(value?: string) {
+function normalizeList(value?: string) {
   return (value || '').split(',').map((v) => v.trim()).filter(Boolean);
+}
+
+function isExternal(url?: string) {
+  return !!url && /^https?:\/\//.test(url);
+}
+
+function getActionUrl(url?: string, fallback = '#contacto') {
+  if (!url) return fallback;
+  if (url === 'chatwoot' || url === 'chat') return '#chatwoot';
+  return url;
+}
+
+function ImageBox({ src, alt, className = '' }: { src?: string; alt: string; className?: string }) {
+  if (src) {
+    return <img src={src} alt={alt} className={`h-full w-full object-cover ${className}`} />;
+  }
+  return (
+    <div className={`h-full w-full bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,55,.35),transparent_30%),linear-gradient(135deg,#09233d,#061523)] ${className}`}>
+      <div className="flex h-full items-center justify-center p-10 text-center text-white/80">
+        <div>
+          <img src="/logo.png" alt="D-Solution" className="mx-auto mb-5 h-20 w-20 rounded-full object-cover" />
+          <p className="text-sm font-semibold uppercase tracking-[.25em] text-gold">D-Solution</p>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function HomeClient({ data }: Props) {
   const { site, home, about, contact } = data;
-  const trustedLogos = normalizeLogos(home.trusted_logos);
+  const trustedLogos = normalizeList(home.trusted_logos);
+  const primaryColor = site.primary_color || '#002147';
+  const secondaryColor = site.secondary_color || '#D4AF37';
+  const backgroundColor = site.background_color || '#F7F3EA';
 
   return (
-    <main className="overflow-hidden bg-cream text-ink">
+    <main className="min-h-screen overflow-hidden text-slate-950" style={{ ['--brand' as string]: primaryColor, ['--gold' as string]: secondaryColor, backgroundColor }}>
       <Navbar />
 
-      <section id="inicio" className="relative min-h-screen px-6 pt-36 md:px-10">
-        <div className="absolute inset-0 noise opacity-60" />
-        <div className="absolute right-0 top-20 h-72 w-72 rounded-full bg-gold/20 blur-3xl" />
-        <div className="absolute bottom-20 left-0 h-96 w-96 rounded-full bg-navy/15 blur-3xl" />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-12 py-20 md:grid-cols-[1.1fr_.9fr]">
-          <motion.div initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .85 }}>
-            <p className="mb-6 inline-flex rounded-full border border-gold/40 bg-white/60 px-4 py-2 text-sm font-semibold text-navy">{home.eyebrow}</p>
-            <h1 className="max-w-4xl text-5xl font-semibold leading-[.95] tracking-tight text-navy md:text-7xl lg:text-8xl">{home.hero_title}</h1>
-            <p className="mt-7 max-w-2xl text-xl leading-8 text-navy/72">{home.hero_subtitle}</p>
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-              <a href={home.primary_button_url || '#contacto'} className="rounded-full bg-gold px-7 py-4 text-center font-bold text-navy shadow-soft transition hover:-translate-y-1">{home.primary_button_text || 'Solicitar propuesta'}</a>
-              <a href={home.secondary_button_url || '#servicios'} className="rounded-full border border-navy/20 px-7 py-4 text-center font-bold text-navy transition hover:border-gold hover:text-gold">{home.secondary_button_text || 'Ver servicios'}</a>
+      <section id="inicio" className="relative border-b border-slate-200/70 bg-[#002147] text-white">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(212,175,55,.17),transparent_28%),radial-gradient(circle_at_85%_20%,rgba(255,255,255,.12),transparent_26%)]" />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 pb-20 pt-32 md:grid-cols-[1.05fr_.95fr] md:px-8 md:pb-24 md:pt-36">
+          <motion.div initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .7 }}>
+            <p className="mb-5 inline-flex rounded-full border border-white/15 bg-white/8 px-4 py-2 text-xs font-bold uppercase tracking-[.24em] text-[#D4AF37]">
+              {home.eyebrow || 'Agencia digital en Barcelona'}
+            </p>
+            <h1 className="max-w-3xl text-5xl font-semibold leading-[.95] tracking-tight md:text-7xl">
+              {home.hero_title || 'Transformamos ideas en experiencias digitales'}
+            </h1>
+            <p className="mt-7 max-w-xl text-lg leading-8 text-white/78">
+              {home.hero_subtitle || 'Desde la estrategia hasta la ejecución, hacemos crecer tu presencia digital.'}
+            </p>
+            <div className="mt-9 flex flex-col gap-4 sm:flex-row">
+              <a href={getActionUrl(home.primary_button_url)} className="inline-flex items-center justify-center gap-3 rounded-xl bg-[#D4AF37] px-6 py-4 text-sm font-bold text-[#002147] shadow-[0_18px_40px_rgba(0,0,0,.22)] transition hover:-translate-y-1">
+                {home.primary_button_text || 'Solicitar propuesta'} <ArrowRight size={17} />
+              </a>
+              <a href={getActionUrl(home.secondary_button_url, '#servicios')} className="inline-flex items-center justify-center gap-3 rounded-xl border border-white/25 bg-white/5 px-6 py-4 text-sm font-bold text-white transition hover:-translate-y-1 hover:bg-white/10">
+                {home.secondary_button_text || 'Ver servicios'} <ArrowRight size={17} />
+              </a>
             </div>
-            {trustedLogos.length > 0 && <div className="mt-10 flex flex-wrap gap-6 text-sm font-semibold text-navy/45">{trustedLogos.map((logo) => <span key={logo}>{logo}</span>)}</div>}
+            <div className="mt-10 grid gap-3 text-sm text-white/72 sm:grid-cols-3">
+              {['Estrategia personalizada', 'Resultados medibles', 'Acompañamiento cercano'].map((item) => (
+                <span key={item} className="inline-flex items-center gap-2"><CheckCircle2 size={16} className="text-[#D4AF37]" /> {item}</span>
+              ))}
+            </div>
           </motion.div>
-          <motion.div initial={{ opacity: 0, scale: .92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: .9, delay: .15 }} className="glass relative rounded-[2.5rem] p-6 shadow-soft">
-            <div className="rounded-[2rem] bg-navy p-8 text-white">
-              <div className="mb-20 flex justify-between text-sm text-white/60"><span>{site.site_name || 'D-SOLUTION'}</span><span>2026</span></div>
-              <div className="space-y-5">
-                <div className="h-20 rounded-3xl bg-gold/90" />
-                <div className="ml-auto h-20 w-4/5 rounded-3xl bg-white/10" />
-                <div className="h-20 w-3/5 rounded-3xl bg-white/10" />
+
+          <motion.div initial={{ opacity: 0, scale: .95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: .75, delay: .1 }} className="relative">
+            <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full border border-[#D4AF37]/40" />
+            <div className="absolute -bottom-5 -left-5 h-24 w-24 rounded-full bg-[#D4AF37]" />
+            <div className="relative overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 p-2 shadow-[0_35px_80px_rgba(0,0,0,.35)] backdrop-blur">
+              <div className="h-[340px] overflow-hidden rounded-[1.5rem] md:h-[430px]">
+                <ImageBox src={home.hero_image_url} alt="D-Solution hero" />
               </div>
-              <p className="mt-16 text-2xl font-semibold">Marketing · Audiovisual · Web</p>
             </div>
           </motion.div>
         </div>
       </section>
 
-      <section id="servicios" className="px-6 py-24 md:px-10">
-        <SectionTitle eyebrow="Servicios" title="Servicios que impulsan tu marca" text="Combinamos creatividad, tecnología y automatización para convertir ideas en resultados." />
-        <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-3">
-          {data.services.map((s, i) => {
-            const Icon = iconList[i % iconList.length];
-            return <motion.article key={`${s.title}-${i}`} initial={{ opacity: 0, y: 26 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: .55, delay: i * .07 }} whileHover={{ y: -8 }} className="rounded-[2rem] bg-white p-7 shadow-soft"><Icon className="mb-8 h-9 w-9 text-gold" /><h3 className="text-2xl font-semibold text-navy">{s.title}</h3><p className="mt-4 leading-7 text-navy/65">{s.description}</p></motion.article>;
-          })}
+      {trustedLogos.length > 0 && (
+        <div className="border-b border-slate-200/70 bg-white/75">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-8 px-5 py-5 text-sm font-semibold text-slate-500 md:justify-between md:px-8">
+            <span className="text-slate-700">Confían en nosotros</span>
+            {trustedLogos.map((logo) => <span key={logo}>{logo}</span>)}
+          </div>
+        </div>
+      )}
+
+      <section id="servicios" className="px-5 py-20 md:px-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-10 text-center">
+            <p className="text-xs font-bold uppercase tracking-[.25em] text-[#D4AF37]">Servicios</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[#002147] md:text-5xl">Soluciones creativas para impulsar tu negocio</h2>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {data.services.map((s, i) => {
+              const Icon = iconList[i % iconList.length];
+              return (
+                <motion.article key={`${s.title}-${i}`} initial={{ opacity: 0, y: 26 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: .45, delay: i * .04 }} whileHover={{ y: -6 }} className="group rounded-2xl border border-slate-200 bg-white p-7 shadow-[0_12px_35px_rgba(0,33,71,.08)]">
+                  <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#002147] text-[#D4AF37]"><Icon size={27} /></div>
+                  <h3 className="text-xl font-semibold text-[#002147]">{s.title}</h3>
+                  <p className="mt-3 min-h-[84px] leading-7 text-slate-600">{s.description}</p>
+                  <a href={getActionUrl(s.button_url, '#contacto')} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#002147] group-hover:text-[#D4AF37]">
+                    {s.button_text || 'Saber más'} <ArrowRight size={15} />
+                  </a>
+                </motion.article>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      <section id="nosotros" className="bg-navy px-6 py-24 text-white md:px-10">
-        <div className="mx-auto grid max-w-7xl gap-12 md:grid-cols-2">
-          <motion.div initial={{ opacity: 0, x: -28 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: .75 }}>
-            <p className="mb-4 text-sm font-semibold uppercase tracking-[.28em] text-gold">{about.eyebrow || 'Sobre nosotros'}</p>
-            <h2 className="text-4xl font-semibold md:text-6xl">{about.title}</h2>
-            <div className="mt-8 flex gap-8 text-gold"><strong>+{about.years_experience || 5} años</strong><strong>+{about.projects_count || 50} proyectos</strong></div>
+      <section id="nosotros" className="border-y border-slate-200 bg-white/70 px-5 py-20 md:px-8">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 md:grid-cols-[.95fr_1.05fr]">
+          <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-2 shadow-[0_18px_45px_rgba(0,33,71,.10)]">
+            <div className="h-[360px] overflow-hidden rounded-[1.45rem]"><ImageBox src={about.image_url} alt="Sobre D-Solution" /></div>
           </motion.div>
-          <motion.div initial={{ opacity: 0, x: 28 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: .75 }} className="space-y-6 text-lg leading-8 text-white/75">
-            <p>{about.intro}</p>
-            <p>{about.difference}</p>
-            <p>{about.where_we_work}</p>
-            {about.mission && <p><strong className="text-gold">Nuestra misión:</strong> {about.mission}</p>}
+          <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+            <p className="text-xs font-bold uppercase tracking-[.25em] text-[#D4AF37]">{about.eyebrow || 'Sobre nosotros'}</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[#002147] md:text-5xl">{about.title}</h2>
+            <div className="mt-6 space-y-4 leading-8 text-slate-640">
+              <p>{about.intro}</p>
+              <p>{about.difference}</p>
+              <p>{about.where_we_work}</p>
+            </div>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl bg-[#002147] p-5 text-white"><strong className="text-3xl text-[#D4AF37]">+{about.years_experience || 5}</strong><p className="mt-1 text-sm text-white/70">años de experiencia</p></div>
+              <div className="rounded-2xl bg-[#002147] p-5 text-white"><strong className="text-3xl text-[#D4AF37]">+{about.projects_count || 50}</strong><p className="mt-1 text-sm text-white/70">proyectos realizados</p></div>
+            </div>
           </motion.div>
         </div>
       </section>
 
-      <section className="px-6 py-24 md:px-10">
-        <SectionTitle eyebrow="Proceso" title="Cómo trabajamos" />
-        <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-4">
-          {process.map((p, i) => <motion.div key={p} initial={{ opacity: 0, y: 25 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i*.08 }} className="rounded-[2rem] border border-navy/10 bg-white/70 p-7"><span className="text-5xl font-semibold text-gold">0{i+1}</span><h3 className="mt-8 text-xl font-semibold text-navy">{p}</h3></motion.div>)}
+      <section className="px-5 py-20 md:px-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-10 text-center">
+            <p className="text-xs font-bold uppercase tracking-[.25em] text-[#D4AF37]">Proceso</p>
+            <h2 className="mt-3 text-3xl font-semibold text-[#002147] md:text-5xl">Una forma clara de llevar tus ideas a resultados</h2>
+          </div>
+          <div className="grid gap-4 md:grid-cols-4">
+            {steps.map((step, i) => (
+              <motion.div key={step} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * .05 }} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_12px_35px_rgba(0,33,71,.07)]">
+                <span className="text-4xl font-semibold text-[#D4AF37]">0{i + 1}</span>
+                <h3 className="mt-7 font-semibold text-[#002147]">{step}</h3>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section id="portafolio" className="px-6 py-24 md:px-10">
-        <SectionTitle eyebrow="Portafolio" title="Proyectos destacados" text="Añade proyectos desde Directus y aparecerán aquí." />
-        <div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-2">
-          {(data.portfolio.length ? data.portfolio : [{ title: 'Próximamente', category: 'Proyecto' }, { title: 'Próximamente', category: 'Proyecto' }]).map((p, i) => <motion.div key={`${p.title}-${i}`} whileHover={{ scale: 1.015 }} className="h-80 rounded-[2.5rem] bg-gradient-to-br from-navy to-navySoft p-8 text-white shadow-soft"><p className="text-gold">{p.category}</p><h3 className="mt-36 text-3xl font-semibold">{p.title}</h3></motion.div>)}
+      <section id="portafolio" className="border-y border-slate-200 bg-white/70 px-5 py-20 md:px-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div><p className="text-xs font-bold uppercase tracking-[.25em] text-[#D4AF37]">Portafolio</p><h2 className="mt-3 text-3xl font-semibold text-[#002147] md:text-5xl">Proyectos que inspiran</h2></div>
+            <a href="#contacto" className="font-bold text-[#002147]">Ver todos los proyectos →</a>
+          </div>
+          <div className="grid gap-5 md:grid-cols-3">
+            {(data.portfolio.length ? data.portfolio : [
+              { title: 'Sitio web corporativo', category: 'Desarrollo Web', description: 'Diseño y presencia digital.' },
+              { title: 'Producción audiovisual', category: 'Audiovisual', description: 'Contenido visual para marca.' },
+              { title: 'Campaña digital', category: 'Marketing Digital', description: 'Estrategia y contenidos.' },
+            ]).map((p, i) => (
+              <motion.article key={`${p.title}-${i}`} whileHover={{ y: -5 }} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_35px_rgba(0,33,71,.08)]">
+                <div className="h-44"><ImageBox src={p.image_url} alt={p.title || 'Proyecto'} /></div>
+                <div className="p-5"><p className="text-xs font-bold uppercase tracking-[.18em] text-[#D4AF37]">{p.category}</p><h3 className="mt-2 text-lg font-semibold text-[#002147]">{p.title}</h3><p className="mt-2 text-sm leading-6 text-slate-600">{p.description}</p></div>
+              </motion.article>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section id="blog" className="px-6 py-24 md:px-10">
-        <SectionTitle eyebrow="Blog" title="Ideas y recursos" text="Añade artículos desde Directus." />
-        {data.blog.length > 0 && <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-3">{data.blog.map((post, i) => <article key={`${post.title}-${i}`} className="rounded-[2rem] bg-white p-7 shadow-soft"><p className="text-sm text-gold">{post.category}</p><h3 className="mt-3 text-2xl font-semibold text-navy">{post.title}</h3><p className="mt-4 text-navy/65">{post.excerpt}</p></article>)}</div>}
-      </section>
-
-      <section id="contacto" className="px-6 py-24 md:px-10">
-        <div className="mx-auto grid max-w-7xl gap-8 rounded-[2.5rem] bg-white p-8 shadow-soft md:grid-cols-2 md:p-12">
-          <div><p className="mb-4 text-sm font-semibold uppercase tracking-[.28em] text-gold">Contacto</p><h2 className="text-4xl font-semibold text-navy md:text-6xl">Hablemos de tu proyecto</h2><p className="mt-6 text-lg leading-8 text-navy/70">Formulario preparado para conectar con n8n: WhatsApp, Email y Google Sheets.</p><div className="mt-8 space-y-2 text-navy/75"><p>{contact.email}</p><p>{contact.whatsapp}</p><p>{[contact.city, contact.country].filter(Boolean).join(', ')}</p></div></div>
-          <form className="space-y-4"><input className="w-full rounded-2xl border border-navy/10 bg-cream px-5 py-4 outline-none focus:border-gold" placeholder="Nombre" /><input className="w-full rounded-2xl border border-navy/10 bg-cream px-5 py-4 outline-none focus:border-gold" placeholder="Email" /><textarea className="h-36 w-full rounded-2xl border border-navy/10 bg-cream px-5 py-4 outline-none focus:border-gold" placeholder="Mensaje" /><button type="button" className="w-full rounded-full bg-navy px-7 py-4 font-bold text-white transition hover:bg-gold hover:text-navy">Enviar solicitud</button></form>
+      <section id="blog" className="px-5 py-20 md:px-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-10 flex items-end justify-between gap-4">
+            <div><p className="text-xs font-bold uppercase tracking-[.25em] text-[#D4AF37]">Blog</p><h2 className="mt-3 text-3xl font-semibold text-[#002147] md:text-5xl">Ideas que generan impacto</h2></div>
+          </div>
+          <div className="grid gap-5 md:grid-cols-3">
+            {(data.blog.length ? data.blog : [
+              { title: 'Tendencias de marketing digital', category: 'Marketing', excerpt: 'Próximamente.' },
+              { title: 'Cómo un buen video multiplica resultados', category: 'Audiovisual', excerpt: 'Próximamente.' },
+              { title: 'IA y automatización para negocios', category: 'IA', excerpt: 'Próximamente.' },
+            ]).map((post, i) => (
+              <article key={`${post.title}-${i}`} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_12px_35px_rgba(0,33,71,.07)]">
+                <p className="text-xs font-bold uppercase tracking-[.18em] text-[#D4AF37]">{post.category}</p><h3 className="mt-3 text-xl font-semibold text-[#002147]">{post.title}</h3><p className="mt-3 leading-7 text-slate-600">{post.excerpt}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
-      <footer className="px-6 py-10 text-center text-sm text-navy/60">© 2026 {site.site_name || 'D-Solution'} · {site.footer_text}</footer>
+      <section id="contacto" className="px-5 pb-20 md:px-8">
+        <div className="mx-auto grid max-w-6xl gap-8 rounded-[2rem] bg-[#002147] p-7 text-white shadow-[0_30px_70px_rgba(0,33,71,.22)] md:grid-cols-[.85fr_1.15fr] md:p-10">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[.25em] text-[#D4AF37]">Contacto</p>
+            <h2 className="mt-3 text-3xl font-semibold md:text-5xl">Hablemos de tu próximo proyecto</h2>
+            <div className="mt-8 space-y-4 text-white/82">
+              <p className="flex items-center gap-3"><Mail size={18} className="text-[#D4AF37]" /> {contact.email}</p>
+              <p className="flex items-center gap-3"><Phone size={18} className="text-[#D4AF37]" /> {contact.whatsapp}</p>
+              <p className="flex items-center gap-3"><MapPin size={18} className="text-[#D4AF37]" /> {[contact.city, contact.country].filter(Boolean).join(', ')}</p>
+            </div>
+          </div>
+          <form className="grid gap-4">
+            <div className="grid gap-4 md:grid-cols-2"><input className="rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder="Nombre completo" /><input className="rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder="Email" /></div>
+            <input className="rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder="Teléfono / WhatsApp" />
+            <textarea className="h-32 rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder="Cuéntanos sobre tu proyecto" />
+            <button type="button" className="rounded-xl bg-[#D4AF37] px-6 py-4 font-bold text-[#002147] transition hover:-translate-y-1">Enviar mensaje</button>
+          </form>
+        </div>
+      </section>
+
+      <footer className="bg-[#002147] px-5 py-12 text-white md:px-8">
+        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[1.2fr_.8fr_.8fr]">
+          <div><img src="/logo.png" alt="D-Solution" className="mb-4 h-16 w-16 rounded-full object-cover" /><h3 className="text-2xl font-semibold">{site.site_name || 'D-Solution'}</h3><p className="mt-3 max-w-sm text-white/65">{site.footer_text}</p></div>
+          <div><h4 className="font-semibold text-[#D4AF37]">Navegación</h4><div className="mt-4 grid gap-2 text-sm text-white/70"><a href="#inicio">Inicio</a><a href="#servicios">Servicios</a><a href="#nosotros">Sobre Nosotros</a><a href="#blog">Blog</a><a href="#contacto">Contacto</a></div></div>
+          <div><h4 className="font-semibold text-[#D4AF37]">Servicios</h4><div className="mt-4 grid gap-2 text-sm text-white/70">{data.services.slice(0,5).map((s) => <span key={s.title}>{s.title}</span>)}</div></div>
+        </div>
+        <div className="mx-auto mt-10 max-w-6xl border-t border-white/10 pt-6 text-sm text-white/45">© 2026 D-Solution. Todos los derechos reservados.</div>
+      </footer>
     </main>
   );
 }

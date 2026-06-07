@@ -1,21 +1,30 @@
 'use client';
 import Image from 'next/image';
+import { Menu } from 'lucide-react';
 import { motion } from './Motion';
 
-const links = ['Servicios', 'Nosotros', 'Portafolio', 'Blog', 'Contacto'];
+const links = [
+  ['Inicio', '#inicio'],
+  ['Servicios', '#servicios'],
+  ['Portafolio', '#portafolio'],
+  ['Nosotros', '#nosotros'],
+  ['Blog', '#blog'],
+  ['Contacto', '#contacto'],
+];
 
 export default function Navbar() {
   return (
-    <motion.header initial={{ y: -30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: .7 }} className="fixed left-0 right-0 top-0 z-50 px-4 py-4">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/60 bg-cream/75 px-5 py-3 shadow-soft backdrop-blur-xl">
+    <motion.header initial={{ y: -24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: .55 }} className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-[#002147]/92 backdrop-blur-xl">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 md:px-8">
         <a href="#inicio" className="flex items-center gap-3">
-          <Image src="/logo.png" alt="D-Solution" width={42} height={42} className="rounded-full" />
-          <span className="font-semibold tracking-wide text-navy">D-Solution</span>
+          <Image src="/logo.png" alt="D-Solution" width={46} height={46} className="rounded-sm object-contain" />
+          <span className="text-lg font-semibold text-white">D-Solution</span>
         </a>
-        <div className="hidden items-center gap-8 md:flex">
-          {links.map((link) => <a key={link} href={`#${link.toLowerCase()}`} className="text-sm font-medium text-navy/75 transition hover:text-gold">{link}</a>)}
+        <div className="hidden items-center gap-7 md:flex">
+          {links.map(([label, href]) => <a key={href} href={href} className="text-sm font-semibold text-white/78 transition hover:text-[#D4AF37]">{label}</a>)}
         </div>
-        <a href="#contacto" className="rounded-full bg-navy px-5 py-2 text-sm font-semibold text-white transition hover:bg-gold hover:text-navy">Solicitar propuesta</a>
+        <a href="#contacto" className="hidden rounded-xl bg-[#D4AF37] px-5 py-3 text-sm font-bold text-[#002147] transition hover:-translate-y-0.5 md:inline-flex">Hablemos de tu proyecto</a>
+        <button className="rounded-xl border border-white/15 p-3 text-white md:hidden" aria-label="Menu"><Menu size={20} /></button>
       </nav>
     </motion.header>
   );
