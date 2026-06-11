@@ -2,6 +2,7 @@
 
 import { Camera, Code2, Megaphone, Sparkles, Bot, Palette, ArrowRight, CheckCircle2, Mail, MapPin, Phone } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import PromoPopup from '@/components/PromoPopup';
 import { motion } from '@/components/Motion';
 
 export type SiteData = {
@@ -23,6 +24,8 @@ export type SiteData = {
     primary_button_url?: string;
     secondary_button_text?: string;
     secondary_button_url?: string;
+    primary_button_action?: string;
+    secondary_button_action?: string;
     trusted_logos?: string;
     hero_image_url?: string;
   };
@@ -48,10 +51,10 @@ export type SiteData = {
     tiktok?: string;
     n8n_webhook_url?: string;
   };
-  services: Array<{ title?: string; description?: string; icon?: string; image?: string; image_url?: string; button_text?: string; button_url?: string }>;
+  services: Array<{ title?: string; description?: string; icon?: string; image?: string; image_url?: string; button_text?: string; button_url?: string; button_action?: string }>; 
   portfolio: Array<{ title?: string; category?: string; description?: string; project_url?: string; image?: string; image_url?: string }>;
   blog: Array<{ title?: string; excerpt?: string; category?: string; slug?: string; featured_image?: string; image_url?: string }>;
-  flex: Array<{ title?: string; subtitle?: string; content?: string; section_type?: string; is_published?: boolean }>;
+  flex: Array<{ title?: string; subtitle?: string; content?: string; section_type?: string; is_published?: boolean; link_text?: string; link_url?: string; button_text?: string; button_url?: string; image?: string; image_url?: string }>; 
 };
 
 type Props = { data: SiteData };
@@ -67,10 +70,27 @@ function isExternal(url?: string) {
   return !!url && /^https?:\/\//.test(url);
 }
 
-function getActionUrl(url?: string, fallback = '#contacto') {
+function openChatwoot() {
+  const w = window as unknown as { $chatwoot?: { toggle?: (state?: string) => void } };
+  if (w.$chatwoot?.toggle) w.$chatwoot.toggle('open');
+}
+
+function getActionUrl(action?: string, url?: string, fallback = '#contacto', whatsapp?: string) {
+  const normalized = (action || '').trim().toLowerCase();
+  if (normalized === 'whatsapp') {
+    const phone = (whatsapp || '').replace(/[^0-9]/g, '');
+    return phone ? `https://wa.me/${phone}` : fallback;
+  }
+  if (normalized === 'chat') return '#chatwoot';
+  if (normalized === 'form') return '#contacto';
   if (!url) return fallback;
-  if (url === 'chatwoot' || url === 'chat') return '#chatwoot';
   return url;
+}
+
+function handleActionClick(action?: string) {
+  if ((action || '').trim().toLowerCase() === 'chat') {
+    openChatwoot();
+  }
 }
 
 function ImageBox({ src, alt, className = '' }: { src?: string; alt: string; className?: string }) {
@@ -95,6 +115,7 @@ export default function HomeClient({ data }: Props) {
   const primaryColor = site.primary_color || '#002147';
   const secondaryColor = site.secondary_color || '#D4AF37';
   const backgroundColor = site.background_color || '#F7F3EA';
+  const promoPopup = data.flex.find((item) => item.is_published !== false && item.section_type === 'promo_popup');
 
   return (
     <main className="min-h-screen overflow-hidden text-slate-950" style={{ ['--brand' as string]: primaryColor, ['--gold' as string]: secondaryColor, backgroundColor }}>
@@ -114,10 +135,10 @@ export default function HomeClient({ data }: Props) {
               {home.hero_subtitle || 'Desde la estrategia hasta la ejecución, hacemos crecer tu presencia digital.'}
             </p>
             <div className="mt-9 flex flex-col gap-4 sm:flex-row">
-              <a href={getActionUrl(home.primary_button_url)} className="inline-flex items-center justify-center gap-3 rounded-xl bg-[#D4AF37] px-6 py-4 text-sm font-bold text-[#002147] shadow-[0_18px_40px_rgba(0,0,0,.22)] transition hover:-translate-y-1">
+              <a href={getActionUrl(home.primary_button_action, home.primary_button_url, '#contacto', contact.whatsapp)} onClick={() => handleActionClick(home.primary_button_action)} target={isExternal(getActionUrl(home.primary_button_action, home.primary_button_url, '#contacto', contact.whatsapp)) ? '_blank' : undefined} rel="noreferrer" className="inline-flex items-center justify-center gap-3 rounded-xl bg-[#D4AF37] px-6 py-4 text-sm font-bold text-[#002147] shadow-[0_18px_40px_rgba(0,0,0,.22)] transition hover:-translate-y-1">
                 {home.primary_button_text || 'Solicitar propuesta'} <ArrowRight size={17} />
               </a>
-              <a href={getActionUrl(home.secondary_button_url, '#servicios')} className="inline-flex items-center justify-center gap-3 rounded-xl border border-white/25 bg-white/5 px-6 py-4 text-sm font-bold text-white transition hover:-translate-y-1 hover:bg-white/10">
+              <a href={getActionUrl(home.secondary_button_action, home.secondary_button_url, '#servicios', contact.whatsapp)} onClick={() => handleActionClick(home.secondary_button_action)} target={isExternal(getActionUrl(home.secondary_button_action, home.secondary_button_url, '#servicios', contact.whatsapp)) ? '_blank' : undefined} rel="noreferrer" className="inline-flex items-center justify-center gap-3 rounded-xl border border-white/25 bg-white/5 px-6 py-4 text-sm font-bold text-white transition hover:-translate-y-1 hover:bg-white/10">
                 {home.secondary_button_text || 'Ver servicios'} <ArrowRight size={17} />
               </a>
             </div>
@@ -167,7 +188,7 @@ export default function HomeClient({ data }: Props) {
                   )}
                   <h3 className="text-xl font-semibold text-[#002147]">{s.title}</h3>
                   <p className="mt-3 min-h-[84px] leading-7 text-slate-600">{s.description}</p>
-                  <a href={getActionUrl(s.button_url, '#contacto')} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#002147] group-hover:text-[#D4AF37]">
+                  <a href={getActionUrl(s.button_action, s.button_url, '#contacto', contact.whatsapp)} onClick={() => handleActionClick(s.button_action)} target={isExternal(getActionUrl(s.button_action, s.button_url, '#contacto', contact.whatsapp)) ? '_blank' : undefined} rel="noreferrer" className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#002147] group-hover:text-[#D4AF37]">
                     {s.button_text || 'Saber más'} <ArrowRight size={15} />
                   </a>
                 </motion.article>
@@ -286,6 +307,7 @@ export default function HomeClient({ data }: Props) {
         </div>
         <div className="mx-auto mt-10 max-w-6xl border-t border-white/10 pt-6 text-sm text-white/45">© 2026 D-Solution. Todos los derechos reservados.</div>
       </footer>
+      <PromoPopup promo={promoPopup} />
     </main>
   );
 }

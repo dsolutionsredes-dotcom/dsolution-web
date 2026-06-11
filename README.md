@@ -1,13 +1,36 @@
-# D-Solution Web - Fase 9 Blog Directus Fix
-
-Corrección para que la sección Blog lea artículos reales desde Directus (`blog_posts`) y no use las tarjetas por defecto cuando existen publicaciones.
+# D-Solution Web - Fase 10
 
 Incluye:
-- Diseño premium estándar
+- Diseño premium actual
+- Logo oficial como favicon y en navegación
 - Directus conectado
-- Imágenes editables
-- Portfolio dinámico
-- Blog dinámico
+- Portfolio y Blog dinámicos
+- Imágenes desde Directus
 - Chatwoot integrado
+- Botones activos desde Directus
+- Banner popup promocional desde Flex Sections
 
-Subir el contenido interno al repositorio `dsolution-web` y hacer Deploy en EasyPanel.
+## Botones activos
+En Directus > Home Page:
+- primary_button_action
+- secondary_button_action
+
+Valores recomendados:
+- section: ir a una sección, usando URL tipo #contacto
+- whatsapp: abrir WhatsApp
+- chat: abrir Chatwoot
+- external: abrir enlace externo
+- form: ir a contacto
+
+## Banner popup de promociones
+En Directus > Flex Sections crea un item:
+- section_type: promo_popup
+- title: título de promoción
+- subtitle: texto breve
+- content: texto adicional opcional
+- link_url: enlace de destino
+- link_text: texto del botón
+- image_url: URL de imagen opcional
+- is_published: activo
+
+Si no existe un item promo_popup publicado, no aparece banner.

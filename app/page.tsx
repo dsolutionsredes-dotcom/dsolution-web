@@ -54,7 +54,7 @@ function assetUrl(file?: unknown) {
   return `${directusUrl}/assets/${fileId}`;
 }
 
-function normalizeAssets(site: any, home: any, about: any, services: any[], portfolio: any[], blog: any[]) {
+function normalizeAssets(site: any, home: any, about: any, services: any[], portfolio: any[], blog: any[], flex: any[]) {
   return {
     site,
     home: {
@@ -77,6 +77,10 @@ function normalizeAssets(site: any, home: any, about: any, services: any[], port
       ...item,
       image_url: item.image_url || assetUrl(item.featured_image || item.image),
     })),
+    flex: flex.map((item) => ({
+      ...item,
+      image_url: item.image_url || assetUrl(item.image),
+    })),
   };
 }
 
@@ -93,6 +97,8 @@ const fallback: SiteData = {
     primary_button_url: '#contacto',
     secondary_button_text: 'Ver servicios',
     secondary_button_url: '#servicios',
+    primary_button_action: 'section',
+    secondary_button_action: 'section',
     trusted_logos: 'Google, Meta, TikTok, WordPress',
   },
   about: {
@@ -139,7 +145,7 @@ export default async function Home() {
     getItems('flex_sections', fallback.flex),
   ]);
 
-  const normalized = normalizeAssets(site, home, about, services, portfolio, blog);
+  const normalized = normalizeAssets(site, home, about, services, portfolio, blog, flex);
 
   return <HomeClient data={{
     site: normalized.site,
@@ -149,6 +155,6 @@ export default async function Home() {
     services: normalized.services,
     portfolio: normalized.portfolio,
     blog: normalized.blog,
-    flex,
+    flex: normalized.flex,
   }} />;
 }
