@@ -18,7 +18,7 @@ async function getItem<T>(collection: string, fallback: T): Promise<T> {
   }
 }
 
-async function getItems<T extends { is_published?: boolean; sort?: number; id?: number }>(collection: string, fallback: T[]): Promise<T[]> {
+async function getItems<T extends Record<string, any>>(collection: string, fallback: T[]): Promise<T[]> {
   try {
     const url = `${directusUrl}/items/${collection}?fields=*&timestamp=${Date.now()}`;
     const res = await fetch(url, { cache: 'no-store', next: { revalidate: 0 } });
@@ -27,7 +27,7 @@ async function getItems<T extends { is_published?: boolean; sort?: number; id?: 
     if (!Array.isArray(json.data)) return fallback;
 
     const published = json.data.filter((item) => item.is_published !== false);
-    const sorted = published.sort((a, b) => (a.sort ?? a.id ?? 9999) - (b.sort ?? b.id ?? 9999));
+    const sorted = published.sort((a, b) => Number(a.sort ?? a.id ?? 9999) - Number(b.sort ?? b.id ?? 9999));
     return sorted.length ? sorted : fallback;
   } catch {
     return fallback;
