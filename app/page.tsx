@@ -18,12 +18,18 @@ async function getItem<T>(collection: string, fallback: T): Promise<T> {
   }
 }
 
-async function getItems<T>(collection: string, fallback: T[]): Promise<T[]> {
+async function getItems<T extends { is_published?: boolean; sort?: number }>(collection: string, fallback: T[]): Promise<T[]> {
   try {
-    const res = await fetch(`${directusUrl}/items/${collection}?fields=*&filter[is_published][_eq]=true&sort=sort`, { cache: 'no-store' });
+    // Fetch everything first, then filter/sort in Next.js.
+    // This avoids Directus public-policy issues with URL filters/sort parameters.
+    const res = await fetch(`${directusUrl}/items/${collection}?fields=*`, { cache: 'no-store' });
     if (!res.ok) return fallback;
     const json = (await res.json()) as DirectusResponse<T>;
-    return Array.isArray(json.data) ? json.data : fallback;
+    if (!Array.isArray(json.data)) return fallback;
+
+    const published = json.data.filter((item) => item.is_published !== false);
+    const sorted = published.sort((a, b) => (a.sort ?? 9999) - (b.sort ?? 9999));
+    return sorted.length ? sorted : fallback;
   } catch {
     return fallback;
   }
