@@ -2,7 +2,7 @@ import HomeClient, { type SiteData } from '@/components/HomeClient';
 
 export const dynamic = 'force-dynamic';
 
-const directusUrl = process.env.DIRECTUS_URL || process.env.NEXT_PUBLIC_DIRECTUS_URL || 'https://admin.d-solution.org';
+const directusUrl = (process.env.DIRECTUS_URL || process.env.NEXT_PUBLIC_DIRECTUS_URL || 'https://admin.d-solution.org').replace(/\/$/, '');
 
 type DirectusResponse<T> = { data?: T | T[] | null };
 
@@ -18,17 +18,16 @@ async function getItem<T>(collection: string, fallback: T): Promise<T> {
   }
 }
 
-async function getItems<T extends { is_published?: boolean; sort?: number }>(collection: string, fallback: T[]): Promise<T[]> {
+async function getItems<T extends { is_published?: boolean; sort?: number; id?: number }>(collection: string, fallback: T[]): Promise<T[]> {
   try {
-    // Fetch everything first, then filter/sort in Next.js.
-    // This avoids Directus public-policy issues with URL filters/sort parameters.
-    const res = await fetch(`${directusUrl}/items/${collection}?fields=*`, { cache: 'no-store' });
+    const url = `${directusUrl}/items/${collection}?fields=*&timestamp=${Date.now()}`;
+    const res = await fetch(url, { cache: 'no-store', next: { revalidate: 0 } });
     if (!res.ok) return fallback;
     const json = (await res.json()) as DirectusResponse<T>;
     if (!Array.isArray(json.data)) return fallback;
 
     const published = json.data.filter((item) => item.is_published !== false);
-    const sorted = published.sort((a, b) => (a.sort ?? 9999) - (b.sort ?? 9999));
+    const sorted = published.sort((a, b) => (a.sort ?? a.id ?? 9999) - (b.sort ?? b.id ?? 9999));
     return sorted.length ? sorted : fallback;
   } catch {
     return fallback;

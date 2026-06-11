@@ -1,12 +1,13 @@
-# D-Solution Web - Fase 6
+# D-Solution Web - Fase 9 Blog Directus Fix
 
-Incluye diseño premium, Directus, Chatwoot e imágenes editables desde Directus.
+Corrección para que la sección Blog lea artículos reales desde Directus (`blog_posts`) y no use las tarjetas por defecto cuando existen publicaciones.
 
-Campos usados:
-- Home Page: hero_image
-- About Page: about_image
-- Portfolio: image
-- Blog Posts: featured_image
-- Services: image (opcional)
+Incluye:
+- Diseño premium estándar
+- Directus conectado
+- Imágenes editables
+- Portfolio dinámico
+- Blog dinámico
+- Chatwoot integrado
 
-Subir el contenido de esta carpeta al repositorio `dsolution-web` y hacer Deploy en EasyPanel.
+Subir el contenido interno al repositorio `dsolution-web` y hacer Deploy en EasyPanel.
