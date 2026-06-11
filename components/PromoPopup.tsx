@@ -56,14 +56,14 @@ export default function PromoPopup({ promo }: { promo?: PromoData }) {
       <button
         aria-label="Cerrar promoción"
         onClick={close}
-        className="absolute inset-0 bg-[#002147]/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-[#002147]/72 backdrop-blur-[6px]"
       />
 
       <motion.div
         initial={{ opacity: 0, y: 22, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.35 }}
-        className="relative z-[91] max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-[2rem] border border-[#D4AF37]/35 bg-white shadow-[0_40px_110px_rgba(0,33,71,.38)]"
+        className="relative z-[91] grid max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-[2rem] border border-[#D4AF37]/30 bg-white shadow-[0_40px_110px_rgba(0,33,71,.38)] md:grid-cols-[.92fr_1.08fr]"
       >
         <button
           onClick={close}
@@ -73,18 +73,29 @@ export default function PromoPopup({ promo }: { promo?: PromoData }) {
           <X size={18} />
         </button>
 
-        {promo.image_url && (
-          <div className="h-48 bg-[#002147] md:h-64">
-            <img src={promo.image_url} alt={promo.title} className="h-full w-full object-cover" />
-          </div>
-        )}
+        <div className="relative min-h-[260px] bg-[#F7F3EA] md:min-h-[470px]">
+          {promo.image_url ? (
+            <img
+              src={promo.image_url}
+              alt={promo.title}
+              className="h-full w-full object-contain p-4 md:p-6"
+            />
+          ) : (
+            <div className="flex h-full min-h-[260px] items-center justify-center bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,55,.35),transparent_34%),linear-gradient(135deg,#09233d,#061523)] p-8 text-center text-white/80 md:min-h-[470px]">
+              <div>
+                <img src="/logo.png" alt="D-Solution" className="mx-auto mb-5 h-20 w-20 rounded-full object-cover" />
+                <p className="text-sm font-semibold uppercase tracking-[.25em] text-[#D4AF37]">D-Solution</p>
+              </div>
+            </div>
+          )}
+        </div>
 
-        <div className="p-6 md:p-8">
+        <div className="flex flex-col justify-center p-6 md:p-10">
           <p className="text-xs font-bold uppercase tracking-[.24em] text-[#D4AF37]">Promoción</p>
-          <h3 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight text-[#002147] md:text-4xl">{promo.title}</h3>
-          {promo.subtitle && <p className="mt-4 max-w-2xl leading-7 text-slate-600">{promo.subtitle}</p>}
-          {content && !isValidLink(content) && <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500">{content}</p>}
-          <div className="mt-6 flex flex-wrap gap-3">
+          <h3 className="mt-3 text-3xl font-semibold tracking-tight text-[#002147] md:text-4xl">{promo.title}</h3>
+          {promo.subtitle && <p className="mt-4 leading-7 text-slate-600">{promo.subtitle}</p>}
+          {content && !isValidLink(content) && <p className="mt-3 text-sm leading-6 text-slate-500">{content}</p>}
+          <div className="mt-7 flex flex-wrap gap-3">
             {link && (
               <a
                 href={link}
