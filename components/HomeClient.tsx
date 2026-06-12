@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Camera, Code2, Megaphone, Sparkles, Bot, Palette, ArrowRight, CheckCircle2, Mail, MapPin, Phone } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import PromoPopup from '@/components/PromoPopup';
@@ -116,6 +117,48 @@ export default function HomeClient({ data }: Props) {
   const secondaryColor = site.secondary_color || '#D4AF37';
   const backgroundColor = site.background_color || '#F7F3EA';
   const promoPopup = data.flex.find((item) => item.is_published !== false && item.section_type === 'promo_popup');
+  const webhookUrl = contact.n8n_webhook_url || process.env.NEXT_PUBLIC_CONTACT_WEBHOOK_URL || 'https://n8n.d-solution.org/webhook-test/dsolution-contact';
+  const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [formMessage, setFormMessage] = useState('');
+
+  async function handleContactSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const payload = {
+      name: String(formData.get('name') || '').trim(),
+      email: String(formData.get('email') || '').trim(),
+      phone: String(formData.get('phone') || '').trim(),
+      company: String(formData.get('company') || '').trim(),
+      message: String(formData.get('message') || '').trim(),
+      source: 'd-solution.org',
+      page: typeof window !== 'undefined' ? window.location.href : 'https://d-solution.org',
+    };
+
+    if (!payload.name || !payload.email || !payload.message) {
+      setFormStatus('error');
+      setFormMessage('Completa nombre, email y mensaje.');
+      return;
+    }
+
+    try {
+      setFormStatus('sending');
+      setFormMessage('Enviando mensaje...');
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) throw new Error('Webhook error');
+      setFormStatus('success');
+      setFormMessage('Mensaje enviado correctamente. Te contactaremos pronto.');
+      form.reset();
+    } catch {
+      setFormStatus('error');
+      setFormMessage('No se pudo enviar el mensaje. Intenta nuevamente o escríbenos por WhatsApp.');
+    }
+  }
 
   return (
     <main className="min-h-screen overflow-hidden text-slate-950" style={{ ['--brand' as string]: primaryColor, ['--gold' as string]: secondaryColor, backgroundColor }}>
@@ -290,11 +333,18 @@ export default function HomeClient({ data }: Props) {
               <p className="flex items-center gap-3"><MapPin size={18} className="text-[#D4AF37]" /> {[contact.city, contact.country].filter(Boolean).join(', ')}</p>
             </div>
           </div>
-          <form className="grid gap-4">
-            <div className="grid gap-4 md:grid-cols-2"><input className="rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder="Nombre completo" /><input className="rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder="Email" /></div>
-            <input className="rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder="Teléfono / WhatsApp" />
-            <textarea className="h-32 rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder="Cuéntanos sobre tu proyecto" />
-            <button type="button" className="rounded-xl bg-[#D4AF37] px-6 py-4 font-bold text-[#002147] transition hover:-translate-y-1">Enviar mensaje</button>
+          <form onSubmit={handleContactSubmit} className="grid gap-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <input name="name" required className="rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder="Nombre completo" />
+              <input name="email" type="email" required className="rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder="Email" />
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <input name="phone" className="rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder="Teléfono / WhatsApp" />
+              <input name="company" className="rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder="Empresa / Proyecto" />
+            </div>
+            <textarea name="message" required className="h-32 rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder="Cuéntanos sobre tu proyecto" />
+            <button type="submit" disabled={formStatus === 'sending'} className="rounded-xl bg-[#D4AF37] px-6 py-4 font-bold text-[#002147] transition hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-60">{formStatus === 'sending' ? 'Enviando...' : 'Enviar mensaje'}</button>
+            {formMessage && <p className={`text-sm font-semibold ${formStatus === 'success' ? 'text-emerald-300' : formStatus === 'error' ? 'text-red-200' : 'text-white/75'}`}>{formMessage}</p>}
           </form>
         </div>
       </section>

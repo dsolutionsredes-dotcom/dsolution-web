@@ -106,7 +106,6 @@ export default function PromoPopup({ promo }: { promo?: PromoData }) {
                 {text} <ArrowRight size={16} />
               </a>
             )}
-            <button onClick={close} className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-[#002147] hover:bg-slate-50">Cerrar</button>
           </div>
         </div>
       </motion.div>
