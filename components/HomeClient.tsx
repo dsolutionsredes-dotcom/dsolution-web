@@ -117,7 +117,7 @@ export default function HomeClient({ data }: Props) {
   const secondaryColor = site.secondary_color || '#D4AF37';
   const backgroundColor = site.background_color || '#F7F3EA';
   const promoPopup = data.flex.find((item) => item.is_published !== false && item.section_type === 'promo_popup');
-  const webhookUrl = contact.n8n_webhook_url || process.env.NEXT_PUBLIC_CONTACT_WEBHOOK_URL || 'https://n8n.d-solution.org/webhook-test/dsolution-contact';
+  const webhookUrl = contact.n8n_webhook_url || process.env.NEXT_PUBLIC_CONTACT_WEBHOOK_URL || 'https://n8n.d-solution.org/webhook/dsolution-contact';
   const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [formMessage, setFormMessage] = useState('');
 
