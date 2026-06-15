@@ -7,8 +7,9 @@ import { ArrowLeft, ArrowRight, CheckCircle2, Sparkles, BarChart3, Radio, Camera
 
 type Locale = 'es' | 'en';
 
-type SectionList = string[];
+type SectionList = readonly string[];
 type CaseItem = { title: string; summary: string; result: string };
+type CaseList = readonly CaseItem[];
 
 type Content = {
   heroEyebrow: string;
@@ -21,7 +22,7 @@ type Content = {
   audienceTitle: string;
   audience: SectionList;
   examplesTitle: string;
-  examples: CaseItem[];
+  examples: CaseList;
   resultsTitle: string;
   results: SectionList;
   finalTitle: string;

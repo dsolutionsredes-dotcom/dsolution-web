@@ -105,5 +105,5 @@ const localeContent = {
 } as const;
 
 export default function AudiovisualPage() {
-  return <ServicePageClient serviceKey="audiovisual" localeContent={localeContent} variant="immersive" />;
+  return <ServicePageClient serviceKey="audiovisual" localeContent={localeContent as any} variant="immersive" />;
 }
