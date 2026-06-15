@@ -333,6 +333,45 @@ function handleActionClick(action?: string) {
   if ((action || '').trim().toLowerCase() === 'chat') openChatwoot();
 }
 
+
+function getWhatsappHref(phone?: string, text?: string) {
+  const normalized = (phone || '').replace(/[^0-9]/g, '');
+  if (!normalized) return '#contacto';
+  const message = text ? `?text=${encodeURIComponent(text)}` : '';
+  return `https://wa.me/${normalized}${message}`;
+}
+
+function slugifyService(title?: string) {
+  return (title || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/&/g, ' y ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function getServiceHref(title?: string, locale?: Locale) {
+  const map: Record<string, string> = {
+    'tecnologia-audiovisual': '/servicios/tecnologia-audiovisual',
+    'marketing-digital': '/servicios/marketing-digital',
+    'desarrollo-web': '/servicios/desarrollo-web',
+    'automatizacion-e-ia': '/servicios/automatizacion-ia',
+    'branding-y-diseno': '/servicios/branding-diseno',
+    'branding-y-diseno': '/servicios/branding-diseno',
+    'fotografia-profesional': '/servicios/fotografia-profesional',
+    'audiovisual-technology': '/servicios/tecnologia-audiovisual',
+    'digital-marketing': '/servicios/marketing-digital',
+    'web-development': '/servicios/desarrollo-web',
+    'automation-ai': '/servicios/automatizacion-ia',
+    'branding-design': '/servicios/branding-diseno',
+    'professional-photography': '/servicios/fotografia-profesional',
+  };
+  const slug = slugifyService(title);
+  const href = map[slug] || '/#servicios';
+  return locale === 'en' ? `/en${href}` : href;
+}
+
 function ImageBox({ src, alt, className = '' }: { src?: string; alt: string; className?: string }) {
   if (src) return <img src={src} alt={alt} className={`h-full w-full object-cover ${className}`} />;
   return (
