@@ -358,7 +358,6 @@ function getServiceHref(title?: string, locale?: Locale) {
     'desarrollo-web': '/servicios/desarrollo-web',
     'automatizacion-e-ia': '/servicios/automatizacion-ia',
     'branding-y-diseno': '/servicios/branding-diseno',
-    'branding-y-diseno': '/servicios/branding-diseno',
     'fotografia-profesional': '/servicios/fotografia-profesional',
     'audiovisual-technology': '/servicios/tecnologia-audiovisual',
     'digital-marketing': '/servicios/marketing-digital',
