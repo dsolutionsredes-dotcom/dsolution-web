@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Camera, Code2, Megaphone, Bot, Palette, ArrowRight, CheckCircle2, Mail, MapPin, Phone, Radio, Mic, Lightbulb } from 'lucide-react';
+import { Camera, Code2, Megaphone, Bot, Palette, ArrowRight, CheckCircle2, Mail, MapPin, Radio, Mic, Lightbulb } from 'lucide-react';
 import Navbar, { type NavLink } from '@/components/Navbar';
 import PromoPopup from '@/components/PromoPopup';
 import { motion } from '@/components/Motion';
@@ -155,12 +155,12 @@ const LOCALES: Record<Locale, LocaleCopy> = {
       title: 'Soluciones creativas para impulsar tu negocio',
       button: 'Saber más',
       defaults: [
-        { title: 'Tecnología audiovisual', description: 'Audio, video, luces y soporte técnico para producciones, eventos y experiencias en vivo.' },
-        { title: 'Streaming', description: 'Producción y soporte para transmisiones en directo, webinars, podcasts y eventos híbridos.' },
-        { title: 'Marketing digital', description: 'Google Ads, Analytics, Tag Manager y campañas pensadas para resultados medibles.' },
-        { title: 'Branding & Diseño', description: 'Identidad visual, materiales digitales y diseño con enfoque estratégico.' },
-        { title: 'Desarrollo web', description: 'Sitios web y landings rápidas, elegantes y optimizadas para convertir.' },
-        { title: 'Automatización e IA', description: 'Procesos automáticos y soluciones inteligentes para ahorrar tiempo y escalar mejor.' },
+        { title: 'Tecnología audiovisual', description: 'Audio, video, luces, streaming y soporte técnico para producciones, eventos y experiencias en vivo.' },
+        { title: 'Marketing digital', description: 'Google Ads, Analytics, Tag Manager y campañas diseñadas para resultados medibles.' },
+        { title: 'Desarrollo web', description: 'Sitios web corporativos, landings y experiencias digitales rápidas, elegantes y optimizadas.' },
+        { title: 'Automatización e IA', description: 'Procesos automáticos, agentes, integraciones y soluciones inteligentes para escalar mejor.' },
+        { title: 'Branding y diseño', description: 'Identidad visual, creatividades y piezas visuales para campañas, contenidos y lanzamientos.' },
+        { title: 'Fotografía profesional', description: 'Fotografía comercial, de producto y de marca para comunicar con una imagen sólida.' },
       ],
     },
     about: {
@@ -374,16 +374,19 @@ export default function HomeClient({ data }: Props) {
   const copy = LOCALES[locale];
 
   const localizedServices = useMemo<Props['data']['services']>(
-    () => (locale === 'es'
-      ? data.services
-      : data.services.length
-        ? data.services.map((service, index) => ({
-            ...service,
-            title: copy.services.defaults[index]?.title || service.title,
-            description: copy.services.defaults[index]?.description || service.description,
-            button_text: copy.services.button,
-          }))
-        : copy.services.defaults.map((item) => ({ ...item, image_url: undefined, button_text: copy.services.button, button_url: undefined, button_action: undefined }))),
+    () =>
+      copy.services.defaults.map((item, index) => {
+        const source = data.services[index] || {};
+        return {
+          ...source,
+          title: item.title,
+          description: locale === 'en' ? item.description : source.description || item.description,
+          image_url: source.image_url,
+          button_text: copy.services.button,
+          button_url: getServiceHref(item.title, locale),
+          button_action: undefined,
+        };
+      }),
     [copy.services.button, copy.services.defaults, data.services, locale],
   );
 
@@ -588,9 +591,33 @@ export default function HomeClient({ data }: Props) {
             <p className="text-xs font-bold uppercase tracking-[.25em] text-[#D4AF37]">{copy.contact.eyebrow}</p>
             <h2 className="mt-3 text-3xl font-semibold md:text-5xl">{copy.contact.title}</h2>
             <div className="mt-8 space-y-4 text-white/82">
-              <p className="flex items-center gap-3"><Mail size={18} className="text-[#D4AF37]" /> {contact.email}</p>
-              <p className="flex items-center gap-3"><Phone size={18} className="text-[#D4AF37]" /> {contact.whatsapp}</p>
-              <p className="flex items-center gap-3"><MapPin size={18} className="text-[#D4AF37]" /> {[contact.city, contact.country].filter(Boolean).join(', ')}</p>
+              <a href={contact.email ? `mailto:${contact.email}` : '#contacto'} className="flex items-center gap-3 transition hover:text-white">
+                <Mail size={18} className="text-[#D4AF37]" />
+                <span>{contact.email}</span>
+              </a>
+              <a
+                href={getWhatsappHref(contact.whatsapp, locale === 'en' ? 'Hello, I would like more information about your services.' : 'Hola, quiero información sobre sus servicios.')}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-3 transition hover:text-white"
+              >
+                <img
+                  src="/whatsapp-icon.png"
+                  alt="WhatsApp"
+                  className="h-[18px] w-[18px] object-contain"
+                  style={{ filter: 'brightness(0) saturate(100%) invert(76%) sepia(58%) saturate(547%) hue-rotate(357deg) brightness(90%) contrast(92%)' }}
+                />
+                <span>{contact.whatsapp}</span>
+              </a>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([contact.city, contact.country].filter(Boolean).join(', '))}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-3 transition hover:text-white"
+              >
+                <MapPin size={18} className="text-[#D4AF37]" />
+                <span>{[contact.city, contact.country].filter(Boolean).join(', ')}</span>
+              </a>
             </div>
           </div>
           <form onSubmit={handleContactSubmit} className="grid gap-4">
@@ -608,6 +635,16 @@ export default function HomeClient({ data }: Props) {
           </form>
         </div>
       </section>
+
+      <a
+        href={getWhatsappHref(contact.whatsapp, locale === 'en' ? 'Hello, I would like more information about your services.' : 'Hola, quiero información sobre sus servicios.')}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Abrir WhatsApp"
+        className="fixed bottom-6 right-6 z-50 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#D4AF37] shadow-[0_18px_40px_rgba(0,33,71,.25)] transition hover:-translate-y-1 hover:shadow-[0_24px_45px_rgba(0,33,71,.32)]"
+      >
+        <img src="/whatsapp-icon.png" alt="WhatsApp" className="h-8 w-8 object-contain" />
+      </a>
 
       <footer className="bg-[#002147] px-5 py-12 text-white md:px-8">
         <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[1.2fr_.8fr_.8fr]">

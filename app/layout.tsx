@@ -4,7 +4,7 @@ import ChatwootWidget from '@/components/ChatwootWidget';
 
 const siteUrl = 'https://d-solution.org';
 const seoTitle = 'D-Solution | Agencia digital en Barcelona';
-const seoDescription = 'Agencia digital en Barcelona especializada en tecnología audiovisual, streaming, marketing digital, desarrollo web, automatización e inteligencia artificial.';
+const seoDescription = 'Tecnología audiovisual, streaming, marketing digital, desarrollo web, automatización e inteligencia artificial.';
 const seoImage = '/seo-image.jpg';
 
 export const metadata: Metadata = {
