@@ -8,8 +8,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2, Sparkles, BarChart3, Radio, Camera
 type Locale = 'es' | 'en';
 
 type SectionList = readonly string[];
-type CaseItem = { title: string; summary: string; result: string };
-type CaseList = readonly CaseItem[];
+type CaseItem = Readonly<{ title: string; summary: string; result: string }>;
 
 type Content = {
   heroEyebrow: string;
@@ -22,7 +21,7 @@ type Content = {
   audienceTitle: string;
   audience: SectionList;
   examplesTitle: string;
-  examples: CaseList;
+  examples: readonly CaseItem[];
   resultsTitle: string;
   results: SectionList;
   finalTitle: string;

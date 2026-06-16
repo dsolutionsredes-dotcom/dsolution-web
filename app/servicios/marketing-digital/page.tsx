@@ -105,5 +105,5 @@ const localeContent = {
 } as const;
 
 export default function MarketingPage() {
-  return <ServicePageClient serviceKey="marketing" localeContent={localeContent as any} variant="editorial" />;
+  return <ServicePageClient serviceKey="marketing" localeContent={localeContent} variant="editorial" />;
 }

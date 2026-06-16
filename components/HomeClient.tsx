@@ -241,12 +241,12 @@ const LOCALES: Record<Locale, LocaleCopy> = {
       title: 'Creative solutions to move your business forward',
       button: 'Learn more',
       defaults: [
-        { title: 'Audiovisual technology', description: 'Audio, video, lighting and technical support for productions, events and live experiences.' },
-        { title: 'Streaming', description: 'Production and support for livestreams, webinars, podcasts and hybrid events.' },
+        { title: 'Audiovisual technology', description: 'Audio, video, lighting, streaming and technical support for productions, events and live experiences.' },
         { title: 'Digital marketing', description: 'Google Ads, Analytics, Tag Manager and campaigns built around measurable results.' },
-        { title: 'Branding & Design', description: 'Visual identity, digital assets and design with a strategic mindset.' },
         { title: 'Web development', description: 'Elegant, fast and conversion-focused websites and landing pages.' },
         { title: 'Automation & AI', description: 'Automated processes and intelligent solutions to save time and scale better.' },
+        { title: 'Branding & Design', description: 'Visual identity, digital assets and design with a strategic mindset.' },
+        { title: 'Professional photography', description: 'Commercial, product and brand photography to communicate with a stronger visual image.' },
       ],
     },
     about: {
@@ -317,6 +317,43 @@ function openChatwoot() {
   if (w.$chatwoot?.toggle) w.$chatwoot.toggle('open');
 }
 
+function normalizeServiceTitle(value: string) {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function getServiceHref(title?: string, locale: Locale = 'es') {
+  const normalized = normalizeServiceTitle(title || '');
+  const serviceMap: Record<string, string> = {
+    'tecnologia-audiovisual': '/servicios/tecnologia-audiovisual',
+    'marketing-digital': '/servicios/marketing-digital',
+    'desarrollo-web': '/servicios/desarrollo-web',
+    'automatizacion-e-ia': '/servicios/automatizacion-ia',
+    'branding-y-diseno': '/servicios/branding-diseno',
+    'fotografia-profesional': '/servicios/fotografia-profesional',
+    'audiovisual-technology': '/servicios/tecnologia-audiovisual',
+    'digital-marketing': '/servicios/marketing-digital',
+    'web-development': '/servicios/desarrollo-web',
+    'automation-and-ai': '/servicios/automatizacion-ia',
+    'branding-and-design': '/servicios/branding-diseno',
+    'professional-photography': '/servicios/fotografia-profesional',
+  };
+
+  return serviceMap[normalized] || (locale === 'en' ? '/#services' : '/#servicios');
+}
+
+function getWhatsappHref(phone?: string, message?: string) {
+  const cleanedPhone = (phone || '').replace(/[^0-9]/g, '');
+  const base = cleanedPhone ? `https://wa.me/${cleanedPhone}` : '#contacto';
+  if (!cleanedPhone || !message) return base;
+  return `${base}?text=${encodeURIComponent(message)}`;
+}
+
 function getActionUrl(action?: string, url?: string, fallback = '#contacto', whatsapp?: string) {
   const normalized = (action || '').trim().toLowerCase();
   if (normalized === 'whatsapp') {
@@ -331,44 +368,6 @@ function getActionUrl(action?: string, url?: string, fallback = '#contacto', wha
 
 function handleActionClick(action?: string) {
   if ((action || '').trim().toLowerCase() === 'chat') openChatwoot();
-}
-
-
-function getWhatsappHref(phone?: string, text?: string) {
-  const normalized = (phone || '').replace(/[^0-9]/g, '');
-  if (!normalized) return '#contacto';
-  const message = text ? `?text=${encodeURIComponent(text)}` : '';
-  return `https://wa.me/${normalized}${message}`;
-}
-
-function slugifyService(title?: string) {
-  return (title || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/&/g, ' y ')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-function getServiceHref(title?: string, locale?: Locale) {
-  const map: Record<string, string> = {
-    'tecnologia-audiovisual': '/servicios/tecnologia-audiovisual',
-    'marketing-digital': '/servicios/marketing-digital',
-    'desarrollo-web': '/servicios/desarrollo-web',
-    'automatizacion-e-ia': '/servicios/automatizacion-ia',
-    'branding-y-diseno': '/servicios/branding-diseno',
-    'fotografia-profesional': '/servicios/fotografia-profesional',
-    'audiovisual-technology': '/servicios/tecnologia-audiovisual',
-    'digital-marketing': '/servicios/marketing-digital',
-    'web-development': '/servicios/desarrollo-web',
-    'automation-ai': '/servicios/automatizacion-ia',
-    'branding-design': '/servicios/branding-diseno',
-    'professional-photography': '/servicios/fotografia-profesional',
-  };
-  const slug = slugifyService(title);
-  const href = map[slug] || '/#servicios';
-  return locale === 'en' ? `/en${href}` : href;
 }
 
 function ImageBox({ src, alt, className = '' }: { src?: string; alt: string; className?: string }) {
