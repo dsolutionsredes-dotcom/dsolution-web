@@ -673,16 +673,6 @@ export default function HomeClient({ data }: Props) {
         </div>
       </section>
 
-      <a
-        href={getWhatsappHref(contact.whatsapp, locale === 'en' ? 'Hello, I would like more information about your services.' : 'Hola, quiero información sobre sus servicios.')}
-        target="_blank"
-        rel="noreferrer"
-        aria-label="Abrir WhatsApp"
-        className="fixed bottom-6 right-6 z-50 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#D4AF37] shadow-[0_18px_40px_rgba(0,33,71,.25)] transition hover:-translate-y-1 hover:shadow-[0_24px_45px_rgba(0,33,71,.32)]"
-      >
-        <img src="/whatsapp-icon.png" alt="WhatsApp" className="h-8 w-8 object-contain" />
-      </a>
-
       <footer className="bg-[#002147] px-5 py-12 text-white md:px-8">
         <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[1.2fr_.8fr_.8fr]">
           <div><img src="/logo.png" alt="D-Solution" className="mb-4 h-16 w-16 rounded-full object-cover" /><h3 className="text-2xl font-semibold">{site.site_name || 'D-Solution'}</h3><p className="mt-3 max-w-sm text-white/65">{locale === 'en' ? copy.footer.description : site.footer_text || copy.footer.description}</p></div>

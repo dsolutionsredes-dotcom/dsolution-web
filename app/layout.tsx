@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import ChatwootWidget from '@/components/ChatwootWidget';
+import FloatingWhatsApp from '@/components/FloatingWhatsApp';
 
 const siteUrl = 'https://d-solution.org';
 const seoTitle = 'D-Solution | Agencia digital en Barcelona';
@@ -91,6 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
         {children}
+        <FloatingWhatsApp />
         <ChatwootWidget />
       </body>
     </html>

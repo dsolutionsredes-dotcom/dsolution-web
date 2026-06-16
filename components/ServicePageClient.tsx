@@ -1,9 +1,24 @@
-
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, CheckCircle2, Sparkles, BarChart3, Radio, Camera, Megaphone, Target, Layers3, Workflow } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  BarChart3,
+  Camera,
+  CheckCircle2,
+  CircleDot,
+  Layers3,
+  LineChart,
+  Megaphone,
+  MonitorPlay,
+  Radio,
+  Sparkles,
+  Target,
+  Workflow,
+  Zap,
+} from 'lucide-react';
 
 type Locale = 'es' | 'en';
 
@@ -36,129 +51,191 @@ type Props = {
 
 const LOCALE_KEY = 'dsolution-language';
 
-const variantClasses = {
-  immersive: {
-    page: 'bg-[radial-gradient(circle_at_top,rgba(212,175,55,.18),transparent_20%),linear-gradient(180deg,#061523 0%,#0B2340 35%,#F7F3EA 100%)]',
-    card: 'border border-white/10 bg-white/6 text-white shadow-[0_20px_45px_rgba(0,0,0,.25)] backdrop-blur-sm',
-    heading: 'text-white',
-    muted: 'text-white/72',
-    accent: 'text-[#D4AF37]',
-    panel: 'border border-slate-200 bg-white text-slate-800 shadow-[0_18px_40px_rgba(0,33,71,.08)]',
+const iconSet = {
+  audiovisual: [Radio, Camera, MonitorPlay, Layers3],
+  marketing: [Megaphone, Target, LineChart, Workflow],
+} as const;
+
+const serviceMicrocopy = {
+  audiovisual: {
+    es: ['Audio', 'Video', 'Luces', 'Streaming'],
+    en: ['Audio', 'Video', 'Lighting', 'Streaming'],
   },
-  editorial: {
-    page: 'bg-[linear-gradient(180deg,#F7F3EA 0%,#FFFFFF 28%,#F8FBFF 100%)]',
-    card: 'border border-slate-200 bg-white text-slate-800 shadow-[0_18px_40px_rgba(0,33,71,.08)]',
-    heading: 'text-[#002147]',
-    muted: 'text-slate-600',
-    accent: 'text-[#D4AF37]',
-    panel: 'border border-slate-200 bg-[#002147] text-white shadow-[0_20px_50px_rgba(0,33,71,.18)]',
+  marketing: {
+    es: ['Ads', 'Analytics', 'Tracking', 'Reporting'],
+    en: ['Ads', 'Analytics', 'Tracking', 'Reporting'],
   },
 } as const;
 
 function LocaleToggle({ locale, onChange }: { locale: Locale; onChange: (value: Locale) => void }) {
   return (
     <div className="inline-flex items-center rounded-full border border-slate-200 bg-white/90 p-1 text-sm font-semibold text-[#0B2340] shadow-sm">
-      <button type="button" onClick={() => onChange('es')} className={`rounded-full px-3 py-1.5 transition ${locale === 'es' ? 'bg-[#002147] text-white' : 'text-[#0B2340]/70'}`}>ES</button>
-      <button type="button" onClick={() => onChange('en')} className={`rounded-full px-3 py-1.5 transition ${locale === 'en' ? 'bg-[#002147] text-white' : 'text-[#0B2340]/70'}`}>EN</button>
+      <button type="button" onClick={() => onChange('es')} className={`rounded-full px-3 py-1.5 transition ${locale === 'es' ? 'bg-[#002147] text-white' : 'text-[#0B2340]/70 hover:text-[#002147]'}`}>ES</button>
+      <button type="button" onClick={() => onChange('en')} className={`rounded-full px-3 py-1.5 transition ${locale === 'en' ? 'bg-[#002147] text-white' : 'text-[#0B2340]/70 hover:text-[#002147]'}`}>EN</button>
+    </div>
+  );
+}
+
+function AbstractServiceVisual({ serviceKey, locale }: { serviceKey: Props['serviceKey']; locale: Locale }) {
+  const labels = serviceMicrocopy[serviceKey][locale];
+  const Icons = iconSet[serviceKey];
+
+  return (
+    <div className="relative overflow-hidden rounded-[2rem] border border-white/65 bg-[linear-gradient(145deg,rgba(255,255,255,.92),rgba(248,249,250,.72))] p-5 shadow-[0_28px_70px_rgba(0,33,71,.16)]">
+      <div className="absolute -right-14 -top-14 h-40 w-40 rounded-full bg-[#D4AF37]/24 blur-2xl" />
+      <div className="absolute -bottom-16 -left-16 h-44 w-44 rounded-full bg-[#00A6A6]/18 blur-2xl" />
+
+      <div className="relative rounded-[1.5rem] bg-[#002147] p-5 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12)]">
+        <div className="mb-5 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[.24em] text-[#D4AF37]">D-Solution</p>
+            <p className="mt-1 text-sm text-white/65">{serviceKey === 'audiovisual' ? 'Live setup' : 'Growth system'}</p>
+          </div>
+          <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-[#D4AF37]">
+            {serviceKey === 'audiovisual' ? <MonitorPlay size={23} /> : <BarChart3 size={23} />}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          {labels.map((label, index) => {
+            const Icon = Icons[index];
+            return (
+              <div key={label} className="group rounded-2xl border border-white/10 bg-white/[.07] p-4 transition hover:-translate-y-1 hover:bg-white/[.11]">
+                <Icon size={21} className="text-[#D4AF37]" />
+                <p className="mt-4 text-sm font-semibold text-white">{label}</p>
+                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
+                  <div className="h-full rounded-full bg-[linear-gradient(90deg,#D4AF37,#00A6A6)]" style={{ width: `${55 + index * 12}%` }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-[#D4AF37]/25 bg-[#061523]/80 p-4">
+          <div className="flex items-center gap-3">
+            <span className="relative flex h-3 w-3">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#00A6A6] opacity-50" />
+              <span className="relative inline-flex h-3 w-3 rounded-full bg-[#00A6A6]" />
+            </span>
+            <p className="text-sm font-semibold text-white">{locale === 'es' ? 'Sistema preparado para ejecución' : 'System ready for execution'}</p>
+          </div>
+          <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs text-white/68">
+            <span className="rounded-xl bg-white/5 px-2 py-2">Plan</span>
+            <span className="rounded-xl bg-white/5 px-2 py-2">Setup</span>
+            <span className="rounded-xl bg-white/5 px-2 py-2">Result</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default function ServicePageClient({ serviceKey, localeContent, variant }: Props) {
   const [locale, setLocale] = useState<Locale>('es');
+
   useEffect(() => {
     const stored = typeof window !== 'undefined' ? window.localStorage.getItem(LOCALE_KEY) : null;
     if (stored === 'en' || stored === 'es') setLocale(stored);
   }, []);
+
   const handleLocale = (value: Locale) => {
     setLocale(value);
     window.localStorage.setItem(LOCALE_KEY, value);
   };
 
   const copy = localeContent[locale];
-  const theme = variantClasses[variant];
-  const topIcon = serviceKey === 'audiovisual' ? Radio : BarChart3;
+  const mainIcon = serviceKey === 'audiovisual' ? Radio : BarChart3;
+  const MainIcon = mainIcon;
+  const Icons = useMemo(() => iconSet[serviceKey], [serviceKey]);
 
   return (
-    <main className={`min-h-screen ${theme.page}`}>
-      <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-[rgba(247,243,234,0.82)] backdrop-blur-xl">
+    <main
+      className="min-h-screen overflow-hidden bg-[#F8F9FA] text-[#002147]"
+      style={{
+        backgroundImage:
+          'radial-gradient(circle at 10% 6%, rgba(212,175,55,.18), transparent 26%), radial-gradient(circle at 92% 20%, rgba(0,166,166,.12), transparent 28%), linear-gradient(180deg,#F8F9FA 0%,#F4EFE4 52%,#FFFFFF 100%)',
+      }}
+    >
+      <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-[rgba(248,249,250,0.84)] backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 md:px-8">
           <Link href="/" className="flex items-center gap-3">
             <img src="/logo.png" alt="D-Solution" className="h-11 w-11 rounded-sm object-contain" />
-            <span className="text-lg font-semibold text-[#0B2340]">D-Solution</span>
+            <span className="text-lg font-semibold text-[#002147]">D-Solution</span>
           </Link>
           <div className="flex items-center gap-3">
             <LocaleToggle locale={locale} onChange={handleLocale} />
-            <Link href="/#contacto" className="hidden rounded-xl bg-[#D4AF37] px-5 py-3 text-sm font-bold text-[#002147] md:inline-flex">{copy.primaryCta}</Link>
+            <Link href="/#contacto" className="hidden rounded-xl bg-[#D4AF37] px-5 py-3 text-sm font-bold text-[#002147] shadow-sm transition hover:-translate-y-0.5 md:inline-flex">{copy.primaryCta}</Link>
           </div>
         </div>
       </header>
 
-      <section className="px-5 pb-14 pt-12 md:px-8 md:pb-20 md:pt-16">
-        <div className="mx-auto max-w-6xl">
-          <Link href="/#servicios" className="inline-flex items-center gap-2 text-sm font-semibold text-[#D4AF37] hover:opacity-80">
+      <section className="relative px-5 pb-14 pt-10 md:px-8 md:pb-20 md:pt-14">
+        <div className="pointer-events-none absolute left-[-7rem] top-20 h-72 w-72 rounded-full border-[48px] border-[#D4AF37]/10" />
+        <div className="pointer-events-none absolute right-[-8rem] top-44 h-80 w-80 rounded-full border-[54px] border-[#00A6A6]/10" />
+
+        <div className="relative mx-auto max-w-6xl">
+          <Link href="/#servicios" className="inline-flex items-center gap-2 text-sm font-semibold text-[#B58F18] transition hover:text-[#002147]">
             <ArrowLeft size={16} />
             {locale === 'es' ? 'Volver a servicios' : 'Back to services'}
           </Link>
 
-          <div className={`mt-8 grid gap-8 rounded-[2rem] p-7 md:grid-cols-[1.05fr_.95fr] md:p-10 ${theme.card}`}>
-            <div>
-              <div className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#D4AF37]/15 ${theme.accent}`}>
-                {serviceKey === 'audiovisual' ? <Radio size={28} /> : <BarChart3 size={28} />}
+          <div data-variant={variant} className="mt-8 grid gap-8 rounded-[2.2rem] border border-white/70 bg-white/[.86] p-7 shadow-[0_28px_80px_rgba(0,33,71,.12)] backdrop-blur-xl md:grid-cols-[1fr_.94fr] md:p-10">
+            <div className="relative">
+              <div className="absolute -left-4 top-4 h-24 w-24 rounded-full bg-[#D4AF37]/16 blur-xl" />
+              <div className="relative inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#D4AF37]/18 text-[#002147] ring-1 ring-[#D4AF37]/22">
+                <MainIcon size={28} />
               </div>
-              <p className={`mt-6 text-xs font-bold uppercase tracking-[.28em] ${theme.accent}`}>{copy.heroEyebrow}</p>
-              <h1 className={`mt-3 text-4xl font-semibold tracking-tight md:text-6xl ${theme.heading}`}>{copy.heroTitle}</h1>
-              <p className={`mt-5 max-w-2xl text-lg leading-8 ${theme.muted}`}>{copy.heroSubtitle}</p>
+              <p className="mt-6 text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{copy.heroEyebrow}</p>
+              <h1 className="mt-3 max-w-2xl text-4xl font-semibold tracking-tight text-[#002147] md:text-6xl">{copy.heroTitle}</h1>
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-[#212529]/78">{copy.heroSubtitle}</p>
               <div className="mt-8 flex flex-wrap gap-4">
-                <Link href="/#contacto" className="inline-flex items-center gap-2 rounded-xl bg-[#D4AF37] px-6 py-3.5 font-bold text-[#002147]">{copy.primaryCta} <ArrowRight size={17} /></Link>
-                <Link href="/#portafolio" className={`inline-flex items-center gap-2 rounded-xl border px-6 py-3.5 font-semibold ${variant === 'immersive' ? 'border-white/15 text-white' : 'border-slate-300 text-[#002147]'}`}>{copy.secondaryCta}</Link>
+                <Link href="/#contacto" className="inline-flex items-center gap-2 rounded-xl bg-[#D4AF37] px-6 py-3.5 font-bold text-[#002147] shadow-[0_14px_28px_rgba(212,175,55,.28)] transition hover:-translate-y-1">{copy.primaryCta} <ArrowRight size={17} /></Link>
+                <Link href="/#portafolio" className="inline-flex items-center gap-2 rounded-xl border border-[#002147]/15 bg-white/70 px-6 py-3.5 font-semibold text-[#002147] transition hover:-translate-y-1 hover:border-[#D4AF37]">{copy.secondaryCta}</Link>
+              </div>
+
+              <div className="mt-9 flex flex-wrap gap-3">
+                {copy.results.slice(0, 3).map((item) => (
+                  <span key={item} className="inline-flex items-center gap-2 rounded-full border border-[#002147]/10 bg-[#F8F9FA] px-4 py-2 text-sm font-semibold text-[#002147]/76">
+                    <CheckCircle2 size={16} className="text-[#D4AF37]" />
+                    {item}
+                  </span>
+                ))}
               </div>
             </div>
 
-            <div className={`grid gap-4 rounded-[1.75rem] p-6 ${theme.panel}`}>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {[serviceKey === 'audiovisual' ? Radio : Megaphone, serviceKey === 'audiovisual' ? Camera : Target, serviceKey === 'audiovisual' ? Sparkles : Workflow, serviceKey === 'audiovisual' ? Layers3 : CheckCircle2].map((Icon, index) => (
-                  <div key={index} className={`rounded-2xl p-5 ${variant === 'immersive' ? 'bg-[#061523]' : 'bg-white/10'}`}>
-                    <Icon size={22} className="text-[#D4AF37]" />
-                    <p className={`mt-4 text-sm ${variant === 'immersive' ? 'text-white/78' : 'text-white/82'}`}>
-                      {copy.includes[index] || copy.results[index] || ''}
-                    </p>
-                  </div>
-                ))}
-              </div>
-              <div className={`rounded-2xl p-5 ${variant === 'immersive' ? 'bg-[#061523]' : 'bg-white/10'}`}>
-                <p className="text-sm font-semibold uppercase tracking-[.22em] text-[#D4AF37]">{copy.resultsTitle}</p>
-                <div className="mt-4 grid gap-3">
-                  {copy.results.slice(0, 3).map((item) => (
-                    <div key={item} className="flex items-start gap-3">
-                      <CheckCircle2 size={18} className="mt-0.5 text-[#D4AF37]" />
-                      <span className="text-sm text-white/82">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <AbstractServiceVisual serviceKey={serviceKey} locale={locale} />
           </div>
 
           <div className="mt-12 grid gap-8 lg:grid-cols-[.95fr_1.05fr]">
-            <section className={`rounded-[2rem] p-7 md:p-8 ${theme.card}`}>
-              <p className={`text-xs font-bold uppercase tracking-[.25em] ${theme.accent}`}>{copy.includesTitle}</p>
+            <section className="relative overflow-hidden rounded-[2rem] border border-white/75 bg-white p-7 shadow-[0_22px_60px_rgba(0,33,71,.10)] md:p-8">
+              <div className="absolute right-[-3rem] top-[-3rem] h-32 w-32 rounded-full bg-[#D4AF37]/12" />
+              <p className="text-xs font-bold uppercase tracking-[.25em] text-[#B58F18]">{copy.includesTitle}</p>
               <div className="mt-6 grid gap-4">
-                {copy.includes.map((item) => (
-                  <div key={item} className="flex items-start gap-3">
-                    <CheckCircle2 size={18} className="mt-1 text-[#D4AF37]" />
-                    <p className={theme.muted}>{item}</p>
-                  </div>
-                ))}
+                {copy.includes.map((item, index) => {
+                  const Icon = Icons[index] || CheckCircle2;
+                  return (
+                    <div key={item} className="group flex items-start gap-4 rounded-2xl border border-slate-200/75 bg-[#F8F9FA] p-4 transition hover:-translate-y-1 hover:border-[#D4AF37]/55 hover:bg-white hover:shadow-[0_16px_35px_rgba(0,33,71,.08)]">
+                      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#002147] text-[#D4AF37]">
+                        <Icon size={19} />
+                      </span>
+                      <p className="leading-7 text-[#212529]/78">{item}</p>
+                    </div>
+                  );
+                })}
               </div>
             </section>
 
-            <section className={`rounded-[2rem] p-7 md:p-8 ${theme.card}`}>
-              <p className={`text-xs font-bold uppercase tracking-[.25em] ${theme.accent}`}>{copy.audienceTitle}</p>
-              <div className="mt-6 grid gap-4">
+            <section className="relative overflow-hidden rounded-[2rem] border border-[#002147]/10 bg-[#002147] p-7 text-white shadow-[0_26px_70px_rgba(0,33,71,.22)] md:p-8">
+              <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#00A6A6]/18 blur-2xl" />
+              <div className="absolute -bottom-20 left-8 h-56 w-56 rounded-full bg-[#D4AF37]/15 blur-2xl" />
+              <p className="relative text-xs font-bold uppercase tracking-[.25em] text-[#D4AF37]">{copy.audienceTitle}</p>
+              <div className="relative mt-6 grid gap-4">
                 {copy.audience.map((item) => (
-                  <div key={item} className="rounded-2xl border border-slate-200/20 bg-white/5 p-5">
-                    <p className={theme.muted}>{item}</p>
+                  <div key={item} className="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/[.07] p-5 transition hover:-translate-y-1 hover:bg-white/[.11]">
+                    <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#D4AF37] text-[#002147]">
+                      <CircleDot size={16} />
+                    </span>
+                    <p className="leading-7 text-white/82">{item}</p>
                   </div>
                 ))}
               </div>
@@ -166,29 +243,45 @@ export default function ServicePageClient({ serviceKey, localeContent, variant }
           </div>
 
           <section className="mt-12">
-            <div className="mb-6">
-              <p className={`text-xs font-bold uppercase tracking-[.25em] ${theme.accent}`}>{copy.examplesTitle}</p>
+            <div className="mb-6 flex items-end justify-between gap-4">
+              <p className="text-xs font-bold uppercase tracking-[.25em] text-[#B58F18]">{copy.examplesTitle}</p>
+              <div className="hidden h-px flex-1 bg-[linear-gradient(90deg,rgba(212,175,55,.8),transparent)] md:block" />
             </div>
             <div className="grid gap-5 lg:grid-cols-3">
               {copy.examples.map((item, index) => (
-                <article key={item.title} className={`rounded-[2rem] p-7 ${index === 1 ? theme.panel : theme.card}`}>
-                  <p className={`text-xs font-bold uppercase tracking-[.22em] ${index === 1 ? 'text-[#D4AF37]' : theme.accent}`}>{locale === 'es' ? 'Ejemplo imaginario' : 'Illustrative example'}</p>
-                  <h2 className={`mt-4 text-2xl font-semibold ${index === 1 ? 'text-white' : theme.heading}`}>{item.title}</h2>
-                  <p className={`mt-4 leading-7 ${index === 1 ? 'text-white/78' : theme.muted}`}>{item.summary}</p>
-                  <div className={`mt-6 rounded-2xl p-5 ${index === 1 ? 'bg-[#061523]' : 'bg-[#002147]/5'}`}>
-                    <p className={`text-sm font-semibold ${index === 1 ? 'text-[#D4AF37]' : 'text-[#002147]'}`}>{locale === 'es' ? 'Resultado esperado' : 'Expected outcome'}</p>
-                    <p className={`mt-2 ${index === 1 ? 'text-white/82' : theme.muted}`}>{item.result}</p>
+                <article
+                  key={item.title}
+                  className={`group relative overflow-hidden rounded-[2rem] p-7 transition hover:-translate-y-1 ${
+                    index === 1
+                      ? 'border border-[#002147]/10 bg-[#002147] text-white shadow-[0_26px_70px_rgba(0,33,71,.20)]'
+                      : 'border border-white/75 bg-white text-[#002147] shadow-[0_22px_60px_rgba(0,33,71,.10)]'
+                  }`}
+                >
+                  <div className={`absolute -right-10 -top-10 h-28 w-28 rounded-full ${index === 1 ? 'bg-[#00A6A6]/20' : 'bg-[#D4AF37]/12'} transition group-hover:scale-125`} />
+                  <div className="relative">
+                    <span className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl ${index === 1 ? 'bg-white/10 text-[#D4AF37]' : 'bg-[#F8F9FA] text-[#002147]'}`}>
+                      {index === 0 ? <MonitorPlay size={22} /> : index === 1 ? <Sparkles size={22} /> : <Zap size={22} />}
+                    </span>
+                    <p className={`mt-5 text-xs font-bold uppercase tracking-[.22em] ${index === 1 ? 'text-[#D4AF37]' : 'text-[#B58F18]'}`}>{locale === 'es' ? 'Ejemplo imaginario' : 'Illustrative example'}</p>
+                    <h2 className={`mt-4 text-2xl font-semibold ${index === 1 ? 'text-white' : 'text-[#002147]'}`}>{item.title}</h2>
+                    <p className={`mt-4 leading-7 ${index === 1 ? 'text-white/76' : 'text-[#212529]/76'}`}>{item.summary}</p>
+                    <div className={`mt-6 rounded-2xl p-5 ${index === 1 ? 'border border-white/10 bg-[#061523]' : 'bg-[#F4EFE4]'}`}>
+                      <p className={`text-sm font-semibold ${index === 1 ? 'text-[#D4AF37]' : 'text-[#002147]'}`}>{locale === 'es' ? 'Resultado esperado' : 'Expected outcome'}</p>
+                      <p className={`mt-2 leading-7 ${index === 1 ? 'text-white/80' : 'text-[#212529]/76'}`}>{item.result}</p>
+                    </div>
                   </div>
                 </article>
               ))}
             </div>
           </section>
 
-          <section className={`mt-12 rounded-[2rem] p-8 md:p-10 ${theme.panel}`}>
-            <p className="text-xs font-bold uppercase tracking-[.25em] text-[#D4AF37]">{copy.finalTitle}</p>
-            <div className="mt-4 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-              <p className="max-w-3xl text-lg leading-8 text-white/82">{copy.finalText}</p>
-              <Link href="/#contacto" className="inline-flex w-fit items-center gap-2 rounded-xl bg-[#D4AF37] px-6 py-3.5 font-bold text-[#002147]">
+          <section className="mt-12 overflow-hidden rounded-[2rem] border border-[#002147]/10 bg-white p-8 shadow-[0_22px_65px_rgba(0,33,71,.10)] md:p-10">
+            <div className="grid gap-8 md:grid-cols-[1fr_auto] md:items-center">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[.25em] text-[#B58F18]">{copy.finalTitle}</p>
+                <p className="mt-4 max-w-3xl text-lg leading-8 text-[#212529]/82">{copy.finalText}</p>
+              </div>
+              <Link href="/#contacto" className="inline-flex w-fit items-center gap-2 rounded-xl bg-[#D4AF37] px-6 py-3.5 font-bold text-[#002147] shadow-[0_16px_32px_rgba(212,175,55,.28)] transition hover:-translate-y-1">
                 {copy.primaryCta}
                 <ArrowRight size={17} />
               </Link>
