@@ -34,3 +34,9 @@ En Directus > Flex Sections crea un item:
 - is_published: activo
 
 Si no existe un item promo_popup publicado, no aparece banner.
+
+## Update: unified services and contact flow
+- Added `/servicios` overview page with the six service categories.
+- Unified header and footer across Home and service pages.
+- Added shared contact form to every service page, using the existing n8n webhook flow.
+- Added service dropdown navigation, clickable footer services, and improved floating WhatsApp button.

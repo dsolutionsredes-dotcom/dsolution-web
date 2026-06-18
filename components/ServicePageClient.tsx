@@ -2,10 +2,16 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import Navbar, { type NavLink } from '@/components/Navbar';
+import SiteFooter from '@/components/SiteFooter';
+import ContactSection from '@/components/ContactSection';
+import type { ServiceKey } from '@/lib/services';
+import type { LucideIcon } from 'lucide-react';
 import {
   ArrowLeft,
   ArrowRight,
   BarChart3,
+  Bot as BotIcon,
   Camera,
   CheckCircle2,
   CircleDot,
@@ -44,37 +50,30 @@ type Content = {
 };
 
 type Props = {
-  serviceKey: 'audiovisual' | 'marketing';
+  serviceKey: ServiceKey;
   localeContent: Record<Locale, Content>;
   variant: 'immersive' | 'editorial';
 };
 
 const LOCALE_KEY = 'dsolution-language';
 
-const iconSet = {
+const iconSet: Record<ServiceKey, readonly LucideIcon[]> = {
   audiovisual: [Radio, Camera, MonitorPlay, Layers3],
   marketing: [Megaphone, Target, LineChart, Workflow],
-} as const;
+  web: [MonitorPlay, Layers3, Workflow, Zap],
+  automation: [Workflow, Zap, BotIcon, LineChart],
+  branding: [Sparkles, Target, Layers3, Camera],
+  photography: [Camera, Sparkles, Target, MonitorPlay],
+};
 
-const serviceMicrocopy = {
-  audiovisual: {
-    es: ['Audio', 'Video', 'Luces', 'Streaming'],
-    en: ['Audio', 'Video', 'Lighting', 'Streaming'],
-  },
-  marketing: {
-    es: ['Ads', 'Analytics', 'Tracking', 'Reporting'],
-    en: ['Ads', 'Analytics', 'Tracking', 'Reporting'],
-  },
-} as const;
-
-function LocaleToggle({ locale, onChange }: { locale: Locale; onChange: (value: Locale) => void }) {
-  return (
-    <div className="inline-flex items-center rounded-full border border-slate-200 bg-white/90 p-1 text-sm font-semibold text-[#0B2340] shadow-sm">
-      <button type="button" onClick={() => onChange('es')} className={`rounded-full px-3 py-1.5 transition ${locale === 'es' ? 'bg-[#002147] text-white' : 'text-[#0B2340]/70 hover:text-[#002147]'}`}>ES</button>
-      <button type="button" onClick={() => onChange('en')} className={`rounded-full px-3 py-1.5 transition ${locale === 'en' ? 'bg-[#002147] text-white' : 'text-[#0B2340]/70 hover:text-[#002147]'}`}>EN</button>
-    </div>
-  );
-}
+const serviceMicrocopy: Record<ServiceKey, Record<Locale, readonly string[]>> = {
+  audiovisual: { es: ['Audio', 'Video', 'Luces', 'Streaming'], en: ['Audio', 'Video', 'Lighting', 'Streaming'] },
+  marketing: { es: ['Ads', 'Analytics', 'Tracking', 'Reporting'], en: ['Ads', 'Analytics', 'Tracking', 'Reporting'] },
+  web: { es: ['UX', 'Web', 'SEO', 'Conversión'], en: ['UX', 'Web', 'SEO', 'Conversion'] },
+  automation: { es: ['Flujos', 'IA', 'Integraciones', 'Escala'], en: ['Flows', 'AI', 'Integrations', 'Scale'] },
+  branding: { es: ['Identidad', 'Diseño', 'Campañas', 'Sistema'], en: ['Identity', 'Design', 'Campaigns', 'System'] },
+  photography: { es: ['Producto', 'Marca', 'Eventos', 'Edición'], en: ['Product', 'Brand', 'Events', 'Editing'] },
+};
 
 function AbstractServiceVisual({ serviceKey, locale }: { serviceKey: Props['serviceKey']; locale: Locale }) {
   const labels = serviceMicrocopy[serviceKey][locale];
@@ -144,9 +143,8 @@ export default function ServicePageClient({ serviceKey, localeContent, variant }
   };
 
   const copy = localeContent[locale];
-  const mainIcon = serviceKey === 'audiovisual' ? Radio : BarChart3;
-  const MainIcon = mainIcon;
   const Icons = useMemo(() => iconSet[serviceKey], [serviceKey]);
+  const MainIcon = Icons[0];
 
   return (
     <main
@@ -156,25 +154,19 @@ export default function ServicePageClient({ serviceKey, localeContent, variant }
           'radial-gradient(circle at 10% 6%, rgba(212,175,55,.18), transparent 26%), radial-gradient(circle at 92% 20%, rgba(0,166,166,.12), transparent 28%), linear-gradient(180deg,#F8F9FA 0%,#F4EFE4 52%,#FFFFFF 100%)',
       }}
     >
-      <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-[rgba(248,249,250,0.84)] backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 md:px-8">
-          <Link href="/" className="flex items-center gap-3">
-            <img src="/logo.png" alt="D-Solution" className="h-11 w-11 rounded-sm object-contain" />
-            <span className="text-lg font-semibold text-[#002147]">D-Solution</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <LocaleToggle locale={locale} onChange={handleLocale} />
-            <Link href="/#contacto" className="hidden rounded-xl bg-[#D4AF37] px-5 py-3 text-sm font-bold text-[#002147] shadow-sm transition hover:-translate-y-0.5 md:inline-flex">{copy.primaryCta}</Link>
-          </div>
-        </div>
-      </header>
+      <Navbar
+        links={(locale === 'es' ? [['Inicio', '/'], ['Servicios', '/servicios'], ['Portafolio', '/#portafolio'], ['Nosotros', '/#nosotros'], ['Blog', '/#blog'], ['Contacto', '#contacto']] : [['Home', '/'], ['Services', '/servicios'], ['Portfolio', '/#portafolio'], ['About', '/#nosotros'], ['Blog', '/#blog'], ['Contact', '#contacto']]) as NavLink[]}
+        ctaLabel={copy.primaryCta}
+        locale={locale}
+        onLocaleChange={handleLocale}
+      />
 
-      <section className="relative px-5 pb-14 pt-10 md:px-8 md:pb-20 md:pt-14">
+      <section className="relative px-5 pb-14 pt-32 md:px-8 md:pb-20 md:pt-36">
         <div className="pointer-events-none absolute left-[-7rem] top-20 h-72 w-72 rounded-full border-[48px] border-[#D4AF37]/10" />
         <div className="pointer-events-none absolute right-[-8rem] top-44 h-80 w-80 rounded-full border-[54px] border-[#00A6A6]/10" />
 
         <div className="relative mx-auto max-w-6xl">
-          <Link href="/#servicios" className="inline-flex items-center gap-2 text-sm font-semibold text-[#B58F18] transition hover:text-[#002147]">
+          <Link href="/servicios" className="inline-flex items-center gap-2 text-sm font-semibold text-[#B58F18] transition hover:text-[#002147]">
             <ArrowLeft size={16} />
             {locale === 'es' ? 'Volver a servicios' : 'Back to services'}
           </Link>
@@ -189,7 +181,7 @@ export default function ServicePageClient({ serviceKey, localeContent, variant }
               <h1 className="mt-3 max-w-2xl text-4xl font-semibold tracking-tight text-[#002147] md:text-6xl">{copy.heroTitle}</h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-[#212529]/78">{copy.heroSubtitle}</p>
               <div className="mt-8 flex flex-wrap gap-4">
-                <Link href="/#contacto" className="inline-flex items-center gap-2 rounded-xl bg-[#D4AF37] px-6 py-3.5 font-bold text-[#002147] shadow-[0_14px_28px_rgba(212,175,55,.28)] transition hover:-translate-y-1">{copy.primaryCta} <ArrowRight size={17} /></Link>
+                <Link href="#contacto" className="inline-flex items-center gap-2 rounded-xl bg-[#D4AF37] px-6 py-3.5 font-bold text-[#002147] shadow-[0_14px_28px_rgba(212,175,55,.28)] transition hover:-translate-y-1">{copy.primaryCta} <ArrowRight size={17} /></Link>
                 <Link href="/#portafolio" className="inline-flex items-center gap-2 rounded-xl border border-[#002147]/15 bg-white/70 px-6 py-3.5 font-semibold text-[#002147] transition hover:-translate-y-1 hover:border-[#D4AF37]">{copy.secondaryCta}</Link>
               </div>
 
@@ -275,20 +267,12 @@ export default function ServicePageClient({ serviceKey, localeContent, variant }
             </div>
           </section>
 
-          <section className="mt-12 overflow-hidden rounded-[2rem] border border-[#002147]/10 bg-white p-8 shadow-[0_22px_65px_rgba(0,33,71,.10)] md:p-10">
-            <div className="grid gap-8 md:grid-cols-[1fr_auto] md:items-center">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[.25em] text-[#B58F18]">{copy.finalTitle}</p>
-                <p className="mt-4 max-w-3xl text-lg leading-8 text-[#212529]/82">{copy.finalText}</p>
-              </div>
-              <Link href="/#contacto" className="inline-flex w-fit items-center gap-2 rounded-xl bg-[#D4AF37] px-6 py-3.5 font-bold text-[#002147] shadow-[0_16px_32px_rgba(212,175,55,.28)] transition hover:-translate-y-1">
-                {copy.primaryCta}
-                <ArrowRight size={17} />
-              </Link>
-            </div>
-          </section>
+          <div className="mt-14 -mx-5 md:-mx-8">
+            <ContactSection locale={locale} source={`d-solution.org/${serviceKey}`} />
+          </div>
         </div>
       </section>
+      <SiteFooter locale={locale} links={(locale === 'es' ? [['Inicio', '/'], ['Servicios', '/servicios'], ['Portafolio', '/#portafolio'], ['Nosotros', '/#nosotros'], ['Blog', '/#blog'], ['Contacto', '#contacto']] : [['Home', '/'], ['Services', '/servicios'], ['Portfolio', '/#portafolio'], ['About', '/#nosotros'], ['Blog', '/#blog'], ['Contact', '#contacto']]) as NavLink[]} />
     </main>
   );
 }

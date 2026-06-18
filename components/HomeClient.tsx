@@ -5,6 +5,8 @@ import { Camera, Code2, Megaphone, Bot, Palette, ArrowRight, CheckCircle2, Mail,
 import Navbar, { type NavLink } from '@/components/Navbar';
 import PromoPopup from '@/components/PromoPopup';
 import { motion } from '@/components/Motion';
+import SiteFooter from '@/components/SiteFooter';
+import { serviceHrefFromTitle } from '@/lib/services';
 
 export type SiteData = {
   site: {
@@ -133,7 +135,7 @@ const LOCALES: Record<Locale, LocaleCopy> = {
   es: {
     nav: [
       ['Inicio', '#inicio'],
-      ['Servicios', '#servicios'],
+      ['Servicios', '/servicios'],
       ['Portafolio', '#portafolio'],
       ['Nosotros', '#nosotros'],
       ['Blog', '#blog'],
@@ -219,7 +221,7 @@ const LOCALES: Record<Locale, LocaleCopy> = {
   en: {
     nav: [
       ['Home', '#inicio'],
-      ['Services', '#servicios'],
+      ['Services', '/servicios'],
       ['Portfolio', '#portafolio'],
       ['About', '#nosotros'],
       ['Blog', '#blog'],
@@ -327,24 +329,8 @@ function normalizeServiceTitle(value: string) {
     .replace(/^-+|-+$/g, '');
 }
 
-function getServiceHref(title?: string, locale: Locale = 'es') {
-  const normalized = normalizeServiceTitle(title || '');
-  const serviceMap: Record<string, string> = {
-    'tecnologia-audiovisual': '/servicios/tecnologia-audiovisual',
-    'marketing-digital': '/servicios/marketing-digital',
-    'desarrollo-web': '/servicios/desarrollo-web',
-    'automatizacion-e-ia': '/servicios/automatizacion-ia',
-    'branding-y-diseno': '/servicios/branding-diseno',
-    'fotografia-profesional': '/servicios/fotografia-profesional',
-    'audiovisual-technology': '/servicios/tecnologia-audiovisual',
-    'digital-marketing': '/servicios/marketing-digital',
-    'web-development': '/servicios/desarrollo-web',
-    'automation-and-ai': '/servicios/automatizacion-ia',
-    'branding-and-design': '/servicios/branding-diseno',
-    'professional-photography': '/servicios/fotografia-profesional',
-  };
-
-  return serviceMap[normalized] || (locale === 'en' ? '/#services' : '/#servicios');
+function getServiceHref(title?: string, _locale: Locale = 'es') {
+  return serviceHrefFromTitle(title);
 }
 
 function getWhatsappHref(phone?: string, message?: string) {
@@ -417,7 +403,7 @@ export default function HomeClient({ data }: Props) {
         return {
           ...source,
           title: item.title,
-          description: locale === 'en' ? item.description : source.description || item.description,
+          description: item.description,
           image_url: source.image_url,
           button_text: copy.services.button,
           button_url: getServiceHref(item.title, locale),
@@ -641,7 +627,7 @@ export default function HomeClient({ data }: Props) {
                 <img
                   src="/whatsapp-icon.png"
                   alt="WhatsApp"
-                  className="h-[18px] w-[18px] object-contain"
+                  className="h-5 w-5 object-contain"
                   style={{ filter: 'brightness(0) saturate(100%) invert(76%) sepia(58%) saturate(547%) hue-rotate(357deg) brightness(90%) contrast(92%)' }}
                 />
                 <span>{contact.whatsapp}</span>
@@ -673,14 +659,7 @@ export default function HomeClient({ data }: Props) {
         </div>
       </section>
 
-      <footer className="bg-[#002147] px-5 py-12 text-white md:px-8">
-        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[1.2fr_.8fr_.8fr]">
-          <div><img src="/logo.png" alt="D-Solution" className="mb-4 h-16 w-16 rounded-full object-cover" /><h3 className="text-2xl font-semibold">{site.site_name || 'D-Solution'}</h3><p className="mt-3 max-w-sm text-white/65">{locale === 'en' ? copy.footer.description : site.footer_text || copy.footer.description}</p></div>
-          <div><h4 className="font-semibold text-[#D4AF37]">{copy.footer.navigation}</h4><div className="mt-4 grid gap-2 text-sm text-white/70">{copy.nav.map(([label, href]) => <a key={href} href={href}>{label}</a>)}</div></div>
-          <div><h4 className="font-semibold text-[#D4AF37]">{copy.footer.services}</h4><div className="mt-4 grid gap-2 text-sm text-white/70">{localizedServices.slice(0, 5).map((s) => <span key={s.title}>{s.title}</span>)}</div></div>
-        </div>
-        <div className="mx-auto mt-10 max-w-6xl border-t border-white/10 pt-6 text-sm text-white/45">{copy.footer.rights}</div>
-      </footer>
+      <SiteFooter locale={locale} links={copy.nav} siteName={site.site_name || 'D-Solution'} description={locale === 'en' ? undefined : site.footer_text || undefined} />
       <PromoPopup promo={promoPopup} />
     </main>
   );
