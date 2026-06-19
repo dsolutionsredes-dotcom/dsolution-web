@@ -1,666 +1,250 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Camera, Code2, Megaphone, Bot, Palette, ArrowRight, CheckCircle2, Mail, MapPin, Radio, Mic, Lightbulb } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Film, Layers3, Sparkles, TrendingUp } from 'lucide-react';
 import Navbar, { type NavLink } from '@/components/Navbar';
 import PromoPopup from '@/components/PromoPopup';
-import { motion } from '@/components/Motion';
+import ContactSection from '@/components/ContactSection';
 import SiteFooter from '@/components/SiteFooter';
-import { serviceHrefFromTitle } from '@/lib/services';
+import { motion } from '@/components/Motion';
+import { SERVICE_LINKS, serviceHrefFromTitle } from '@/lib/services';
 
 export type SiteData = {
-  site: {
-    site_name?: string;
-    footer_text?: string;
-    seo_title?: string;
-    seo_description?: string;
-    primary_color?: string;
-    secondary_color?: string;
-    background_color?: string;
-  };
-  home: {
-    eyebrow?: string;
-    hero_image?: string;
-    hero_title?: string;
-    hero_subtitle?: string;
-    primary_button_text?: string;
-    primary_button_url?: string;
-    secondary_button_text?: string;
-    secondary_button_url?: string;
-    primary_button_action?: string;
-    secondary_button_action?: string;
-    trusted_logos?: string;
-    hero_image_url?: string;
-  };
-  about: {
-    eyebrow?: string;
-    about_image?: string;
-    title?: string;
-    intro?: string;
-    difference?: string;
-    where_we_work?: string;
-    mission?: string;
-    years_experience?: number;
-    projects_count?: number;
-    image_url?: string;
-  };
-  contact: {
-    email?: string;
-    whatsapp?: string;
-    city?: string;
-    country?: string;
-    instagram?: string;
-    facebook?: string;
-    tiktok?: string;
-    n8n_webhook_url?: string;
-  };
+  site: { site_name?: string; footer_text?: string; seo_title?: string; seo_description?: string; primary_color?: string; secondary_color?: string; background_color?: string };
+  home: { eyebrow?: string; hero_image?: string; hero_title?: string; hero_subtitle?: string; primary_button_text?: string; primary_button_url?: string; secondary_button_text?: string; secondary_button_url?: string; primary_button_action?: string; secondary_button_action?: string; trusted_logos?: string; hero_image_url?: string };
+  about: { eyebrow?: string; about_image?: string; title?: string; intro?: string; difference?: string; where_we_work?: string; mission?: string; years_experience?: number; projects_count?: number; image_url?: string };
+  contact: { email?: string; whatsapp?: string; city?: string; country?: string; instagram?: string; facebook?: string; tiktok?: string; n8n_webhook_url?: string };
   services: Array<{ title?: string; description?: string; icon?: string; image?: string; image_url?: string; button_text?: string; button_url?: string; button_action?: string }>;
   portfolio: Array<{ title?: string; category?: string; description?: string; project_url?: string; image?: string; image_url?: string }>;
   blog: Array<{ title?: string; excerpt?: string; category?: string; slug?: string; featured_image?: string; image_url?: string }>;
   flex: Array<{ title?: string; subtitle?: string; content?: string; section_type?: string; is_published?: boolean; link_text?: string; link_url?: string; button_text?: string; button_url?: string; image?: string; image_url?: string }>;
 };
 
-type Props = { data: SiteData };
 type Locale = 'es' | 'en';
-
-const SERVICE_ICONS = [Camera, Radio, Megaphone, Palette, Code2, Bot, Mic, Lightbulb];
+type Props = { data: SiteData };
 const LOCALE_KEY = 'dsolution-language';
 
-type LocaleCopy = {
-  nav: NavLink[];
-  ctaHeader: string;
-  steps: string[];
-  highlights: string[];
-  hero: {
-    eyebrow: string;
-    title: string;
-    subtitle: string;
-    primaryButton: string;
-    secondaryButton: string;
-  };
-  trusted: string;
-  services: {
-    eyebrow: string;
-    title: string;
-    button: string;
-    defaults: Array<{ title: string; description: string }>;
-  };
-  about: {
-    eyebrow: string;
-    title: string;
-    intro: string;
-    difference: string;
-    where: string;
-    years: string;
-    projects: string;
-  };
-  process: {
-    eyebrow: string;
-    title: string;
-  };
-  portfolio: {
-    eyebrow: string;
-    title: string;
-    viewAll: string;
-    defaults: Array<{ title: string; category: string; description: string }>;
-  };
-  blog: {
-    eyebrow: string;
-    title: string;
-    defaults: Array<{ title: string; category: string; excerpt: string }>;
-  };
-  contact: {
-    eyebrow: string;
-    title: string;
-    namePlaceholder: string;
-    emailPlaceholder: string;
-    phonePlaceholder: string;
-    companyPlaceholder: string;
-    messagePlaceholder: string;
-    sending: string;
-    submit: string;
-    success: string;
-    error: string;
-    validation: string;
-  };
-  footer: {
-    navigation: string;
-    services: string;
-    rights: string;
-    description: string;
-  };
+const serviceMedia: Record<string, string> = {
+  audiovisual: '/service-audiovisual.jpg',
+  marketing: '/service-marketing.jpg',
+  web: '/service-web.jpg',
+  automation: '/service-automation.jpg',
+  branding: '/service-branding.jpg',
+  photography: '/service-photography.jpg',
 };
 
-const LOCALES: Record<Locale, LocaleCopy> = {
+const copy = {
   es: {
-    nav: [
-      ['Inicio', '#inicio'],
-      ['Servicios', '/servicios'],
-      ['Portafolio', '#portafolio'],
-      ['Nosotros', '#nosotros'],
-      ['Blog', '#blog'],
-      ['Contacto', '#contacto'],
+    nav: [['Inicio', '#inicio'], ['Servicios', '/servicios'], ['Portafolio', '#portafolio'], ['Nosotros', '#nosotros'], ['Blog', '#blog'], ['Contacto', '#contacto']] as NavLink[],
+    cta: 'Hablemos de tu proyecto',
+    heroEyebrow: 'AGENCIA DIGITAL EN BARCELONA',
+    heroTitle: 'Transformamos ideas en experiencias digitales, audiovisuales y automatizadas.',
+    heroSubtitle: 'Creamos soluciones para marcas que necesitan comunicar mejor, vender con estrategia y trabajar con procesos más inteligentes.',
+    primary: 'Solicitar propuesta',
+    secondary: 'Ver servicios',
+    servicesEyebrow: 'Servicios',
+    servicesTitle: 'Soluciones creativas para impulsar tu negocio',
+    servicesIntro: 'Cada servicio puede funcionar de forma independiente o como parte de una estrategia completa para tu marca.',
+    servicesButton: 'Explorar servicio',
+    statsEyebrow: 'Experiencia aplicada',
+    statsTitle: 'Una estructura pensada para pasar de la idea a la ejecución',
+    collageEyebrow: 'Ecosistema visual',
+    collageTitle: 'Contenido, tecnología y estrategia trabajando en una misma dirección',
+    collageText: 'Unimos producción audiovisual, diseño, web, medición y automatización para construir experiencias más claras, modernas y medibles.',
+    collageButton: 'Quiero saber más',
+    portfolioEyebrow: 'Portafolio',
+    portfolioTitle: 'Proyectos que inspiran nuevas ideas',
+    blogEyebrow: 'Blog',
+    blogTitle: 'Ideas que generan impacto',
+    aboutEyebrow: 'Sobre nosotros',
+    aboutTitle: 'De un proyecto en pareja a una agencia digital en crecimiento',
+    aboutText: 'D-Solution nació como un mini proyecto en pareja y evolucionó hasta convertirse en una agencia digital en Barcelona y alrededores. Combinamos criterio técnico, creatividad y ejecución cercana para acompañar a marcas que quieren crecer.',
+    stats: [
+      ['+10', 'años de experiencia'],
+      ['+50', 'proyectos gestionados'],
+      ['6', 'tipos de servicios que dominamos'],
+      ['+10', 'plataformas utilizadas a nivel avanzado'],
     ],
-    ctaHeader: 'Hablemos de tu proyecto',
-    steps: ['Diagnóstico claro', 'Estrategia personalizada', 'Producción y desarrollo', 'Optimización continua'],
-    highlights: ['Estrategia personalizada', 'Resultados medibles', 'Acompañamiento cercano'],
-    hero: {
-      eyebrow: 'AGENCIA DIGITAL EN BARCELONA',
-      title: 'Transformamos ideas en experiencias digitales',
-      subtitle: 'Tecnología audiovisual, marketing digital y desarrollo web para marcas que quieren crecer con una ejecución clara y profesional.',
-      primaryButton: 'Solicitar propuesta',
-      secondaryButton: 'Ver servicios',
-    },
-    trusted: 'Confían en nosotros',
-    services: {
-      eyebrow: 'Servicios',
-      title: 'Soluciones creativas para impulsar tu negocio',
-      button: 'Saber más',
-      defaults: [
-        { title: 'Tecnología audiovisual', description: 'Audio, video, luces, streaming y soporte técnico para producciones, eventos y experiencias en vivo.' },
-        { title: 'Marketing digital', description: 'Google Ads, Analytics, Tag Manager y campañas diseñadas para resultados medibles.' },
-        { title: 'Desarrollo web', description: 'Sitios web corporativos, landings y experiencias digitales rápidas, elegantes y optimizadas.' },
-        { title: 'Automatización e IA', description: 'Procesos automáticos, agentes, integraciones y soluciones inteligentes para escalar mejor.' },
-        { title: 'Branding y diseño', description: 'Identidad visual, creatividades y piezas visuales para campañas, contenidos y lanzamientos.' },
-        { title: 'Fotografía profesional', description: 'Fotografía comercial, de producto y de marca para comunicar con una imagen sólida.' },
-      ],
-    },
-    about: {
-      eyebrow: 'Sobre nosotros',
-      title: 'De un proyecto en pareja a una agencia digital en crecimiento',
-      intro: 'D-Solution nació como un proyecto pequeño creado en pareja y evolucionó hasta convertirse en una propuesta digital centrada en resultados, cercanía y ejecución profesional.',
-      difference: 'Nuestro enfoque combina tecnología audiovisual, marketing digital y desarrollo web para construir experiencias coherentes y efectivas.',
-      where: 'Trabajamos desde Barcelona y sus alrededores, acompañando a marcas, negocios y emprendedores que quieren destacar con una presencia digital más sólida.',
-      years: 'años de experiencia',
-      projects: 'proyectos realizados',
-    },
-    process: {
-      eyebrow: 'Proceso',
-      title: 'Una forma clara de llevar tus ideas a resultados',
-    },
-    portfolio: {
-      eyebrow: 'Portafolio',
-      title: 'Proyectos que inspiran',
-      viewAll: 'Ver todos los proyectos →',
-      defaults: [
-        { title: 'Sitio web corporativo', category: 'Desarrollo Web', description: 'Diseño, estructura y presencia digital para una marca en crecimiento.' },
-        { title: 'Producción audiovisual', category: 'Audiovisual', description: 'Contenido visual y soporte técnico para comunicar con más impacto.' },
-        { title: 'Campaña digital', category: 'Marketing Digital', description: 'Estrategia, analítica y optimización para generar oportunidades reales.' },
-      ],
-    },
-    blog: {
-      eyebrow: 'Blog',
-      title: 'Ideas que generan impacto',
-      defaults: [
-        { title: 'Tendencias de marketing digital', category: 'Marketing', excerpt: 'Próximamente.' },
-        { title: 'Cómo un buen video multiplica resultados', category: 'Audiovisual', excerpt: 'Próximamente.' },
-        { title: 'IA y automatización para negocios', category: 'IA', excerpt: 'Próximamente.' },
-      ],
-    },
-    contact: {
-      eyebrow: 'Contacto',
-      title: 'Hablemos de tu próximo proyecto',
-      namePlaceholder: 'Nombre completo',
-      emailPlaceholder: 'Email',
-      phonePlaceholder: 'Teléfono / WhatsApp',
-      companyPlaceholder: 'Empresa / Proyecto',
-      messagePlaceholder: 'Cuéntanos sobre tu proyecto',
-      sending: 'Enviando...',
-      submit: 'Enviar mensaje',
-      success: 'Gracias por escribirnos. Hemos recibido tu mensaje y te contactaremos pronto.',
-      error: 'No pudimos enviar tu mensaje. Inténtalo de nuevo o escríbenos por WhatsApp.',
-      validation: 'Completa nombre, email y mensaje.',
-    },
-    footer: {
-      navigation: 'Navegación',
-      services: 'Servicios',
-      rights: '© 2026 D-Solution. Todos los derechos reservados.',
-      description: 'Tecnología audiovisual, marketing digital y desarrollo web para marcas que quieren crecer con una ejecución clara y profesional.',
-    },
+    serviceDescriptions: [
+      'Audio, video, luces, streaming y soporte técnico para experiencias profesionales.',
+      'Google Ads, Analytics, Tag Manager y campañas enfocadas en resultados medibles.',
+      'Sitios corporativos, landings y experiencias web rápidas, claras y optimizadas.',
+      'Flujos inteligentes, agentes e integraciones que reducen tareas repetitivas.',
+      'Identidad visual, piezas creativas y diseño coherente para tu marca.',
+      'Fotografía comercial, de producto, retrato y eventos con imagen profesional.',
+    ],
   },
   en: {
-    nav: [
-      ['Home', '#inicio'],
-      ['Services', '/servicios'],
-      ['Portfolio', '#portafolio'],
-      ['About', '#nosotros'],
-      ['Blog', '#blog'],
-      ['Contact', '#contacto'],
+    nav: [['Home', '#inicio'], ['Services', '/servicios'], ['Portfolio', '#portafolio'], ['About', '#nosotros'], ['Blog', '#blog'], ['Contact', '#contacto']] as NavLink[],
+    cta: 'Let’s talk about your project',
+    heroEyebrow: 'DIGITAL AGENCY IN BARCELONA',
+    heroTitle: 'We transform ideas into digital, audiovisual and automated experiences.',
+    heroSubtitle: 'We create solutions for brands that need clearer communication, smarter strategy and more efficient processes.',
+    primary: 'Request proposal',
+    secondary: 'View services',
+    servicesEyebrow: 'Services',
+    servicesTitle: 'Creative solutions to move your business forward',
+    servicesIntro: 'Each service can work independently or as part of a complete strategy for your brand.',
+    servicesButton: 'Explore service',
+    statsEyebrow: 'Applied experience',
+    statsTitle: 'A structure designed to move from idea to execution',
+    collageEyebrow: 'Visual ecosystem',
+    collageTitle: 'Content, technology and strategy moving in the same direction',
+    collageText: 'We connect audiovisual production, design, web, measurement and automation to build clearer, modern and measurable experiences.',
+    collageButton: 'I want to know more',
+    portfolioEyebrow: 'Portfolio',
+    portfolioTitle: 'Projects that inspire new ideas',
+    blogEyebrow: 'Blog',
+    blogTitle: 'Ideas that create impact',
+    aboutEyebrow: 'About us',
+    aboutTitle: 'From a couple’s small project to a growing digital agency',
+    aboutText: 'D-Solution started as a small project created by a couple and evolved into a digital agency in Barcelona and nearby areas. We combine technical criteria, creativity and close execution to support brands that want to grow.',
+    stats: [
+      ['+10', 'years of experience'],
+      ['+50', 'managed projects'],
+      ['6', 'types of services we master'],
+      ['+10', 'advanced platforms used'],
     ],
-    ctaHeader: 'Let’s talk about your project',
-    steps: ['Clear audit', 'Tailored strategy', 'Production and development', 'Continuous optimisation'],
-    highlights: ['Tailored strategy', 'Measurable results', 'Close support'],
-    hero: {
-      eyebrow: 'DIGITAL AGENCY IN BARCELONA',
-      title: 'We transform ideas into digital experiences',
-      subtitle: 'Audiovisual technology, digital marketing and web development for brands that want to grow with clear and professional execution.',
-      primaryButton: 'Request proposal',
-      secondaryButton: 'View services',
-    },
-    trusted: 'Trusted by our clients',
-    services: {
-      eyebrow: 'Services',
-      title: 'Creative solutions to move your business forward',
-      button: 'Learn more',
-      defaults: [
-        { title: 'Audiovisual technology', description: 'Audio, video, lighting, streaming and technical support for productions, events and live experiences.' },
-        { title: 'Digital marketing', description: 'Google Ads, Analytics, Tag Manager and campaigns built around measurable results.' },
-        { title: 'Web development', description: 'Elegant, fast and conversion-focused websites and landing pages.' },
-        { title: 'Automation & AI', description: 'Automated processes and intelligent solutions to save time and scale better.' },
-        { title: 'Branding & Design', description: 'Visual identity, digital assets and design with a strategic mindset.' },
-        { title: 'Professional photography', description: 'Commercial, product and brand photography to communicate with a stronger visual image.' },
-      ],
-    },
-    about: {
-      eyebrow: 'About us',
-      title: 'From a couple’s side project to a growing digital agency',
-      intro: 'D-Solution started as a small project built by a couple and evolved into a digital proposal focused on results, proximity and professional execution.',
-      difference: 'Our approach combines audiovisual technology, digital marketing and web development to build consistent and effective experiences.',
-      where: 'We work from Barcelona and nearby areas, helping brands, businesses and entrepreneurs build a stronger digital presence.',
-      years: 'years of experience',
-      projects: 'completed projects',
-    },
-    process: {
-      eyebrow: 'Process',
-      title: 'A clear way to turn ideas into results',
-    },
-    portfolio: {
-      eyebrow: 'Portfolio',
-      title: 'Projects that inspire',
-      viewAll: 'View all projects →',
-      defaults: [
-        { title: 'Corporate website', category: 'Web Development', description: 'Structure, design and digital presence for a growing brand.' },
-        { title: 'Audiovisual production', category: 'Audiovisual', description: 'Visual content and technical support for stronger brand communication.' },
-        { title: 'Digital campaign', category: 'Digital Marketing', description: 'Strategy, analytics and optimisation to generate real opportunities.' },
-      ],
-    },
-    blog: {
-      eyebrow: 'Blog',
-      title: 'Ideas that create impact',
-      defaults: [
-        { title: 'Digital marketing trends', category: 'Marketing', excerpt: 'Coming soon.' },
-        { title: 'How strong video multiplies results', category: 'Audiovisual', excerpt: 'Coming soon.' },
-        { title: 'AI and automation for businesses', category: 'AI', excerpt: 'Coming soon.' },
-      ],
-    },
-    contact: {
-      eyebrow: 'Contact',
-      title: 'Let’s talk about your next project',
-      namePlaceholder: 'Full name',
-      emailPlaceholder: 'Email',
-      phonePlaceholder: 'Phone / WhatsApp',
-      companyPlaceholder: 'Company / Project',
-      messagePlaceholder: 'Tell us about your project',
-      sending: 'Sending...',
-      submit: 'Send message',
-      success: 'Thanks for reaching out. We have received your message and will contact you soon.',
-      error: 'We could not send your message. Please try again or contact us via WhatsApp.',
-      validation: 'Please complete name, email and message.',
-    },
-    footer: {
-      navigation: 'Navigation',
-      services: 'Services',
-      rights: '© 2026 D-Solution. All rights reserved.',
-      description: 'Audiovisual technology, digital marketing and web development for brands that want to grow with clear and professional execution.',
-    },
+    serviceDescriptions: [
+      'Audio, video, lighting, streaming and technical support for professional experiences.',
+      'Google Ads, Analytics, Tag Manager and campaigns focused on measurable results.',
+      'Corporate websites, landing pages and fast, clear, optimised digital experiences.',
+      'Smart workflows, agents and integrations that reduce repetitive work.',
+      'Visual identity, creative assets and coherent design for your brand.',
+      'Commercial, product, portrait and event photography with a professional image.',
+    ],
   },
-};
+} as const;
 
-function normalizeList(value?: string) {
-  return (value || '').split(',').map((v) => v.trim()).filter(Boolean);
-}
-
-function isExternal(url?: string) {
-  return !!url && /^https?:\/\//.test(url);
-}
-
-function openChatwoot() {
-  const w = window as unknown as { $chatwoot?: { toggle?: (state?: string) => void } };
-  if (w.$chatwoot?.toggle) w.$chatwoot.toggle('open');
-}
-
-function normalizeServiceTitle(value: string) {
-  return value
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/&/g, 'and')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-function getServiceHref(title?: string, _locale: Locale = 'es') {
-  return serviceHrefFromTitle(title);
-}
-
-function getWhatsappHref(phone?: string, message?: string) {
-  const cleanedPhone = (phone || '').replace(/[^0-9]/g, '');
-  const base = cleanedPhone ? `https://wa.me/${cleanedPhone}` : '#contacto';
-  if (!cleanedPhone || !message) return base;
-  return `${base}?text=${encodeURIComponent(message)}`;
-}
-
+function normalizeList(value?: string) { return (value || '').split(',').map(v => v.trim()).filter(Boolean); }
+function isExternal(url?: string) { return !!url && /^https?:\/\//.test(url); }
+function openChatwoot() { const w = window as unknown as { $chatwoot?: { toggle?: (state?: string) => void } }; if (w.$chatwoot?.toggle) w.$chatwoot.toggle('open'); }
 function getActionUrl(action?: string, url?: string, fallback = '#contacto', whatsapp?: string) {
   const normalized = (action || '').trim().toLowerCase();
-  if (normalized === 'whatsapp') {
-    const phone = (whatsapp || '').replace(/[^0-9]/g, '');
-    return phone ? `https://wa.me/${phone}` : fallback;
-  }
+  if (normalized === 'whatsapp') { const phone = (whatsapp || '').replace(/[^0-9]/g, ''); return phone ? `https://wa.me/${phone}` : fallback; }
   if (normalized === 'chat') return '#chatwoot';
   if (normalized === 'form') return '#contacto';
-  if (!url) return fallback;
-  return url;
+  return url || fallback;
 }
+function handleActionClick(action?: string) { if ((action || '').trim().toLowerCase() === 'chat') openChatwoot(); }
 
-function handleActionClick(action?: string) {
-  if ((action || '').trim().toLowerCase() === 'chat') openChatwoot();
+function MediaFallback({ className = '' }: { className?: string }) {
+  return <div className={`h-full w-full bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,55,.35),transparent_30%),linear-gradient(135deg,#09233d,#061523)] ${className}`} />;
 }
-
 function ImageBox({ src, alt, className = '' }: { src?: string; alt: string; className?: string }) {
   if (src) return <img src={src} alt={alt} className={`h-full w-full object-cover ${className}`} />;
-  return (
-    <div className={`h-full w-full bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,55,.35),transparent_30%),linear-gradient(135deg,#09233d,#061523)] ${className}`}>
-      <div className="flex h-full items-center justify-center p-10 text-center text-white/80">
-        <div>
-          <img src="/logo.png" alt="D-Solution" className="mx-auto mb-5 h-20 w-20 rounded-full object-cover" />
-          <p className="text-sm font-semibold uppercase tracking-[.25em] text-[#D4AF37]">D-Solution</p>
-        </div>
-      </div>
-    </div>
-  );
+  return <MediaFallback className={className} />;
 }
 
 export default function HomeClient({ data }: Props) {
-  const { site, home, about, contact } = data;
-  const primaryColor = site.primary_color || '#002147';
-  const secondaryColor = site.secondary_color || '#D4AF37';
-  const backgroundColor = site.background_color || '#F7F3EA';
+  const { home, about, contact } = data;
   const trustedLogos = normalizeList(home.trusted_logos);
-  const promoPopup = data.flex.find((item) => item.is_published !== false && item.section_type === 'promo_popup');
-  const webhookUrl = contact.n8n_webhook_url || process.env.NEXT_PUBLIC_CONTACT_WEBHOOK_URL || 'https://n8n.d-solution.org/webhook/dsolution-contact';
+  const promoPopup = data.flex.find(item => item.is_published !== false && item.section_type === 'promo_popup');
   const [locale, setLocale] = useState<Locale>('es');
-  const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
-  const [formMessage, setFormMessage] = useState('');
 
   useEffect(() => {
-    const saved = typeof window !== 'undefined' ? window.localStorage.getItem(LOCALE_KEY) : null;
-    const browser = typeof window !== 'undefined' ? window.navigator.language.toLowerCase() : 'es';
+    const saved = localStorage.getItem(LOCALE_KEY);
+    const browser = navigator.language.toLowerCase();
     const nextLocale: Locale = saved === 'en' || browser.startsWith('en') ? 'en' : 'es';
     setLocale(nextLocale);
   }, []);
+  useEffect(() => { document.documentElement.lang = locale === 'en' ? 'en' : 'es-ES'; localStorage.setItem(LOCALE_KEY, locale); }, [locale]);
 
-  useEffect(() => {
-    document.documentElement.lang = locale === 'en' ? 'en' : 'es-ES';
-    window.localStorage.setItem(LOCALE_KEY, locale);
-  }, [locale]);
+  const t = copy[locale];
+  const localizedServices = useMemo(() => SERVICE_LINKS.map((service, index) => {
+    const directus = data.services.find(item => serviceHrefFromTitle(item.title) === service.href) || data.services[index] || {};
+    return { ...service, description: t.serviceDescriptions[index], image: directus.image_url || serviceMedia[service.key], directusTitle: directus.title };
+  }), [data.services, t.serviceDescriptions]);
+  const portfolio = data.portfolio.length ? data.portfolio : [
+    { title: locale === 'es' ? 'Producción audiovisual' : 'Audiovisual production', category: 'Audiovisual', description: locale === 'es' ? 'Contenido visual y soporte técnico para comunicar con más impacto.' : 'Visual content and technical support for stronger communication.', image_url: '/service-audiovisual.jpg' },
+    { title: locale === 'es' ? 'Campaña digital' : 'Digital campaign', category: 'Marketing', description: locale === 'es' ? 'Estrategia, medición y optimización para generar oportunidades reales.' : 'Strategy, measurement and optimisation to generate real opportunities.', image_url: '/service-marketing.jpg' },
+    { title: locale === 'es' ? 'Sitio web corporativo' : 'Corporate website', category: 'Web', description: locale === 'es' ? 'Diseño y estructura para una presencia digital clara y premium.' : 'Design and structure for a clear premium digital presence.', image_url: '/service-web.jpg' },
+  ];
+  const blog = data.blog.length ? data.blog : [
+    { title: locale === 'es' ? 'Marketing digital con medición real' : 'Digital marketing with real measurement', category: 'Marketing', excerpt: locale === 'es' ? 'Cómo ordenar campañas, datos y decisiones para vender mejor.' : 'How to organise campaigns, data and decisions to sell better.' },
+    { title: locale === 'es' ? 'Video y streaming para marcas' : 'Video and streaming for brands', category: 'Audiovisual', excerpt: locale === 'es' ? 'Formatos visuales que ayudan a comunicar confianza.' : 'Visual formats that help communicate trust.' },
+    { title: locale === 'es' ? 'Automatización e IA en negocios' : 'Automation and AI in business', category: 'AI', excerpt: locale === 'es' ? 'Procesos simples que ahorran tiempo y mejoran seguimiento.' : 'Simple processes that save time and improve follow-up.' },
+  ];
 
-  const copy = LOCALES[locale];
+  return <main className="min-h-screen overflow-hidden bg-[#F7F3EA] text-[#002147]">
+    <Navbar links={t.nav} ctaLabel={t.cta} locale={locale} onLocaleChange={setLocale} />
 
-  const localizedServices = useMemo<Props['data']['services']>(
-    () =>
-      copy.services.defaults.map((item, index) => {
-        const source = data.services[index] || {};
-        return {
-          ...source,
-          title: item.title,
-          description: item.description,
-          image_url: source.image_url,
-          button_text: copy.services.button,
-          button_url: getServiceHref(item.title, locale),
-          button_action: undefined,
-        };
-      }),
-    [copy.services.button, copy.services.defaults, data.services, locale],
-  );
+    <section id="inicio" className="relative min-h-[92vh] overflow-hidden bg-[#002147] text-white">
+      <video className="absolute inset-0 h-full w-full object-cover opacity-75" autoPlay muted loop playsInline poster={home.hero_image_url || '/seo-image.jpg'}>
+        <source src="/hero-dsolution-loop.mp4" type="video/mp4" />
+      </video>
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,33,71,.96),rgba(0,33,71,.72)_42%,rgba(0,33,71,.34)),radial-gradient(circle_at_78%_38%,rgba(212,175,55,.18),transparent_24%)]" />
+      <div className="pointer-events-none absolute -right-24 top-40 h-80 w-80 rounded-full border-[42px] border-[#D4AF37]/16" />
+      <div className="pointer-events-none absolute bottom-[-5rem] left-[-4rem] h-72 w-72 rounded-full border-[38px] border-[#00A6A6]/16" />
+      <div className="relative mx-auto flex min-h-[92vh] max-w-6xl items-center px-5 pb-20 pt-36 md:px-8">
+        <motion.div initial={{ opacity: 0, y: 35 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .75 }} className="max-w-4xl">
+          <p className="inline-flex rounded-full border border-white/15 bg-white/10 px-5 py-3 text-xs font-bold uppercase tracking-[.28em] text-[#D4AF37] backdrop-blur">{home.eyebrow && locale === 'es' ? home.eyebrow : t.heroEyebrow}</p>
+          <h1 className="mt-8 text-5xl font-semibold leading-[.98] tracking-tight md:text-7xl">{t.heroTitle}</h1>
+          <p className="mt-7 max-w-2xl text-lg leading-8 text-white/78 md:text-xl">{t.heroSubtitle}</p>
+          <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+            <a href="#contacto" className="inline-flex items-center justify-center gap-3 rounded-xl bg-[#D4AF37] px-7 py-4 text-sm font-bold text-[#002147] shadow-[0_18px_45px_rgba(212,175,55,.22)] transition hover:-translate-y-1">{locale === 'es' ? home.primary_button_text || t.primary : t.primary}<ArrowRight size={18}/></a>
+            <a href="#servicios" className="inline-flex items-center justify-center gap-3 rounded-xl border border-white/22 bg-white/8 px-7 py-4 text-sm font-bold text-white backdrop-blur transition hover:-translate-y-1 hover:bg-white/14">{locale === 'es' ? home.secondary_button_text || t.secondary : t.secondary}<ArrowRight size={18}/></a>
+          </div>
+          <div className="mt-12 grid max-w-3xl gap-3 sm:grid-cols-3">
+            {[t.servicesEyebrow, t.statsEyebrow, t.collageEyebrow].map((item) => <span key={item} className="inline-flex items-center gap-2 rounded-full bg-white/8 px-4 py-3 text-sm text-white/78 backdrop-blur"><CheckCircle2 size={16} className="text-[#D4AF37]" />{item}</span>)}
+          </div>
+        </motion.div>
+      </div>
+    </section>
 
-  const localizedPortfolio = useMemo<Props['data']['portfolio']>(
-    () => (data.portfolio.length ? data.portfolio : copy.portfolio.defaults.map((item) => ({ ...item, project_url: undefined, image_url: undefined }))),
-    [copy.portfolio.defaults, data.portfolio],
-  );
+    {trustedLogos.length > 0 && <div className="border-b border-[#002147]/10 bg-white/70"><div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-8 px-5 py-5 text-sm font-semibold text-[#002147]/55 md:justify-between md:px-8">{trustedLogos.map(logo => <span key={logo}>{logo}</span>)}</div></div>}
 
-  const localizedBlog = useMemo<Props['data']['blog']>(
-    () => (data.blog.length ? data.blog : copy.blog.defaults.map((item) => ({ ...item, slug: undefined, image_url: undefined, featured_image: undefined }))),
-    [copy.blog.defaults, data.blog],
-  );
-
-  const heroEyebrow = locale === 'en' ? copy.hero.eyebrow : home.eyebrow || copy.hero.eyebrow;
-  const heroTitle = locale === 'en' ? copy.hero.title : home.hero_title || copy.hero.title;
-  const heroSubtitle = locale === 'en' ? copy.hero.subtitle : home.hero_subtitle || copy.hero.subtitle;
-  const aboutEyebrow = locale === 'en' ? copy.about.eyebrow : about.eyebrow || copy.about.eyebrow;
-  const aboutTitle = locale === 'en' ? copy.about.title : about.title || copy.about.title;
-  const aboutIntro = locale === 'en' ? copy.about.intro : about.intro || copy.about.intro;
-  const aboutDifference = locale === 'en' ? copy.about.difference : about.difference || copy.about.difference;
-  const aboutWhere = locale === 'en' ? copy.about.where : about.where_we_work || copy.about.where;
-
-  async function handleContactSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    const payload = {
-      name: String(formData.get('name') || '').trim(),
-      email: String(formData.get('email') || '').trim(),
-      phone: String(formData.get('phone') || '').trim(),
-      company: String(formData.get('company') || '').trim(),
-      message: String(formData.get('message') || '').trim(),
-      source: 'd-solution.org',
-      page: typeof window !== 'undefined' ? window.location.href : 'https://d-solution.org',
-    };
-
-    if (!payload.name || !payload.email || !payload.message) {
-      setFormStatus('error');
-      setFormMessage(copy.contact.validation);
-      return;
-    }
-
-    try {
-      setFormStatus('sending');
-      setFormMessage(copy.contact.sending);
-      const response = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) throw new Error('Webhook error');
-      setFormStatus('success');
-      setFormMessage(copy.contact.success);
-      form.reset();
-    } catch {
-      setFormStatus('error');
-      setFormMessage(copy.contact.error);
-    }
-  }
-
-  return (
-    <main className="min-h-screen overflow-hidden text-slate-950" style={{ ['--brand' as string]: primaryColor, ['--gold' as string]: secondaryColor, backgroundColor }}>
-      <Navbar links={copy.nav} ctaLabel={copy.ctaHeader} locale={locale} onLocaleChange={setLocale} />
-
-      <section id="inicio" className="relative border-b border-slate-200/70 bg-[#002147] text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(212,175,55,.17),transparent_28%),radial-gradient(circle_at_85%_20%,rgba(255,255,255,.12),transparent_26%)]" />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 pb-20 pt-32 md:grid-cols-[1.05fr_.95fr] md:px-8 md:pb-24 md:pt-36">
-          <motion.div initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <p className="mb-5 inline-flex rounded-full border border-white/15 bg-white/8 px-4 py-2 text-xs font-bold uppercase tracking-[.24em] text-[#D4AF37]">{heroEyebrow}</p>
-            <h1 className="max-w-3xl text-5xl font-semibold leading-[.95] tracking-tight md:text-7xl">{heroTitle}</h1>
-            <p className="mt-7 max-w-xl text-lg leading-8 text-white/78">{heroSubtitle}</p>
-            <div className="mt-9 flex flex-col gap-4 sm:flex-row">
-              <a href={getActionUrl(home.primary_button_action, home.primary_button_url, '#contacto', contact.whatsapp)} onClick={() => handleActionClick(home.primary_button_action)} target={isExternal(getActionUrl(home.primary_button_action, home.primary_button_url, '#contacto', contact.whatsapp)) ? '_blank' : undefined} rel="noreferrer" className="inline-flex items-center justify-center gap-3 rounded-xl bg-[#D4AF37] px-6 py-4 text-sm font-bold text-[#002147] shadow-[0_18px_40px_rgba(0,0,0,.22)] transition hover:-translate-y-1">{locale === 'en' ? copy.hero.primaryButton : home.primary_button_text || copy.hero.primaryButton} <ArrowRight size={17} /></a>
-              <a href={getActionUrl(home.secondary_button_action, home.secondary_button_url, '#servicios', contact.whatsapp)} onClick={() => handleActionClick(home.secondary_button_action)} target={isExternal(getActionUrl(home.secondary_button_action, home.secondary_button_url, '#servicios', contact.whatsapp)) ? '_blank' : undefined} rel="noreferrer" className="inline-flex items-center justify-center gap-3 rounded-xl border border-white/25 bg-white/5 px-6 py-4 text-sm font-bold text-white transition hover:-translate-y-1 hover:bg-white/10">{locale === 'en' ? copy.hero.secondaryButton : home.secondary_button_text || copy.hero.secondaryButton} <ArrowRight size={17} /></a>
-            </div>
-            <div className="mt-10 grid gap-3 text-sm text-white/72 sm:grid-cols-3">
-              {copy.highlights.map((item) => (
-                <span key={item} className="inline-flex items-center gap-2"><CheckCircle2 size={16} className="text-[#D4AF37]" /> {item}</span>
-              ))}
-            </div>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.75, delay: 0.1 }} className="relative">
-            <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full border border-[#D4AF37]/40" />
-            <div className="absolute -bottom-5 -left-5 h-24 w-24 rounded-full bg-[#D4AF37]" />
-            <div className="relative overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 p-2 shadow-[0_35px_80px_rgba(0,0,0,.35)] backdrop-blur">
-              <div className="h-[340px] overflow-hidden rounded-[1.5rem] md:h-[430px]">
-                <ImageBox src={home.hero_image_url} alt="D-Solution hero" />
-              </div>
-            </div>
-          </motion.div>
+    <section id="servicios" className="relative px-5 py-20 md:px-8">
+      <div className="absolute left-0 top-10 h-72 w-36 rounded-r-full bg-[#D4AF37]/10 blur-3xl" />
+      <div className="mx-auto max-w-6xl">
+        <motion.div initial={{ opacity: 0, y: 26 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-90px' }} className="mb-12 grid gap-6 md:grid-cols-[.7fr_1.3fr] md:items-end">
+          <div><p className="text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{t.servicesEyebrow}</p><h2 className="mt-4 text-4xl font-semibold tracking-tight md:text-6xl">{t.servicesTitle}</h2></div>
+          <p className="max-w-2xl text-lg leading-8 text-[#212529]/70">{t.servicesIntro}</p>
+        </motion.div>
+        <div className="grid overflow-hidden rounded-[2rem] border border-white/60 bg-[#002147] shadow-[0_30px_80px_rgba(0,33,71,.18)] md:grid-cols-3">
+          {localizedServices.map((service, index) => <motion.a key={service.key} href={service.href} initial={{ opacity: 0, y: 42 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: .55, delay: index * .04 }} className="group relative min-h-[255px] overflow-hidden border-white/10 md:border-r md:border-b">
+            <img src={service.image} alt={locale === 'es' ? service.es : service.en} className="absolute inset-0 h-full w-full object-cover grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0 group-focus:scale-105 group-focus:grayscale-0" />
+            <div className="absolute inset-0 bg-black/56 transition duration-500 group-hover:bg-black/28" />
+            <div className="absolute inset-x-0 bottom-0 p-6 text-white"><p className="text-xs font-bold uppercase tracking-[.22em] text-[#D4AF37]">0{index + 1}</p><h3 className="mt-2 text-2xl font-bold tracking-wide">{locale === 'es' ? service.es : service.en}</h3><p className="mt-3 max-w-sm text-sm leading-6 text-white/0 transition duration-500 group-hover:text-white/82">{service.description}</p><span className="mt-5 inline-flex translate-y-3 items-center gap-2 text-sm font-bold opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100">{t.servicesButton}<ArrowRight size={16}/></span></div>
+          </motion.a>)}
         </div>
-      </section>
+      </div>
+    </section>
 
-      {trustedLogos.length > 0 && (
-        <div className="border-b border-slate-200/70 bg-white/75">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-8 px-5 py-5 text-sm font-semibold text-slate-500 md:justify-between md:px-8">
-            <span className="text-slate-700">{copy.trusted}</span>
-            {trustedLogos.map((logo) => <span key={logo}>{logo}</span>)}
-          </div>
+    <section className="relative overflow-hidden bg-[#002147] px-5 py-20 text-white md:px-8">
+      <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(120deg,rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(60deg,rgba(255,255,255,.05)_1px,transparent_1px)] [background-size:70px_70px]" />
+      <div className="relative mx-auto max-w-6xl">
+        <motion.div initial={{ opacity: 0, x: -38 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: '-80px' }} className="mb-10 max-w-3xl"><p className="text-xs font-bold uppercase tracking-[.28em] text-[#D4AF37]">{t.statsEyebrow}</p><h2 className="mt-4 text-3xl font-semibold md:text-5xl">{t.statsTitle}</h2></motion.div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {t.stats.map(([number, label], i) => <motion.div key={label} initial={{ opacity: 0, y: 55, rotate: i % 2 ? 1.8 : -1.8 }} whileInView={{ opacity: 1, y: 0, rotate: 0 }} viewport={{ once: true, margin: '-90px' }} transition={{ duration: .58, delay: i * .07 }} className="rounded-[1.5rem] border border-white/10 bg-white/[.07] p-7 backdrop-blur"><strong className="text-5xl font-semibold text-[#D4AF37]">{number}</strong><p className="mt-5 leading-7 text-white/75">{label}</p></motion.div>)}
         </div>
-      )}
+      </div>
+    </section>
 
-      <section id="servicios" className="px-5 py-20 md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-10 text-center">
-            <p className="text-xs font-bold uppercase tracking-[.25em] text-[#D4AF37]">{copy.services.eyebrow}</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[#002147] md:text-5xl">{copy.services.title}</h2>
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {localizedServices.map((s, i) => {
-              const Icon = SERVICE_ICONS[i % SERVICE_ICONS.length];
-              return (
-                <motion.article key={`${s.title}-${i}`} initial={{ opacity: 0, y: 26 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.45, delay: i * 0.04 }} whileHover={{ y: -6 }} className="group rounded-2xl border border-slate-200 bg-white p-7 shadow-[0_12px_35px_rgba(0,33,71,.08)]">
-                  {s.image_url ? <div className="mb-6 h-36 overflow-hidden rounded-2xl"><ImageBox src={s.image_url} alt={s.title || 'Servicio'} /></div> : <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#002147] text-[#D4AF37]"><Icon size={27} /></div>}
-                  <h3 className="text-xl font-semibold text-[#002147]">{s.title}</h3>
-                  <p className="mt-3 min-h-[84px] leading-7 text-slate-600">{s.description}</p>
-                  <a href={getActionUrl(s.button_action, s.button_url, '#contacto', contact.whatsapp)} onClick={() => handleActionClick(s.button_action)} target={isExternal(getActionUrl(s.button_action, s.button_url, '#contacto', contact.whatsapp)) ? '_blank' : undefined} rel="noreferrer" className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#002147] group-hover:text-[#D4AF37]">{locale === 'en' ? copy.services.button : s.button_text || copy.services.button} <ArrowRight size={15} /></a>
-                </motion.article>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+    <section id="nosotros" className="relative px-5 py-20 md:px-8">
+      <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[.95fr_1.05fr] md:items-center">
+        <motion.div initial={{ opacity: 0, x: -45 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: '-80px' }} className="relative h-[520px]">
+          <div className="absolute left-0 top-0 h-[58%] w-[64%] overflow-hidden rounded-[2rem] shadow-[0_28px_70px_rgba(0,33,71,.18)]"><ImageBox src="/service-audiovisual.jpg" alt="Audiovisual" className="grayscale-[.2]" /></div>
+          <div className="absolute right-0 top-20 h-[48%] w-[54%] overflow-hidden rounded-[2rem] border-8 border-[#F7F3EA] shadow-[0_28px_70px_rgba(0,33,71,.18)]"><ImageBox src="/service-web.jpg" alt="Web" /></div>
+          <div className="absolute bottom-0 left-24 h-[42%] w-[58%] overflow-hidden rounded-[2rem] border-8 border-[#F7F3EA] shadow-[0_28px_70px_rgba(0,33,71,.18)]"><ImageBox src={about.image_url || '/service-branding.jpg'} alt="D-Solution" /></div>
+        </motion.div>
+        <motion.div initial={{ opacity: 0, x: 45 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: '-80px' }}><p className="text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{t.aboutEyebrow}</p><h2 className="mt-4 text-4xl font-semibold tracking-tight md:text-6xl">{t.aboutTitle}</h2><p className="mt-6 text-lg leading-8 text-[#212529]/72">{t.aboutText}</p><div className="mt-8 flex flex-wrap gap-3">{['Audiovisual', 'Marketing', 'Web', 'IA'].map(item => <span key={item} className="rounded-full border border-[#002147]/10 bg-white px-4 py-2 text-sm font-bold text-[#002147]/75">{item}</span>)}</div></motion.div>
+      </div>
+    </section>
 
-      <section id="nosotros" className="border-y border-slate-200 bg-white/70 px-5 py-20 md:px-8">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 md:grid-cols-[.95fr_1.05fr]">
-          <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-2 shadow-[0_18px_45px_rgba(0,33,71,.10)]">
-            <div className="h-[360px] overflow-hidden rounded-[1.45rem]"><ImageBox src={about.image_url} alt="Sobre D-Solution" /></div>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-            <p className="text-xs font-bold uppercase tracking-[.25em] text-[#D4AF37]">{aboutEyebrow}</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[#002147] md:text-5xl">{aboutTitle}</h2>
-            <div className="mt-6 space-y-4 leading-8 text-slate-600">
-              <p>{aboutIntro}</p>
-              <p>{aboutDifference}</p>
-              <p>{aboutWhere}</p>
-            </div>
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl bg-[#002147] p-5 text-white"><strong className="text-3xl text-[#D4AF37]">+{about.years_experience || 5}</strong><p className="mt-1 text-sm text-white/70">{copy.about.years}</p></div>
-              <div className="rounded-2xl bg-[#002147] p-5 text-white"><strong className="text-3xl text-[#D4AF37]">+{about.projects_count || 50}</strong><p className="mt-1 text-sm text-white/70">{copy.about.projects}</p></div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+    <section className="px-5 pb-20 md:px-8">
+      <div className="mx-auto grid max-w-6xl gap-8 rounded-[2.4rem] bg-white p-7 shadow-[0_28px_75px_rgba(0,33,71,.11)] md:grid-cols-[.85fr_1.15fr] md:p-10">
+        <motion.div initial={{ opacity: 0, y: 34 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}><p className="text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{t.collageEyebrow}</p><h2 className="mt-4 text-4xl font-semibold tracking-tight md:text-5xl">{t.collageTitle}</h2><p className="mt-5 text-lg leading-8 text-[#212529]/72">{t.collageText}</p><a href="#contacto" className="mt-8 inline-flex items-center gap-3 rounded-xl bg-[#D4AF37] px-7 py-4 text-sm font-bold text-[#002147] transition hover:-translate-y-1">{t.collageButton}<ArrowRight size={17}/></a></motion.div>
+        <motion.div initial={{ opacity: 0, y: 54 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="grid grid-cols-2 gap-4"><div className="h-44 overflow-hidden rounded-[1.5rem]"><ImageBox src="/service-marketing.jpg" alt="Marketing" /></div><div className="row-span-2 h-full min-h-[22rem] overflow-hidden rounded-[1.5rem]"><ImageBox src="/service-photography.jpg" alt="Fotografía" /></div><div className="h-44 overflow-hidden rounded-[1.5rem]"><ImageBox src="/service-automation.jpg" alt="Automatización" /></div></motion.div>
+      </div>
+    </section>
 
-      <section className="px-5 py-20 md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-10 text-center">
-            <p className="text-xs font-bold uppercase tracking-[.25em] text-[#D4AF37]">{copy.process.eyebrow}</p>
-            <h2 className="mt-3 text-3xl font-semibold text-[#002147] md:text-5xl">{copy.process.title}</h2>
-          </div>
-          <div className="grid gap-4 md:grid-cols-4">
-            {copy.steps.map((step, i) => (
-              <motion.div key={step} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_12px_35px_rgba(0,33,71,.07)]">
-                <span className="text-4xl font-semibold text-[#D4AF37]">0{i + 1}</span>
-                <h3 className="mt-7 font-semibold text-[#002147]">{step}</h3>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+    <section id="portafolio" className="border-y border-[#002147]/10 bg-white/60 px-5 py-20 md:px-8"><div className="mx-auto max-w-6xl"><div className="mb-10"><p className="text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{t.portfolioEyebrow}</p><h2 className="mt-4 text-4xl font-semibold md:text-5xl">{t.portfolioTitle}</h2></div><div className="grid gap-5 md:grid-cols-3">{portfolio.slice(0,3).map((p, i) => <motion.article key={`${p.title}-${i}`} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * .05 }} className="overflow-hidden rounded-[1.6rem] border border-[#002147]/10 bg-white shadow-[0_16px_45px_rgba(0,33,71,.09)]"><div className="h-48"><ImageBox src={p.image_url} alt={p.title || 'Proyecto'} /></div><div className="p-6"><p className="text-xs font-bold uppercase tracking-[.18em] text-[#B58F18]">{p.category}</p><h3 className="mt-3 text-xl font-semibold">{p.title}</h3><p className="mt-3 leading-7 text-[#212529]/68">{p.description}</p></div></motion.article>)}</div></div></section>
 
-      <section id="portafolio" className="border-y border-slate-200 bg-white/70 px-5 py-20 md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div><p className="text-xs font-bold uppercase tracking-[.25em] text-[#D4AF37]">{copy.portfolio.eyebrow}</p><h2 className="mt-3 text-3xl font-semibold text-[#002147] md:text-5xl">{copy.portfolio.title}</h2></div>
-            <a href="#contacto" className="font-bold text-[#002147]">{copy.portfolio.viewAll}</a>
-          </div>
-          <div className="grid gap-5 md:grid-cols-3">
-            {localizedPortfolio.map((p, i) => (
-              <motion.article key={`${p.title}-${i}`} whileHover={{ y: -5 }} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_35px_rgba(0,33,71,.08)]">
-                <div className="h-44"><ImageBox src={p.image_url} alt={p.title || 'Proyecto'} /></div>
-                <div className="p-5"><p className="text-xs font-bold uppercase tracking-[.18em] text-[#D4AF37]">{p.category}</p><h3 className="mt-2 text-lg font-semibold text-[#002147]">{p.title}</h3><p className="mt-2 text-sm leading-6 text-slate-600">{p.description}</p></div>
-              </motion.article>
-            ))}
-          </div>
-        </div>
-      </section>
+    <section id="blog" className="px-5 py-20 md:px-8"><div className="mx-auto max-w-6xl"><div className="mb-10"><p className="text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{t.blogEyebrow}</p><h2 className="mt-4 text-4xl font-semibold md:text-5xl">{t.blogTitle}</h2></div><div className="grid gap-5 md:grid-cols-3">{blog.slice(0,3).map((post, i) => <article key={`${post.title}-${i}`} className="rounded-[1.6rem] border border-[#002147]/10 bg-white p-6 shadow-[0_16px_45px_rgba(0,33,71,.07)]"><p className="text-xs font-bold uppercase tracking-[.18em] text-[#B58F18]">{post.category}</p><h3 className="mt-3 text-xl font-semibold">{post.title}</h3><p className="mt-3 leading-7 text-[#212529]/68">{post.excerpt}</p></article>)}</div></div></section>
 
-      <section id="blog" className="px-5 py-20 md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-10 flex items-end justify-between gap-4">
-            <div><p className="text-xs font-bold uppercase tracking-[.25em] text-[#D4AF37]">{copy.blog.eyebrow}</p><h2 className="mt-3 text-3xl font-semibold text-[#002147] md:text-5xl">{copy.blog.title}</h2></div>
-          </div>
-          <div className="grid gap-5 md:grid-cols-3">
-            {localizedBlog.map((post, i) => (
-              <article key={`${post.title}-${i}`} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_35px_rgba(0,33,71,.07)]">
-                {post.image_url && <div className="h-40"><ImageBox src={post.image_url} alt={post.title || 'Blog'} /></div>}
-                <div className="p-5">
-                  <p className="text-xs font-bold uppercase tracking-[.18em] text-[#D4AF37]">{post.category}</p><h3 className="mt-3 text-xl font-semibold text-[#002147]">{post.title}</h3><p className="mt-3 leading-7 text-slate-600">{post.excerpt}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="contacto" className="px-5 pb-20 md:px-8">
-        <div className="mx-auto grid max-w-6xl gap-8 rounded-[2rem] bg-[#002147] p-7 text-white shadow-[0_30px_70px_rgba(0,33,71,.22)] md:grid-cols-[.85fr_1.15fr] md:p-10">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[.25em] text-[#D4AF37]">{copy.contact.eyebrow}</p>
-            <h2 className="mt-3 text-3xl font-semibold md:text-5xl">{copy.contact.title}</h2>
-            <div className="mt-8 space-y-4 text-white/82">
-              <a href={contact.email ? `mailto:${contact.email}` : '#contacto'} className="flex items-center gap-3 transition hover:text-white">
-                <Mail size={18} className="text-[#D4AF37]" />
-                <span>{contact.email}</span>
-              </a>
-              <a
-                href={getWhatsappHref(contact.whatsapp, locale === 'en' ? 'Hello, I would like more information about your services.' : 'Hola, quiero información sobre sus servicios.')}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-3 transition hover:text-white"
-              >
-                <img
-                  src="/whatsapp-icon.png"
-                  alt="WhatsApp"
-                  className="h-5 w-5 object-contain"
-                  style={{ filter: 'brightness(0) saturate(100%) invert(76%) sepia(58%) saturate(547%) hue-rotate(357deg) brightness(90%) contrast(92%)' }}
-                />
-                <span>{contact.whatsapp}</span>
-              </a>
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([contact.city, contact.country].filter(Boolean).join(', '))}`}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-3 transition hover:text-white"
-              >
-                <MapPin size={18} className="text-[#D4AF37]" />
-                <span>{[contact.city, contact.country].filter(Boolean).join(', ')}</span>
-              </a>
-            </div>
-          </div>
-          <form onSubmit={handleContactSubmit} className="grid gap-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <input name="name" required className="rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder={copy.contact.namePlaceholder} />
-              <input name="email" type="email" required className="rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder={copy.contact.emailPlaceholder} />
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <input name="phone" className="rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder={copy.contact.phonePlaceholder} />
-              <input name="company" className="rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder={copy.contact.companyPlaceholder} />
-            </div>
-            <textarea name="message" required className="h-32 rounded-xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-[#D4AF37]" placeholder={copy.contact.messagePlaceholder} />
-            <button type="submit" disabled={formStatus === 'sending'} className="rounded-xl bg-[#D4AF37] px-6 py-4 font-bold text-[#002147] transition hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-60">{formStatus === 'sending' ? copy.contact.sending : copy.contact.submit}</button>
-            {formMessage && <p className={`text-sm font-semibold ${formStatus === 'success' ? 'text-emerald-300' : formStatus === 'error' ? 'text-red-200' : 'text-white/75'}`}>{formMessage}</p>}
-          </form>
-        </div>
-      </section>
-
-      <SiteFooter locale={locale} links={copy.nav} siteName={site.site_name || 'D-Solution'} description={locale === 'en' ? undefined : site.footer_text || undefined} />
-      <PromoPopup promo={promoPopup} />
-    </main>
-  );
+    <ContactSection locale={locale} contact={contact} source="d-solution.org" />
+    <SiteFooter locale={locale} links={t.nav} />
+    <PromoPopup promo={promoPopup} />
+  </main>;
 }
