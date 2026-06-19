@@ -35,7 +35,7 @@ const serviceMedia: Record<string, string> = {
 
 const copy = {
   es: {
-    nav: [['Inicio', '#inicio'], ['Servicios', '/servicios'], ['Portafolio', '#portafolio'], ['Nosotros', '#nosotros'], ['Blog', '#blog'], ['Contacto', '#contacto']] as NavLink[],
+    nav: [['Inicio', '#inicio'], ['Servicios', '/servicios'], ['Portafolio', '#portafolio'], ['Nosotros', '#nosotros'], ['Contacto', '#contacto']] as NavLink[],
     cta: 'Hablemos de tu proyecto',
     heroEyebrow: 'AGENCIA DIGITAL EN BARCELONA',
     heroTitle: 'Transformamos ideas en experiencias digitales, audiovisuales y automatizadas.',
@@ -48,9 +48,9 @@ const copy = {
     servicesButton: 'Explorar servicio',
     statsEyebrow: 'Experiencia aplicada',
     statsTitle: 'Una estructura pensada para pasar de la idea a la ejecución',
-    collageEyebrow: 'Ecosistema visual',
-    collageTitle: 'Contenido, tecnología y estrategia trabajando en una misma dirección',
-    collageText: 'Unimos producción audiovisual, diseño, web, medición y automatización para construir experiencias más claras, modernas y medibles.',
+    collageEyebrow: 'Estrategia digital',
+    collageTitle: 'Te ayudamos a encontrar la mejor estrategia digital para tu empresa',
+    collageText: 'Analizamos tus necesidades, ordenamos tus ideas y conectamos contenido, tecnología, diseño y automatización para construir una solución clara, profesional y medible.',
     collageButton: 'Quiero saber más',
     portfolioEyebrow: 'Portafolio',
     portfolioTitle: 'Proyectos que inspiran nuevas ideas',
@@ -75,7 +75,7 @@ const copy = {
     ],
   },
   en: {
-    nav: [['Home', '#inicio'], ['Services', '/servicios'], ['Portfolio', '#portafolio'], ['About', '#nosotros'], ['Blog', '#blog'], ['Contact', '#contacto']] as NavLink[],
+    nav: [['Home', '#inicio'], ['Services', '/servicios'], ['Portfolio', '#portafolio'], ['About', '#nosotros'], ['Contact', '#contacto']] as NavLink[],
     cta: 'Let’s talk about your project',
     heroEyebrow: 'DIGITAL AGENCY IN BARCELONA',
     heroTitle: 'We transform ideas into digital, audiovisual and automated experiences.',
@@ -88,9 +88,9 @@ const copy = {
     servicesButton: 'Explore service',
     statsEyebrow: 'Applied experience',
     statsTitle: 'A structure designed to move from idea to execution',
-    collageEyebrow: 'Visual ecosystem',
-    collageTitle: 'Content, technology and strategy moving in the same direction',
-    collageText: 'We connect audiovisual production, design, web, measurement and automation to build clearer, modern and measurable experiences.',
+    collageEyebrow: 'Digital strategy',
+    collageTitle: 'We help you find the best digital strategy for your business',
+    collageText: 'We analyse your needs, organise your ideas and connect content, technology, design and automation to build a clear, professional and measurable solution.',
     collageButton: 'I want to know more',
     portfolioEyebrow: 'Portfolio',
     portfolioTitle: 'Projects that inspire new ideas',
@@ -160,11 +160,6 @@ export default function HomeClient({ data }: Props) {
     { title: locale === 'es' ? 'Campaña digital' : 'Digital campaign', category: 'Marketing', description: locale === 'es' ? 'Estrategia, medición y optimización para generar oportunidades reales.' : 'Strategy, measurement and optimisation to generate real opportunities.', image_url: '/service-marketing.jpg' },
     { title: locale === 'es' ? 'Sitio web corporativo' : 'Corporate website', category: 'Web', description: locale === 'es' ? 'Diseño y estructura para una presencia digital clara y premium.' : 'Design and structure for a clear premium digital presence.', image_url: '/service-web.jpg' },
   ];
-  const blog = data.blog.length ? data.blog : [
-    { title: locale === 'es' ? 'Marketing digital con medición real' : 'Digital marketing with real measurement', category: 'Marketing', excerpt: locale === 'es' ? 'Cómo ordenar campañas, datos y decisiones para vender mejor.' : 'How to organise campaigns, data and decisions to sell better.' },
-    { title: locale === 'es' ? 'Video y streaming para marcas' : 'Video and streaming for brands', category: 'Audiovisual', excerpt: locale === 'es' ? 'Formatos visuales que ayudan a comunicar confianza.' : 'Visual formats that help communicate trust.' },
-    { title: locale === 'es' ? 'Automatización e IA en negocios' : 'Automation and AI in business', category: 'AI', excerpt: locale === 'es' ? 'Procesos simples que ahorran tiempo y mejoran seguimiento.' : 'Simple processes that save time and improve follow-up.' },
-  ];
 
   return <main className="min-h-screen overflow-hidden bg-[#F7F3EA] text-[#002147]">
     <Navbar links={t.nav} ctaLabel={t.cta} locale={locale} onLocaleChange={setLocale} />
@@ -197,9 +192,10 @@ export default function HomeClient({ data }: Props) {
     <section id="servicios" className="relative px-5 py-20 md:px-8">
       <div className="absolute left-0 top-10 h-72 w-36 rounded-r-full bg-[#D4AF37]/10 blur-3xl" />
       <div className="mx-auto max-w-6xl">
-        <motion.div initial={{ opacity: 0, y: 26 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-90px' }} className="mb-12 grid gap-6 md:grid-cols-[.7fr_1.3fr] md:items-end">
-          <div><p className="text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{t.servicesEyebrow}</p><h2 className="mt-4 text-4xl font-semibold tracking-tight md:text-6xl">{t.servicesTitle}</h2></div>
-          <p className="max-w-2xl text-lg leading-8 text-[#212529]/70">{t.servicesIntro}</p>
+        <motion.div initial={{ opacity: 0, y: 26 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-90px' }} className="mb-12 max-w-5xl">
+          <p className="text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{t.servicesEyebrow}</p>
+          <h2 className="mt-4 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl">{t.servicesTitle}</h2>
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-[#212529]/70">{t.servicesIntro}</p>
         </motion.div>
         <div className="grid overflow-hidden rounded-[2rem] border border-white/60 bg-[#002147] shadow-[0_30px_80px_rgba(0,33,71,.18)] md:grid-cols-3">
           {localizedServices.map((service, index) => <motion.a key={service.key} href={service.href} initial={{ opacity: 0, y: 42 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: .55, delay: index * .04 }} className="group relative min-h-[255px] overflow-hidden border-white/10 md:border-r md:border-b">
@@ -214,7 +210,6 @@ export default function HomeClient({ data }: Props) {
     <section className="relative overflow-hidden bg-[#002147] px-5 py-20 text-white md:px-8">
       <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(120deg,rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(60deg,rgba(255,255,255,.05)_1px,transparent_1px)] [background-size:70px_70px]" />
       <div className="relative mx-auto max-w-6xl">
-        <motion.div initial={{ opacity: 0, x: -38 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: '-80px' }} className="mb-10 max-w-3xl"><p className="text-xs font-bold uppercase tracking-[.28em] text-[#D4AF37]">{t.statsEyebrow}</p><h2 className="mt-4 text-3xl font-semibold md:text-5xl">{t.statsTitle}</h2></motion.div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {t.stats.map(([number, label], i) => <motion.div key={label} initial={{ opacity: 0, y: 55, rotate: i % 2 ? 1.8 : -1.8 }} whileInView={{ opacity: 1, y: 0, rotate: 0 }} viewport={{ once: true, margin: '-90px' }} transition={{ duration: .58, delay: i * .07 }} className="rounded-[1.5rem] border border-white/10 bg-white/[.07] p-7 backdrop-blur"><strong className="text-5xl font-semibold text-[#D4AF37]">{number}</strong><p className="mt-5 leading-7 text-white/75">{label}</p></motion.div>)}
         </div>
@@ -233,15 +228,25 @@ export default function HomeClient({ data }: Props) {
     </section>
 
     <section className="px-5 pb-20 md:px-8">
-      <div className="mx-auto grid max-w-6xl gap-8 rounded-[2.4rem] bg-white p-7 shadow-[0_28px_75px_rgba(0,33,71,.11)] md:grid-cols-[.85fr_1.15fr] md:p-10">
-        <motion.div initial={{ opacity: 0, y: 34 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}><p className="text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{t.collageEyebrow}</p><h2 className="mt-4 text-4xl font-semibold tracking-tight md:text-5xl">{t.collageTitle}</h2><p className="mt-5 text-lg leading-8 text-[#212529]/72">{t.collageText}</p><a href="#contacto" className="mt-8 inline-flex items-center gap-3 rounded-xl bg-[#D4AF37] px-7 py-4 text-sm font-bold text-[#002147] transition hover:-translate-y-1">{t.collageButton}<ArrowRight size={17}/></a></motion.div>
-        <motion.div initial={{ opacity: 0, y: 54 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="grid grid-cols-2 gap-4"><div className="h-44 overflow-hidden rounded-[1.5rem]"><ImageBox src="/service-marketing.jpg" alt="Marketing" /></div><div className="row-span-2 h-full min-h-[22rem] overflow-hidden rounded-[1.5rem]"><ImageBox src="/service-photography.jpg" alt="Fotografía" /></div><div className="h-44 overflow-hidden rounded-[1.5rem]"><ImageBox src="/service-automation.jpg" alt="Automatización" /></div></motion.div>
+      <div className="mx-auto max-w-6xl rounded-[2.4rem] bg-white p-7 shadow-[0_28px_75px_rgba(0,33,71,.11)] md:p-10">
+        <motion.div initial={{ opacity: 0, y: 34 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-4xl">
+          <p className="text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{t.collageEyebrow}</p>
+          <h2 className="mt-4 text-4xl font-semibold leading-[1.08] tracking-tight md:text-5xl">{t.collageTitle}</h2>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-[#212529]/72">{t.collageText}</p>
+          <a href="#contacto" className="mt-8 inline-flex items-center gap-3 rounded-xl bg-[#D4AF37] px-7 py-4 text-sm font-bold text-[#002147] transition hover:-translate-y-1">{t.collageButton}<ArrowRight size={17}/></a>
+        </motion.div>
+        <motion.div initial={{ opacity: 0, y: 54 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div className="h-44 overflow-hidden rounded-[1.5rem] md:col-span-2"><ImageBox src="/service-marketing.jpg" alt="Marketing" /></div>
+          <div className="h-44 overflow-hidden rounded-[1.5rem]"><ImageBox src="/service-web.jpg" alt="Web" /></div>
+          <div className="h-44 overflow-hidden rounded-[1.5rem]"><ImageBox src="/service-automation.jpg" alt="Automatización" /></div>
+          <div className="h-56 overflow-hidden rounded-[1.5rem]"><ImageBox src="/service-branding.jpg" alt="Branding" /></div>
+          <div className="h-56 overflow-hidden rounded-[1.5rem] md:col-span-2"><ImageBox src="/service-audiovisual.jpg" alt="Audiovisual" /></div>
+          <div className="h-56 overflow-hidden rounded-[1.5rem]"><ImageBox src="/service-photography.jpg" alt="Fotografía" /></div>
+        </motion.div>
       </div>
     </section>
 
     <section id="portafolio" className="border-y border-[#002147]/10 bg-white/60 px-5 py-20 md:px-8"><div className="mx-auto max-w-6xl"><div className="mb-10"><p className="text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{t.portfolioEyebrow}</p><h2 className="mt-4 text-4xl font-semibold md:text-5xl">{t.portfolioTitle}</h2></div><div className="grid gap-5 md:grid-cols-3">{portfolio.slice(0,3).map((p, i) => <motion.article key={`${p.title}-${i}`} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * .05 }} className="overflow-hidden rounded-[1.6rem] border border-[#002147]/10 bg-white shadow-[0_16px_45px_rgba(0,33,71,.09)]"><div className="h-48"><ImageBox src={p.image_url} alt={p.title || 'Proyecto'} /></div><div className="p-6"><p className="text-xs font-bold uppercase tracking-[.18em] text-[#B58F18]">{p.category}</p><h3 className="mt-3 text-xl font-semibold">{p.title}</h3><p className="mt-3 leading-7 text-[#212529]/68">{p.description}</p></div></motion.article>)}</div></div></section>
-
-    <section id="blog" className="px-5 py-20 md:px-8"><div className="mx-auto max-w-6xl"><div className="mb-10"><p className="text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{t.blogEyebrow}</p><h2 className="mt-4 text-4xl font-semibold md:text-5xl">{t.blogTitle}</h2></div><div className="grid gap-5 md:grid-cols-3">{blog.slice(0,3).map((post, i) => <article key={`${post.title}-${i}`} className="rounded-[1.6rem] border border-[#002147]/10 bg-white p-6 shadow-[0_16px_45px_rgba(0,33,71,.07)]"><p className="text-xs font-bold uppercase tracking-[.18em] text-[#B58F18]">{post.category}</p><h3 className="mt-3 text-xl font-semibold">{post.title}</h3><p className="mt-3 leading-7 text-[#212529]/68">{post.excerpt}</p></article>)}</div></div></section>
 
     <ContactSection locale={locale} contact={contact} source="d-solution.org" />
     <SiteFooter locale={locale} links={t.nav} />
