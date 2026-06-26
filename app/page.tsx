@@ -70,6 +70,8 @@ function normalizeAssets(site: any, home: any, about: any, services: any[], port
     home: {
       ...home,
       hero_image_url: home.hero_image_url || assetUrl(home.hero_image),
+      hero_video_url: home.hero_video_url || assetUrl(home.hero_video),
+      hero_video_poster_url: home.hero_video_poster_url || assetUrl(home.hero_video_poster),
     },
     about: {
       ...about,

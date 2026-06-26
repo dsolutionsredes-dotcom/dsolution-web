@@ -11,7 +11,7 @@ import { SERVICE_LINKS, serviceHrefFromTitle } from '@/lib/services';
 
 export type SiteData = {
   site: { site_name?: string; footer_text?: string; seo_title?: string; seo_description?: string; primary_color?: string; secondary_color?: string; background_color?: string };
-  home: { eyebrow?: string; hero_image?: string; hero_title?: string; hero_subtitle?: string; primary_button_text?: string; primary_button_url?: string; secondary_button_text?: string; secondary_button_url?: string; primary_button_action?: string; secondary_button_action?: string; trusted_logos?: string; hero_image_url?: string };
+  home: { eyebrow?: string; hero_image?: string; hero_video?: string; hero_video_poster?: string; hero_title?: string; hero_subtitle?: string; primary_button_text?: string; primary_button_url?: string; secondary_button_text?: string; secondary_button_url?: string; primary_button_action?: string; secondary_button_action?: string; trusted_logos?: string; hero_image_url?: string; hero_video_url?: string; hero_video_poster_url?: string };
   about: { eyebrow?: string; about_image?: string; title?: string; intro?: string; difference?: string; where_we_work?: string; mission?: string; years_experience?: number; projects_count?: number; image_url?: string };
   contact: { email?: string; whatsapp?: string; city?: string; country?: string; instagram?: string; facebook?: string; tiktok?: string; n8n_webhook_url?: string };
   services: Array<{ title?: string; description?: string; icon?: string; image?: string; image_url?: string; button_text?: string; button_url?: string; button_action?: string }>;
@@ -38,7 +38,7 @@ const copy = {
     nav: [['Inicio', '#inicio'], ['Servicios', '/servicios'], ['Portafolio', '#portafolio'], ['Nosotros', '#nosotros'], ['Contacto', '#contacto']] as NavLink[],
     cta: 'Hablemos de tu proyecto',
     heroEyebrow: 'AGENCIA DIGITAL EN BARCELONA',
-    heroTitle: 'Transformamos ideas en experiencias digitales, audiovisuales y automatizadas.',
+    heroTitle: 'Transformamos ideas en experiencias digitales',
     heroSubtitle: 'Creamos soluciones para marcas que necesitan comunicar mejor, vender con estrategia y trabajar con procesos más inteligentes.',
     primary: 'Solicitar propuesta',
     secondary: 'Ver servicios',
@@ -78,7 +78,7 @@ const copy = {
     nav: [['Home', '#inicio'], ['Services', '/servicios'], ['Portfolio', '#portafolio'], ['About', '#nosotros'], ['Contact', '#contacto']] as NavLink[],
     cta: 'Let’s talk about your project',
     heroEyebrow: 'DIGITAL AGENCY IN BARCELONA',
-    heroTitle: 'We transform ideas into digital, audiovisual and automated experiences.',
+    heroTitle: 'We transform ideas into digital experiences',
     heroSubtitle: 'We create solutions for brands that need clearer communication, smarter strategy and more efficient processes.',
     primary: 'Request proposal',
     secondary: 'View services',
@@ -162,11 +162,11 @@ export default function HomeClient({ data }: Props) {
   ];
 
   return <main className="min-h-screen overflow-hidden bg-[#F7F3EA] text-[#002147]">
-    <Navbar links={t.nav} ctaLabel={t.cta} locale={locale} onLocaleChange={setLocale} />
+    <Navbar links={t.nav} ctaLabel={t.cta} locale={locale} onLocaleChange={setLocale} transparentOnTop />
 
     <section id="inicio" className="relative min-h-[92vh] overflow-hidden bg-[#002147] text-white">
-      <video className="absolute inset-0 h-full w-full object-cover opacity-75" autoPlay muted loop playsInline poster={home.hero_image_url || '/seo-image.jpg'}>
-        <source src="/hero-dsolution-loop.mp4" type="video/mp4" />
+      <video className="absolute inset-0 h-full w-full object-cover opacity-75" autoPlay muted loop playsInline poster={home.hero_video_poster_url || home.hero_image_url || '/seo-image.jpg'}>
+        <source src={home.hero_video_url || '/hero-dsolution-loop.mp4'} type="video/mp4" />
       </video>
       <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,33,71,.96),rgba(0,33,71,.72)_42%,rgba(0,33,71,.34)),radial-gradient(circle_at_78%_38%,rgba(212,175,55,.18),transparent_24%)]" />
       <div className="pointer-events-none absolute -right-24 top-40 h-80 w-80 rounded-full border-[42px] border-[#D4AF37]/16" />
