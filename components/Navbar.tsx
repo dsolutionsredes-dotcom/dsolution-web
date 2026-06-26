@@ -48,11 +48,11 @@ export default function Navbar({ links, ctaLabel, locale, onLocaleChange, transp
     : 'fixed left-0 right-0 top-0 z-50 border-b border-slate-200/80 bg-[rgba(247,243,234,0.90)] shadow-[0_12px_35px_rgba(0,33,71,.08)] backdrop-blur-xl transition-all duration-300';
 
   const brandText = transparent ? 'text-white' : 'text-[#0B2340]';
-  const navText = transparent ? 'text-white/88 hover:text-[#D4AF37]' : 'text-[#0B2340]/86 hover:text-[#D4AF37]';
-  const navButton = transparent ? 'text-white/78 hover:bg-white/10 hover:text-white' : 'text-[#0B2340]/70 hover:bg-white hover:text-[#D4AF37]';
-  const langWrap = transparent ? 'border-white/18 bg-white/10 text-white backdrop-blur' : 'border-slate-200 bg-white/80 text-[#0B2340] shadow-sm';
+  const navText = transparent ? 'text-white hover:text-[#D4AF37]' : 'text-[#0B2340]/86 hover:text-[#D4AF37]';
+  const navButton = transparent ? 'text-white hover:bg-white/10 hover:text-[#D4AF37]' : 'text-[#0B2340]/70 hover:bg-white hover:text-[#D4AF37]';
+  const langWrap = transparent ? 'border-white/20 bg-white/10 text-white backdrop-blur' : 'border-slate-200 bg-white/80 text-[#0B2340] shadow-sm';
   const inactiveLang = transparent ? 'text-white/70 hover:text-white' : 'text-[#0B2340]/70 hover:text-[#0B2340]';
-  const mobileBtn = transparent ? 'border-white/18 bg-white/10 text-white backdrop-blur' : 'border-slate-200 bg-white/80 text-[#0B2340]';
+  const mobileBtn = transparent ? 'border-white/20 bg-white/10 text-white backdrop-blur' : 'border-slate-200 bg-white/80 text-[#0B2340]';
   const ctaClass = transparent
     ? 'inline-flex w-[252px] justify-center rounded-full bg-white px-5 py-3 text-sm font-bold text-[#002147] transition hover:-translate-y-0.5 hover:bg-[#D4AF37]'
     : 'inline-flex w-[252px] justify-center rounded-xl bg-[#D4AF37] px-5 py-3 text-sm font-bold text-[#002147] transition hover:-translate-y-0.5';

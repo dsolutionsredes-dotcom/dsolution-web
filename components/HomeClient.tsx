@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, CheckCircle2, Film, Layers3, Sparkles, TrendingUp } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Navbar, { type NavLink } from '@/components/Navbar';
 import PromoPopup from '@/components/PromoPopup';
 import ContactSection from '@/components/ContactSection';
@@ -164,25 +164,14 @@ export default function HomeClient({ data }: Props) {
   return <main className="min-h-screen overflow-hidden bg-[#F7F3EA] text-[#002147]">
     <Navbar links={t.nav} ctaLabel={t.cta} locale={locale} onLocaleChange={setLocale} transparentOnTop />
 
-    <section id="inicio" className="relative min-h-[92vh] overflow-hidden bg-[#002147] text-white">
-      <video className="absolute inset-0 h-full w-full object-cover opacity-75" autoPlay muted loop playsInline poster={home.hero_video_poster_url || home.hero_image_url || '/seo-image.jpg'}>
+    <section id="inicio" className="relative min-h-screen overflow-hidden bg-[#002147] text-white">
+      <video className="absolute inset-0 h-full w-full object-cover" autoPlay muted loop playsInline poster={home.hero_video_poster_url || home.hero_image_url || '/seo-image.jpg'}>
         <source src={home.hero_video_url || '/hero-dsolution-loop.mp4'} type="video/mp4" />
       </video>
-      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,33,71,.96),rgba(0,33,71,.72)_42%,rgba(0,33,71,.34)),radial-gradient(circle_at_78%_38%,rgba(212,175,55,.18),transparent_24%)]" />
-      <div className="pointer-events-none absolute -right-24 top-40 h-80 w-80 rounded-full border-[42px] border-[#D4AF37]/16" />
-      <div className="pointer-events-none absolute bottom-[-5rem] left-[-4rem] h-72 w-72 rounded-full border-[38px] border-[#00A6A6]/16" />
-      <div className="relative mx-auto flex min-h-[92vh] max-w-6xl items-center px-5 pb-20 pt-36 md:px-8">
-        <motion.div initial={{ opacity: 0, y: 35 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .75 }} className="max-w-4xl">
-          <p className="inline-flex rounded-full border border-white/15 bg-white/10 px-5 py-3 text-xs font-bold uppercase tracking-[.28em] text-[#D4AF37] backdrop-blur">{home.eyebrow && locale === 'es' ? home.eyebrow : t.heroEyebrow}</p>
-          <h1 className="mt-8 text-5xl font-semibold leading-[.98] tracking-tight md:text-7xl">{t.heroTitle}</h1>
-          <p className="mt-7 max-w-2xl text-lg leading-8 text-white/78 md:text-xl">{t.heroSubtitle}</p>
-          <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-            <a href="#contacto" className="inline-flex items-center justify-center gap-3 rounded-xl bg-[#D4AF37] px-7 py-4 text-sm font-bold text-[#002147] shadow-[0_18px_45px_rgba(212,175,55,.22)] transition hover:-translate-y-1">{locale === 'es' ? home.primary_button_text || t.primary : t.primary}<ArrowRight size={18}/></a>
-            <a href="#servicios" className="inline-flex items-center justify-center gap-3 rounded-xl border border-white/22 bg-white/8 px-7 py-4 text-sm font-bold text-white backdrop-blur transition hover:-translate-y-1 hover:bg-white/14">{locale === 'es' ? home.secondary_button_text || t.secondary : t.secondary}<ArrowRight size={18}/></a>
-          </div>
-          <div className="mt-12 grid max-w-3xl gap-3 sm:grid-cols-3">
-            {[t.servicesEyebrow, t.statsEyebrow, t.collageEyebrow].map((item) => <span key={item} className="inline-flex items-center gap-2 rounded-full bg-white/8 px-4 py-3 text-sm text-white/78 backdrop-blur"><CheckCircle2 size={16} className="text-[#D4AF37]" />{item}</span>)}
-          </div>
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.42)_45%,rgba(0,0,0,.58)),linear-gradient(90deg,rgba(0,33,71,.45),rgba(0,33,71,.18),rgba(0,33,71,.42))]" />
+      <div className="relative mx-auto flex min-h-screen max-w-7xl items-center justify-center px-5 pb-20 pt-28 text-center md:px-8">
+        <motion.div initial={{ opacity: 0, y: 38 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .85 }} className="mx-auto max-w-5xl">
+          <h1 className="text-5xl font-extrabold leading-[.98] tracking-tight text-white drop-shadow-[0_18px_45px_rgba(0,0,0,.45)] md:text-7xl lg:text-8xl">{t.heroTitle}</h1>
         </motion.div>
       </div>
     </section>
