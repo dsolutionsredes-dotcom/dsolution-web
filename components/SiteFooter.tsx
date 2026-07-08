@@ -6,7 +6,7 @@ import type { NavLink } from '@/components/Navbar';
 
 type Props = { locale: 'es' | 'en'; links: NavLink[]; siteName?: string; description?: string };
 
-export default function SiteFooter({ locale, links, siteName = 'D-Solution', description }: Props) {
+export default function SiteFooter({ locale, links, description }: Props) {
   const copy = locale === 'en'
     ? { nav: 'Navigation', services: 'Services', rights: '© 2026 D-Solution. All rights reserved.', description: 'Audiovisual technology, digital marketing and web development for brands that want to grow with clear, professional execution.' }
     : { nav: 'Navegación', services: 'Servicios', rights: '© 2026 D-Solution. Todos los derechos reservados.', description: 'Tecnología audiovisual, marketing digital y desarrollo web para marcas que quieren crecer con una ejecución clara y profesional.' };
@@ -14,11 +14,8 @@ export default function SiteFooter({ locale, links, siteName = 'D-Solution', des
     <footer className="bg-[#002147] px-5 py-12 text-white md:px-8">
       <div className="mx-auto grid max-w-6xl gap-9 md:grid-cols-[1.22fr_.75fr_.9fr]">
         <div>
-          <div className="mb-5 overflow-hidden rounded-2xl border border-white/10 bg-[#001a39] p-2 shadow-[0_18px_40px_rgba(0,0,0,.18)]">
-            <Image src="/footer-logo.jpg" alt="D-Solution" width={678} height={570} className="h-24 w-auto rounded-xl object-cover object-center" priority={false} />
-          </div>
-          <h3 className="text-2xl font-semibold">{siteName}</h3>
-          <p className="mt-3 max-w-sm leading-7 text-white/70">{description || copy.description}</p>
+          <Image src="/ds-logo-mark-light.png" alt="D-Solution" width={210} height={220} className="mb-6 h-24 w-auto object-contain" priority={false} />
+          <p className="max-w-sm leading-7 text-white/70">{description || copy.description}</p>
         </div>
         <div>
           <h4 className="font-semibold text-[#D4AF37]">{copy.nav}</h4>
