@@ -15,6 +15,25 @@ type Props = {
   transparentOnTop?: boolean;
 };
 
+function BrandLogo({ transparent }: { transparent: boolean }) {
+  return (
+    <span className="flex items-center gap-3">
+      <Image
+        src={transparent ? '/ds-logo-mark-light.png' : '/ds-logo-mark-dark.png'}
+        alt="D-Solution"
+        width={70}
+        height={70}
+        className="h-12 w-auto object-contain transition-all duration-300 md:h-[3.35rem]"
+        priority
+      />
+      <span className="hidden leading-none sm:block">
+        <span className={`block text-xl font-bold tracking-[-.03em] transition ${transparent ? 'text-white' : 'text-[#002147]'}`}>D-Solution</span>
+        <span className={`mt-1 block text-[.54rem] font-semibold uppercase tracking-[.12em] transition ${transparent ? 'text-white/70' : 'text-[#002147]/60'}`}>Audiovisual · Marketing Digital · Desarrollo Web</span>
+      </span>
+    </span>
+  );
+}
+
 export default function Navbar({ links, ctaLabel, locale, onLocaleChange, transparentOnTop = false }: Props) {
   const [open, setOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
@@ -45,7 +64,7 @@ export default function Navbar({ links, ctaLabel, locale, onLocaleChange, transp
 
   const headerClass = transparent
     ? 'fixed left-0 right-0 top-0 z-50 border-b border-white/5 bg-transparent transition-all duration-300'
-    : 'fixed left-0 right-0 top-0 z-50 border-b border-white/40 bg-[linear-gradient(to_bottom,rgba(247,243,234,.98)_0%,rgba(247,243,234,.93)_70%,rgba(247,243,234,.62)_100%)] shadow-[0_12px_35px_rgba(0,33,71,.07)] backdrop-blur-xl transition-all duration-300';
+    : 'fixed left-0 right-0 top-0 z-50 border-b border-[#002147]/10 bg-[#F7F3EA]/88 shadow-[0_12px_35px_rgba(0,33,71,.07)] backdrop-blur-xl transition-all duration-300';
 
   const navText = transparent ? 'text-white hover:text-[#D4AF37]' : 'text-[#0B2340]/88 hover:text-[#D4AF37]';
   const navButton = transparent ? 'text-white hover:bg-white/10 hover:text-[#D4AF37]' : 'text-[#0B2340]/70 hover:bg-white/70 hover:text-[#D4AF37]';
@@ -57,9 +76,9 @@ export default function Navbar({ links, ctaLabel, locale, onLocaleChange, transp
     : 'inline-flex h-[52px] w-[252px] items-center justify-center rounded-full bg-[#D4AF37] px-6 text-sm font-bold text-[#002147] shadow-[0_10px_28px_rgba(0,33,71,.08)] transition hover:-translate-y-0.5';
 
   return <motion.header initial={{ y: -24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.55 }} className={headerClass}>
-    <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3 md:px-8">
-      <a href="/" className="flex shrink-0 items-center">
-        <Image src={transparent ? '/ds-logo-mark-light.png' : '/ds-logo-mark-dark.png'} alt="D-Solution" width={72} height={72} className="h-14 w-auto object-contain transition-all duration-300" priority />
+    <nav className="mx-auto flex max-w-7xl items-center justify-between gap-5 px-5 py-3 md:px-8">
+      <a href="/" className="flex shrink-0 items-center" aria-label="D-Solution Home">
+        <BrandLogo transparent={transparent} />
       </a>
 
       <div className="hidden items-center gap-7 md:flex">

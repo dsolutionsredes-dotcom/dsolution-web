@@ -60,3 +60,30 @@ a { text-decoration: none; }
 @media (prefers-reduced-motion: reduce) {
   .tools-left, .tools-right { animation: none; }
 }
+
+.tools-marquee-panel {
+  border-block: 1px solid rgba(255,255,255,.12);
+  padding: 1rem 0;
+}
+.tool-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: max-content;
+  gap: .45rem;
+  padding: .2rem 1.1rem;
+  color: rgba(255,255,255,.9);
+  font-size: .95rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  text-shadow: 0 8px 28px rgba(0,0,0,.35);
+}
+.tool-logo::before {
+  content: '';
+  display: inline-block;
+  width: .72rem;
+  height: .72rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg,#D4AF37,#4AA3FF);
+  box-shadow: 0 0 20px rgba(74,163,255,.2);
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, BarChart3, Clapperboard, MessageSquare, Target } from 'lucide-react';
+import { ArrowRight, BarChart3, Clapperboard, ExternalLink, Folder, Globe2, MessageSquare, Rocket, Target } from 'lucide-react';
 import Navbar, { type NavLink } from '@/components/Navbar';
 import PromoPopup from '@/components/PromoPopup';
 import ContactSection from '@/components/ContactSection';
@@ -47,9 +47,12 @@ const copy = {
     workText: 'Un proceso ágil y colaborativo para convertir ideas en resultados reales.',
     workCta: 'Hablemos de tu proyecto',
     whyTitle: '¿Por qué elegirnos?',
+    whyHeadline: 'Resultados que hablan por nosotros',
     toolsTitle: 'Herramientas que usamos para crear, medir y optimizar proyectos.',
     portfolioEyebrow: 'Portafolio',
     portfolioTitle: 'Proyectos que inspiran nuevas ideas',
+    portfolioIntro: 'Una selección de trabajos que combinan estrategia, creatividad y tecnología.',
+    portfolioButton: 'Ver proyecto',
     stats: [
       ['+10', 'años de experiencia'],
       ['+50', 'proyectos gestionados'],
@@ -84,9 +87,12 @@ const copy = {
     workText: 'An agile and collaborative process to turn ideas into real results.',
     workCta: 'Let’s talk about your project',
     whyTitle: 'Why choose us?',
+    whyHeadline: 'Results that speak for us',
     toolsTitle: 'Tools we use to create, measure, and optimize projects.',
     portfolioEyebrow: 'Portfolio',
     portfolioTitle: 'Projects that inspire new ideas',
+    portfolioIntro: 'A selection of work combining strategy, creativity and technology.',
+    portfolioButton: 'View project',
     stats: [
       ['+10', 'years of experience'],
       ['+50', 'managed projects'],
@@ -162,9 +168,9 @@ export default function HomeClient({ data }: Props) {
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.56),rgba(0,0,0,.38)_45%,rgba(0,0,0,.56)),linear-gradient(90deg,rgba(0,33,71,.38),rgba(0,33,71,.12),rgba(0,33,71,.38))]" />
       <div className="relative mx-auto flex min-h-screen max-w-7xl items-center justify-center px-5 pb-20 pt-28 text-center md:px-8">
         <motion.div initial={{ opacity: 0, y: 38 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .85 }} className="mx-auto max-w-5xl">
-          <h1 className="text-[clamp(3.2rem,7vw,6.9rem)] leading-[.98] tracking-[-0.055em] text-white drop-shadow-[0_18px_45px_rgba(0,0,0,.38)]">
+          <h1 className="mx-auto max-w-[980px] text-[clamp(2.45rem,5vw,5.25rem)] leading-[1.04] tracking-[-0.045em] text-white drop-shadow-[0_18px_45px_rgba(0,0,0,.34)]">
             <span className="block font-extrabold">{t.heroLine1}</span>
-            <span className="block font-normal tracking-[-0.045em] text-white/95">{t.heroLine2}</span>
+            <span className="block font-normal tracking-[-0.035em] text-white/95">{t.heroLine2}</span>
           </h1>
         </motion.div>
       </div>
@@ -190,26 +196,26 @@ export default function HomeClient({ data }: Props) {
       </div>
     </section>
 
-    <section id="nosotros" className="bg-[#050B14] px-5 py-16 text-white md:px-8">
+    <section id="nosotros" className="bg-[#050B14] px-5 py-14 text-white md:px-8">
       <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[.78fr_1.72fr] lg:items-center">
         <motion.div initial={{ opacity: 0, x: -34 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: '-80px' }}>
           <p className="text-xs font-bold uppercase tracking-[.28em] text-[#D4AF37]">D-Solution</p>
           <h2 className="mt-4 max-w-sm text-3xl font-semibold leading-tight md:text-5xl">{t.workTitle}</h2>
-          <p className="mt-5 max-w-sm leading-7 text-white/72">{t.workText}</p>
+          <p className="mt-5 max-w-sm leading-7 text-white/78">{t.workText}</p>
           <a href="#contacto" className="mt-8 inline-flex h-[50px] items-center gap-3 rounded-full border border-[#D4AF37] px-6 text-sm font-bold text-[#D4AF37] transition hover:-translate-y-1 hover:bg-[#D4AF37] hover:text-[#002147]">{t.workCta}<ArrowRight size={16}/></a>
         </motion.div>
         <div className="grid gap-3 md:grid-cols-4">
           {t.workSteps.map(([title, text], i) => {
             const Icon = processIcons[i];
-            return <motion.article key={title} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ delay: i * .06 }} className="group relative min-h-[430px] overflow-hidden rounded-[1.35rem] border border-white/10 bg-white/[.04] shadow-[0_20px_70px_rgba(0,0,0,.28)]">
-              <img src={processImages[i]} alt={title} className="absolute inset-0 h-full w-full object-cover opacity-60 grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0" />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.76)_62%,rgba(0,0,0,.86))]" />
+            return <motion.article key={title} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ delay: i * .06 }} className="group relative min-h-[390px] overflow-hidden rounded-[1.35rem] border border-white/10 bg-white/[.04] shadow-[0_20px_70px_rgba(0,0,0,.28)]">
+              <img src={processImages[i]} alt={title} className="absolute inset-0 h-full w-full object-cover opacity-55 grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0" />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.22),rgba(0,0,0,.58)_45%,rgba(0,0,0,.88))]" />
               {i < 3 && <div className="absolute right-[-.85rem] top-1/2 z-20 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#D4AF37]/60 bg-[#050B14] text-[#D4AF37] md:flex"><ArrowRight size={16}/></div>}
-              <div className="absolute inset-x-0 bottom-0 p-5">
-                <p className="text-3xl font-bold text-[#D4AF37]">0{i + 1}</p>
-                <div className="mt-4 inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#D4AF37]/45 bg-black/35 text-[#D4AF37]"><Icon size={20}/></div>
-                <h3 className="mt-4 text-lg font-bold">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-white/72">{text}</p>
+              <div className="absolute inset-x-0 bottom-0 grid min-h-[230px] grid-rows-[auto_auto_auto_1fr] p-5">
+                <p className="text-3xl font-bold leading-none text-[#D4AF37]">0{i + 1}</p>
+                <div className="mt-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#D4AF37]/45 bg-black/35 text-[#D4AF37]"><Icon size={19}/></div>
+                <h3 className="mt-4 min-h-[3.1rem] text-lg font-bold leading-tight">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-white/76">{text}</p>
               </div>
             </motion.article>;
           })}
@@ -217,28 +223,51 @@ export default function HomeClient({ data }: Props) {
       </div>
     </section>
 
-    <section className="relative overflow-hidden bg-[#002147] px-5 py-12 text-white md:px-8">
-      <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(120deg,rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(60deg,rgba(255,255,255,.05)_1px,transparent_1px)] [background-size:70px_70px]" />
-      <div className="relative mx-auto max-w-6xl">
-        <h2 className="mb-7 text-center text-3xl font-semibold tracking-tight md:text-5xl">{t.whyTitle}</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {t.stats.map(([number, label], i) => <motion.div key={label} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-90px' }} transition={{ duration: .5, delay: i * .05 }} className="rounded-[1.25rem] border border-white/10 bg-white/[.07] px-6 py-6 backdrop-blur"><strong className="text-4xl font-semibold text-[#D4AF37]">{number}</strong><p className="mt-4 text-sm leading-6 text-white/75">{label}</p></motion.div>)}
+    <section className="relative overflow-hidden bg-[#F7F3EA] px-5 py-10 text-[#002147] md:px-8 md:py-12">
+      <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white/65 to-transparent" />
+      <div className="relative mx-auto max-w-6xl text-center">
+        <p className="text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{t.whyTitle}</p>
+        <h2 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">{t.whyHeadline}</h2>
+        <div className="mt-8 grid gap-5 md:grid-cols-4 md:divide-x md:divide-[#002147]/14">
+          {t.stats.map(([number, label], i) => {
+            const StatIcon = [Rocket, Folder, Globe2, BarChart3][i];
+            return <motion.div key={label} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-90px' }} transition={{ duration: .45, delay: i * .04 }} className="flex items-center justify-center gap-4 px-4 py-2 text-left md:justify-center">
+              <StatIcon size={36} strokeWidth={1.8} className="shrink-0 text-[#D4AF37]" />
+              <div><strong className="block text-4xl font-semibold leading-none text-[#002147] md:text-[2.7rem]">{number}</strong><p className="mt-2 max-w-[11rem] text-sm leading-5 text-[#002147]/78">{label}</p></div>
+            </motion.div>;
+          })}
         </div>
       </div>
     </section>
 
-    <section className="overflow-hidden bg-[#050B14] py-12 text-white">
+    <section className="overflow-hidden bg-[#082642] py-12 text-white">
       <div className="mx-auto max-w-6xl px-5 text-center md:px-8">
-        <p className="text-xs font-bold uppercase tracking-[.28em] text-[#D4AF37]">Ecosistema</p>
-        <h2 className="mx-auto mt-3 max-w-2xl text-2xl font-semibold md:text-4xl">{t.toolsTitle}</h2>
+        <p className="text-xs font-bold uppercase tracking-[.28em] text-[#4AA3FF]">Ecosistema</p>
+        <h2 className="mx-auto mt-3 max-w-3xl text-2xl font-semibold leading-tight md:text-4xl">{t.toolsTitle}</h2>
+        <div className="mx-auto mt-5 h-0.5 w-16 rounded-full bg-[#4AA3FF]" />
       </div>
       <div className="mt-10 space-y-5">
-        <div className="tools-marquee"><div className="tools-track tools-left">{[...tools.slice(0, 9), ...tools.slice(0, 9)].map((tool, index) => <span key={`${tool}-${index}`} className="tool-pill">{tool}</span>)}</div></div>
-        <div className="tools-marquee"><div className="tools-track tools-right">{[...tools.slice(9), ...tools.slice(9)].map((tool, index) => <span key={`${tool}-${index}`} className="tool-pill">{tool}</span>)}</div></div>
+        <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-left">{[...tools.slice(0, 9), ...tools.slice(0, 9)].map((tool, index) => <span key={`${tool}-${index}`} className="tool-logo">{tool}</span>)}</div></div>
+        <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-right">{[...tools.slice(9), ...tools.slice(9)].map((tool, index) => <span key={`${tool}-${index}`} className="tool-logo">{tool}</span>)}</div></div>
       </div>
     </section>
 
-    <section id="portafolio" className="border-y border-[#002147]/10 bg-white/60 px-5 py-16 md:px-8"><div className="mx-auto max-w-6xl"><div className="mb-10"><p className="text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{t.portfolioEyebrow}</p><h2 className="mt-4 text-4xl font-semibold md:text-5xl">{t.portfolioTitle}</h2></div><div className="grid gap-5 md:grid-cols-3">{portfolio.slice(0,3).map((p, i) => <motion.article key={`${p.title}-${i}`} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * .05 }} className="overflow-hidden rounded-[1.6rem] border border-[#002147]/10 bg-white shadow-[0_16px_45px_rgba(0,33,71,.09)]"><div className="h-48"><ImageBox src={p.image_url} alt={p.title || 'Proyecto'} /></div><div className="p-6"><p className="text-xs font-bold uppercase tracking-[.18em] text-[#B58F18]">{p.category}</p><h3 className="mt-3 text-xl font-semibold">{p.title}</h3><p className="mt-3 leading-7 text-[#212529]/68">{p.description}</p></div></motion.article>)}</div></div></section>
+    <section id="portafolio" className="border-y border-[#002147]/10 bg-white/60 px-5 py-16 md:px-8">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-10 max-w-4xl">
+          <p className="text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{t.portfolioEyebrow}</p>
+          <h2 className="mt-4 text-4xl font-semibold leading-tight md:text-5xl">{t.portfolioTitle}</h2>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-[#212529]/70 md:text-lg">{t.portfolioIntro}</p>
+          <div className="mt-5 h-0.5 w-16 rounded-full bg-[#B58F18]" />
+        </div>
+        <div className="grid gap-5 md:grid-cols-3">
+          {portfolio.slice(0,3).map((p, i) => <motion.article key={`${p.title}-${i}`} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * .05 }} className="group overflow-hidden rounded-[1.6rem] border border-[#002147]/10 bg-white shadow-[0_16px_45px_rgba(0,33,71,.09)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_60px_rgba(0,33,71,.13)]">
+            <div className="relative h-52 overflow-hidden"><ImageBox src={p.image_url} alt={p.title || 'Proyecto'} className="transition duration-700 group-hover:scale-105" /><div className="absolute -bottom-7 left-7 inline-flex h-14 w-14 items-center justify-center rounded-full border border-[#002147]/10 bg-white text-[#B58F18] shadow-[0_12px_30px_rgba(0,33,71,.15)]"><ExternalLink size={22}/></div></div>
+            <div className="p-7 pt-10"><p className="text-xs font-bold uppercase tracking-[.2em] text-[#B58F18]">{p.category}</p><h3 className="mt-3 text-2xl font-semibold tracking-[-.02em]">{p.title}</h3><p className="mt-3 leading-7 text-[#212529]/68">{p.description}</p><a href={p.project_url || '#contacto'} className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#002147] transition hover:text-[#B58F18]">{t.portfolioButton}<ArrowRight size={16}/></a></div>
+          </motion.article>)}
+        </div>
+      </div>
+    </section>
 
     <ContactSection locale={locale} contact={contact} source="d-solution.org" />
     <SiteFooter locale={locale} links={t.nav} />
