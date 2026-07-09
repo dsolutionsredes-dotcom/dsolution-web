@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, BarChart3, Clapperboard, ExternalLink, Folder, Globe2, MessageSquare, Rocket, Target } from 'lucide-react';
+import { ArrowRight, BarChart3, Bot, Braces, Camera, Clapperboard, Code2, Facebook, Folder, Globe2, MessageSquare, MonitorPlay, Palette, Rocket, Search, Target, Video } from 'lucide-react';
 import Navbar, { type NavLink } from '@/components/Navbar';
 import PromoPopup from '@/components/PromoPopup';
 import ContactSection from '@/components/ContactSection';
@@ -35,7 +35,7 @@ const serviceMedia: Record<string, string> = {
 
 const copy = {
   es: {
-    nav: [['Inicio', '#inicio'], ['Servicios', '/servicios'], ['Portafolio', '#portafolio'], ['Nosotros', '#nosotros'], ['Contacto', '#contacto']] as NavLink[],
+    nav: [['Inicio', '#inicio'], ['Servicios', '/servicios'], ['Portafolio', '#portafolio'], ['Proceso', '#proceso'], ['Contacto', '#contacto']] as NavLink[],
     cta: 'Hablemos de tu proyecto',
     heroLine1: 'Transformamos ideas',
     heroLine2: 'en experiencias digitales',
@@ -75,7 +75,7 @@ const copy = {
     ],
   },
   en: {
-    nav: [['Home', '#inicio'], ['Services', '/servicios'], ['Portfolio', '#portafolio'], ['About', '#nosotros'], ['Contact', '#contacto']] as NavLink[],
+    nav: [['Home', '#inicio'], ['Services', '/servicios'], ['Portfolio', '#portafolio'], ['Process', '#proceso'], ['Contact', '#contacto']] as NavLink[],
     cta: 'Let’s talk about your project',
     heroLine1: 'We transform ideas',
     heroLine2: 'into digital experiences',
@@ -117,8 +117,24 @@ const copy = {
 } as const;
 
 const tools = [
-  'Google Ads', 'Google Analytics', 'Google Tag Manager', 'Photoshop', 'Codex', 'Claude Code', 'Canva', 'n8n', 'Facebook Ads',
-  'TikTok Ads', 'Automatización IA', 'WordPress', 'Next.js', 'Wix', 'vMix', 'Mimolive', 'ATEM Blackmagic', 'OBS'
+  { name: 'Canva', mark: 'C', tone: '#7C5CFF' },
+  { name: 'Facebook Ads', mark: 'Meta', tone: '#1877F2' },
+  { name: 'Google Ads', mark: 'Ads', tone: '#34A853' },
+  { name: 'Google Analytics', mark: 'GA', tone: '#F9AB00' },
+  { name: 'Google Tag Manager', mark: 'GTM', tone: '#4285F4' },
+  { name: 'Photoshop', mark: 'Ps', tone: '#31A8FF' },
+  { name: 'Codex', mark: '◎', tone: '#FFFFFF' },
+  { name: 'Claude Code', mark: 'AI', tone: '#D97745' },
+  { name: 'n8n', mark: 'n8n', tone: '#EA4B71' },
+  { name: 'WordPress', mark: 'W', tone: '#FFFFFF' },
+  { name: 'Next.js', mark: 'N', tone: '#FFFFFF' },
+  { name: 'Wix', mark: 'Wix', tone: '#FFFFFF' },
+  { name: 'vMix', mark: 'vM', tone: '#2196F3' },
+  { name: 'Mimolive', mark: '▶', tone: '#FF5A5F' },
+  { name: 'ATEM Blackmagic', mark: 'BM', tone: '#F4B400' },
+  { name: 'OBS', mark: '○', tone: '#FFFFFF' },
+  { name: 'TikTok Ads', mark: '♪', tone: '#25F4EE' },
+  { name: 'Automatización IA', mark: 'AI', tone: '#D4AF37' },
 ];
 
 const processIcons = [MessageSquare, Target, Clapperboard, BarChart3];
@@ -131,6 +147,27 @@ function MediaFallback({ className = '' }: { className?: string }) {
 function ImageBox({ src, alt, className = '' }: { src?: string; alt: string; className?: string }) {
   if (src) return <img src={src} alt={alt} className={`h-full w-full object-cover ${className}`} />;
   return <MediaFallback className={className} />;
+}
+
+function SectionHeader({ eyebrow, title, subtitle, theme = 'light', className = '' }: { eyebrow: string; title: string; subtitle?: string; theme?: 'light' | 'dark'; className?: string }) {
+  const dark = theme === 'dark';
+  return (
+    <div className={`section-heading ${className}`}>
+      <p className="section-eyebrow">{eyebrow}</p>
+      <h2 className={`section-title ${dark ? 'text-white' : 'text-[#002147]'}`}>{title}</h2>
+      {subtitle && <p className={`section-subtitle ${dark ? 'text-white/72' : 'text-[#212529]/70'}`}>{subtitle}</p>}
+      <span className="section-divider" aria-hidden="true" />
+    </div>
+  );
+}
+
+function ToolLogo({ tool }: { tool: { name: string; mark: string; tone: string } }) {
+  return (
+    <span className="tool-logo">
+      <span className="tool-mark" style={{ color: tool.tone, borderColor: `${tool.tone}66` }}>{tool.mark}</span>
+      <span>{tool.name}</span>
+    </span>
+  );
 }
 
 export default function HomeClient({ data }: Props) {
@@ -158,6 +195,13 @@ export default function HomeClient({ data }: Props) {
     { title: locale === 'es' ? 'Sitio web corporativo' : 'Corporate website', category: 'Web', description: locale === 'es' ? 'Diseño y estructura para una presencia digital clara y premium.' : 'Design and structure for a clear premium digital presence.', image_url: '/service-web.jpg' },
   ];
 
+  const processMedia = data.flex.filter(item => item.is_published !== false && ['process_step', 'proceso', 'process'].includes(String(item.section_type || '').toLowerCase()));
+  const processItems = t.workSteps.map(([title, text], index) => ({
+    title,
+    text,
+    image: processMedia[index]?.image_url || processImages[index],
+  }));
+
   return <main className="min-h-screen overflow-hidden bg-[#F7F3EA] text-[#002147]">
     <Navbar links={t.nav} ctaLabel={t.cta} locale={locale} onLocaleChange={setLocale} transparentOnTop />
 
@@ -182,9 +226,7 @@ export default function HomeClient({ data }: Props) {
       <div className="absolute left-0 top-8 h-48 w-32 rounded-r-full bg-[#D4AF37]/10 blur-3xl" />
       <div className="mx-auto max-w-6xl">
         <motion.div initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-90px' }} className="mb-7 max-w-4xl">
-          <p className="text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{t.servicesEyebrow}</p>
-          <h2 className="mt-3 max-w-3xl text-3xl font-semibold leading-[1.05] tracking-tight md:text-5xl">{t.servicesTitle}</h2>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-[#212529]/70 md:text-lg">{t.servicesIntro}</p>
+          <SectionHeader eyebrow={t.servicesEyebrow} title={t.servicesTitle} subtitle={t.servicesIntro} />
         </motion.div>
         <div className="grid overflow-hidden rounded-[1.75rem] border border-white/60 bg-[#002147] shadow-[0_24px_70px_rgba(0,33,71,.16)] md:grid-cols-3">
           {localizedServices.map((service, index) => <motion.a key={service.key} href={service.href} initial={{ opacity: 0, y: 34 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: .48, delay: index * .035 }} className="group relative min-h-[190px] overflow-hidden border-white/10 md:border-r md:border-b lg:min-h-[205px]">
@@ -196,26 +238,24 @@ export default function HomeClient({ data }: Props) {
       </div>
     </section>
 
-    <section id="nosotros" className="bg-[#050B14] px-5 py-14 text-white md:px-8">
-      <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[.78fr_1.72fr] lg:items-center">
+    <section id="proceso" className="bg-[#09233D] px-5 py-14 text-white md:px-8">
+      <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[.72fr_1.62fr] lg:items-center">
         <motion.div initial={{ opacity: 0, x: -34 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: '-80px' }}>
-          <p className="text-xs font-bold uppercase tracking-[.28em] text-[#D4AF37]">D-Solution</p>
-          <h2 className="mt-4 max-w-sm text-3xl font-semibold leading-tight md:text-5xl">{t.workTitle}</h2>
-          <p className="mt-5 max-w-sm leading-7 text-white/78">{t.workText}</p>
-          <a href="#contacto" className="mt-8 inline-flex h-[50px] items-center gap-3 rounded-full border border-[#D4AF37] px-6 text-sm font-bold text-[#D4AF37] transition hover:-translate-y-1 hover:bg-[#D4AF37] hover:text-[#002147]">{t.workCta}<ArrowRight size={16}/></a>
+          <SectionHeader eyebrow="Proceso" title={t.workTitle} subtitle={t.workText} theme="dark" />
+          <a href="#contacto" className="mt-7 inline-flex h-[50px] items-center gap-3 rounded-full border border-[#D4AF37] px-6 text-sm font-bold text-[#D4AF37] transition hover:-translate-y-1 hover:bg-[#D4AF37] hover:text-[#002147]">{t.workCta}<ArrowRight size={16}/></a>
         </motion.div>
         <div className="grid gap-3 md:grid-cols-4">
-          {t.workSteps.map(([title, text], i) => {
+          {processItems.map((step, i) => {
             const Icon = processIcons[i];
-            return <motion.article key={title} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ delay: i * .06 }} className="group relative min-h-[390px] overflow-hidden rounded-[1.35rem] border border-white/10 bg-white/[.04] shadow-[0_20px_70px_rgba(0,0,0,.28)]">
-              <img src={processImages[i]} alt={title} className="absolute inset-0 h-full w-full object-cover opacity-55 grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0" />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.22),rgba(0,0,0,.58)_45%,rgba(0,0,0,.88))]" />
-              {i < 3 && <div className="absolute right-[-.85rem] top-1/2 z-20 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#D4AF37]/60 bg-[#050B14] text-[#D4AF37] md:flex"><ArrowRight size={16}/></div>}
-              <div className="absolute inset-x-0 bottom-0 grid min-h-[230px] grid-rows-[auto_auto_auto_1fr] p-5">
+            return <motion.article key={step.title} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ delay: i * .06 }} className="group relative min-h-[370px] overflow-hidden rounded-[1.35rem] border border-white/14 bg-white/[.045] shadow-[0_20px_70px_rgba(0,0,0,.20)]">
+              <img src={step.image} alt={step.title} className="absolute inset-0 h-full w-full object-cover opacity-50 grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0" />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,35,61,.30),rgba(9,35,61,.62)_42%,rgba(3,11,21,.90))]" />
+              {i < 3 && <div className="absolute right-[-.85rem] top-1/2 z-20 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#D4AF37]/60 bg-[#09233D] text-[#D4AF37] md:flex"><ArrowRight size={16}/></div>}
+              <div className="relative z-10 flex h-full min-h-[370px] flex-col justify-end p-5">
                 <p className="text-3xl font-bold leading-none text-[#D4AF37]">0{i + 1}</p>
-                <div className="mt-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#D4AF37]/45 bg-black/35 text-[#D4AF37]"><Icon size={19}/></div>
-                <h3 className="mt-4 min-h-[3.1rem] text-lg font-bold leading-tight">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-white/76">{text}</p>
+                <div className="mt-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#D4AF37]/45 bg-black/30 text-[#D4AF37]"><Icon size={19}/></div>
+                <h3 className="mt-4 min-h-[2.85rem] text-lg font-bold leading-tight">{step.title}</h3>
+                <p className="mt-2 min-h-[6rem] text-sm leading-6 text-white/78">{step.text}</p>
               </div>
             </motion.article>;
           })}
@@ -224,16 +264,18 @@ export default function HomeClient({ data }: Props) {
     </section>
 
     <section className="relative overflow-hidden bg-[#F7F3EA] px-5 py-10 text-[#002147] md:px-8 md:py-12">
-      <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white/65 to-transparent" />
-      <div className="relative mx-auto max-w-6xl text-center">
-        <p className="text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{t.whyTitle}</p>
-        <h2 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">{t.whyHeadline}</h2>
-        <div className="mt-8 grid gap-5 md:grid-cols-4 md:divide-x md:divide-[#002147]/14">
+      <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white/55 to-transparent" />
+      <div className="relative mx-auto max-w-6xl">
+        <SectionHeader eyebrow={t.whyTitle} title={t.whyHeadline} />
+        <div className="mt-7 grid gap-5 md:grid-cols-4 md:divide-x md:divide-[#002147]/14">
           {t.stats.map(([number, label], i) => {
             const StatIcon = [Rocket, Folder, Globe2, BarChart3][i];
-            return <motion.div key={label} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-90px' }} transition={{ duration: .45, delay: i * .04 }} className="flex items-center justify-center gap-4 px-4 py-2 text-left md:justify-center">
-              <StatIcon size={36} strokeWidth={1.8} className="shrink-0 text-[#D4AF37]" />
-              <div><strong className="block text-4xl font-semibold leading-none text-[#002147] md:text-[2.7rem]">{number}</strong><p className="mt-2 max-w-[11rem] text-sm leading-5 text-[#002147]/78">{label}</p></div>
+            return <motion.div key={label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-90px' }} transition={{ duration: .45, delay: i * .04 }} className="stat-item px-4 py-2">
+              <div className="flex min-h-[3rem] items-center gap-4">
+                <StatIcon size={34} strokeWidth={1.8} className="shrink-0 text-[#D4AF37]" />
+                <strong className="block text-4xl font-semibold leading-none text-[#002147] md:text-[2.55rem]">{number}</strong>
+              </div>
+              <p className="mt-3 max-w-[12rem] text-sm leading-5 text-[#002147]/78">{label}</p>
             </motion.div>;
           })}
         </div>
@@ -241,29 +283,24 @@ export default function HomeClient({ data }: Props) {
     </section>
 
     <section className="overflow-hidden bg-[#082642] py-12 text-white">
-      <div className="mx-auto max-w-6xl px-5 text-center md:px-8">
-        <p className="text-xs font-bold uppercase tracking-[.28em] text-[#4AA3FF]">Ecosistema</p>
-        <h2 className="mx-auto mt-3 max-w-3xl text-2xl font-semibold leading-tight md:text-4xl">{t.toolsTitle}</h2>
-        <div className="mx-auto mt-5 h-0.5 w-16 rounded-full bg-[#4AA3FF]" />
+      <div className="mx-auto max-w-6xl px-5 md:px-8">
+        <SectionHeader eyebrow="Ecosistema" title={t.toolsTitle} theme="dark" />
       </div>
-      <div className="mt-10 space-y-5">
-        <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-left">{[...tools.slice(0, 9), ...tools.slice(0, 9)].map((tool, index) => <span key={`${tool}-${index}`} className="tool-logo">{tool}</span>)}</div></div>
-        <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-right">{[...tools.slice(9), ...tools.slice(9)].map((tool, index) => <span key={`${tool}-${index}`} className="tool-logo">{tool}</span>)}</div></div>
+      <div className="mt-9 space-y-5">
+        <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-left">{[...tools.slice(0, 9), ...tools.slice(0, 9)].map((tool, index) => <ToolLogo key={`${tool.name}-${index}`} tool={tool} />)}</div></div>
+        <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-right">{[...tools.slice(9), ...tools.slice(9)].map((tool, index) => <ToolLogo key={`${tool.name}-${index}`} tool={tool} />)}</div></div>
       </div>
     </section>
 
     <section id="portafolio" className="border-y border-[#002147]/10 bg-white/60 px-5 py-16 md:px-8">
       <div className="mx-auto max-w-6xl">
         <div className="mb-10 max-w-4xl">
-          <p className="text-xs font-bold uppercase tracking-[.28em] text-[#B58F18]">{t.portfolioEyebrow}</p>
-          <h2 className="mt-4 text-4xl font-semibold leading-tight md:text-5xl">{t.portfolioTitle}</h2>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-[#212529]/70 md:text-lg">{t.portfolioIntro}</p>
-          <div className="mt-5 h-0.5 w-16 rounded-full bg-[#B58F18]" />
+          <SectionHeader eyebrow={t.portfolioEyebrow} title={t.portfolioTitle} subtitle={t.portfolioIntro} />
         </div>
         <div className="grid gap-5 md:grid-cols-3">
           {portfolio.slice(0,3).map((p, i) => <motion.article key={`${p.title}-${i}`} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * .05 }} className="group overflow-hidden rounded-[1.6rem] border border-[#002147]/10 bg-white shadow-[0_16px_45px_rgba(0,33,71,.09)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_60px_rgba(0,33,71,.13)]">
-            <div className="relative h-52 overflow-hidden"><ImageBox src={p.image_url} alt={p.title || 'Proyecto'} className="transition duration-700 group-hover:scale-105" /><div className="absolute -bottom-7 left-7 inline-flex h-14 w-14 items-center justify-center rounded-full border border-[#002147]/10 bg-white text-[#B58F18] shadow-[0_12px_30px_rgba(0,33,71,.15)]"><ExternalLink size={22}/></div></div>
-            <div className="p-7 pt-10"><p className="text-xs font-bold uppercase tracking-[.2em] text-[#B58F18]">{p.category}</p><h3 className="mt-3 text-2xl font-semibold tracking-[-.02em]">{p.title}</h3><p className="mt-3 leading-7 text-[#212529]/68">{p.description}</p><a href={p.project_url || '#contacto'} className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#002147] transition hover:text-[#B58F18]">{t.portfolioButton}<ArrowRight size={16}/></a></div>
+            <div className="relative h-52 overflow-hidden"><ImageBox src={p.image_url} alt={p.title || 'Proyecto'} className="transition duration-700 group-hover:scale-105" /></div>
+            <div className="p-7"><p className="text-xs font-bold uppercase tracking-[.2em] text-[#B58F18]">{p.category}</p><h3 className="mt-3 text-2xl font-semibold tracking-[-.02em]">{p.title}</h3><p className="mt-3 leading-7 text-[#212529]/68">{p.description}</p><a href={p.project_url || '#contacto'} className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#002147] transition hover:text-[#B58F18]">{t.portfolioButton}<ArrowRight size={16}/></a></div>
           </motion.article>)}
         </div>
       </div>
