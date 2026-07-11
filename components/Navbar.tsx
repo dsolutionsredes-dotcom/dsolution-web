@@ -63,10 +63,10 @@ export default function Navbar({ links, ctaLabel, locale, onLocaleChange, transp
   const transparent = transparentOnTop && !scrolled && !open;
 
   const headerClass = transparent
-    ? 'fixed left-0 right-0 top-0 z-50 border-b border-white/5 bg-transparent transition-all duration-300'
-    : 'fixed left-0 right-0 top-0 z-50 border-b border-[#002147]/10 bg-[#F7F3EA]/96 shadow-[0_12px_35px_rgba(0,33,71,.10)] backdrop-blur-xl transition-all duration-300';
+    ? 'fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-transparent transition-all duration-300'
+    : 'fixed left-0 right-0 top-0 z-50 border-b border-[#002147]/10 bg-[rgba(247,243,234,.96)] shadow-[0_12px_35px_rgba(0,33,71,.12)] backdrop-blur-xl transition-all duration-300';
 
-  const navText = transparent ? 'text-white hover:text-[#D4AF37]' : 'text-[#0B2340]/88 hover:text-[#D4AF37]';
+  const navText = transparent ? 'text-white drop-shadow-[0_2px_10px_rgba(0,0,0,.4)] hover:text-[#D4AF37]' : 'text-[#0B2340] hover:text-[#D4AF37]';
   const navButton = transparent ? 'text-white hover:bg-white/10 hover:text-[#D4AF37]' : 'text-[#0B2340]/70 hover:bg-white/70 hover:text-[#D4AF37]';
   const langWrap = transparent ? 'border-white/20 bg-white/10 text-white backdrop-blur' : 'border-slate-200 bg-white/80 text-[#0B2340] shadow-sm';
   const inactiveLang = transparent ? 'text-white/70 hover:text-white' : 'text-[#0B2340]/70 hover:text-[#0B2340]';

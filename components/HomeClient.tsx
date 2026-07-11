@@ -229,16 +229,16 @@ export default function HomeClient({ data }: Props) {
           <SectionHeader eyebrow={t.servicesEyebrow} title={t.servicesTitle} subtitle={t.servicesIntro} />
         </motion.div>
         <div className="grid overflow-hidden rounded-[1.75rem] border border-white/60 bg-[#002147] shadow-[0_24px_70px_rgba(0,33,71,.16)] md:grid-cols-3">
-          {localizedServices.map((service, index) => <motion.a key={service.key} href={service.href} initial={{ opacity: 0, y: 34 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: .48, delay: index * .035 }} className="group relative min-h-[190px] overflow-hidden border-white/10 md:border-r md:border-b lg:min-h-[205px]">
+          {localizedServices.map((service, index) => <motion.a key={service.key} href={service.href} initial={{ opacity: 0, y: 34 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: .48, delay: index * .035 }} className="group service-tile relative min-h-[190px] overflow-hidden border-white/10 md:border-r md:border-b lg:min-h-[205px]">
             <img src={service.image} alt={locale === 'es' ? service.es : service.en} className="absolute inset-0 h-full w-full object-cover grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0 group-focus:scale-105 group-focus:grayscale-0" />
-            <div className="absolute inset-0 bg-black/58 transition duration-500 group-hover:bg-black/32" />
-            <div className="absolute inset-x-0 bottom-0 p-5 text-white"><p className="text-xs font-bold uppercase tracking-[.22em] text-[#D4AF37]">0{index + 1}</p><h3 className="mt-2 text-xl font-bold tracking-wide md:text-2xl">{locale === 'es' ? service.es : service.en}</h3><p className="mt-2 max-w-sm text-sm leading-5 text-white/0 transition duration-500 group-hover:text-white/82">{service.description}</p><span className="mt-4 inline-flex translate-y-2 items-center gap-2 text-sm font-bold opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100">{t.servicesButton}<ArrowRight size={16}/></span></div>
+            <div className="service-tile-overlay absolute inset-0 transition duration-500" />
+            <div className="service-tile-content absolute inset-x-0 bottom-0 p-5 text-white"><p className="text-xs font-bold uppercase tracking-[.22em] text-[#D4AF37]">0{index + 1}</p><h3 className="mt-2 text-xl font-bold tracking-wide md:text-2xl">{locale === 'es' ? service.es : service.en}</h3><p className="mt-2 max-w-sm text-sm leading-5 text-white/0 transition duration-500 group-hover:text-white/86">{service.description}</p><span className="mt-4 inline-flex translate-y-2 items-center gap-2 text-sm font-bold opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100">{t.servicesButton}<ArrowRight size={16}/></span></div>
           </motion.a>)}
         </div>
       </div>
     </section>
 
-    <section id="proceso" className="bg-[#09233D] px-5 py-14 text-white md:px-8">
+    <section id="proceso" className="bg-[#0B2F4D] px-5 py-14 text-white md:px-8">
       <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[.72fr_1.62fr] lg:items-center">
         <motion.div initial={{ opacity: 0, x: -34 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: '-80px' }}>
           <SectionHeader eyebrow="Proceso" title={t.workTitle} subtitle={t.workText} theme="dark" />
@@ -250,7 +250,7 @@ export default function HomeClient({ data }: Props) {
             return <motion.article key={step.title} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ delay: i * .06 }} className="group relative min-h-[370px] overflow-hidden rounded-[1.35rem] border border-white/14 bg-white/[.045] shadow-[0_20px_70px_rgba(0,0,0,.20)]">
               <img src={step.image} alt={step.title} className="absolute inset-0 h-full w-full object-cover opacity-50 grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,35,61,.30),rgba(9,35,61,.62)_42%,rgba(3,11,21,.90))]" />
-              {i < 3 && <div className="absolute right-[-.85rem] top-1/2 z-20 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#D4AF37]/60 bg-[#09233D] text-[#D4AF37] md:flex"><ArrowRight size={16}/></div>}
+              {i < 3 && <div className="absolute right-[-.85rem] top-1/2 z-20 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#D4AF37]/60 bg-[#0B2F4D] text-[#D4AF37] md:flex"><ArrowRight size={16}/></div>}
               <div className="relative z-10 flex h-full min-h-[370px] flex-col justify-end p-5">
                 <p className="text-3xl font-bold leading-none text-[#D4AF37]">0{i + 1}</p>
                 <div className="mt-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#D4AF37]/45 bg-black/30 text-[#D4AF37]"><Icon size={19}/></div>
@@ -271,7 +271,7 @@ export default function HomeClient({ data }: Props) {
           {t.stats.map(([number, label], i) => {
             const StatIcon = [Rocket, Folder, Globe2, BarChart3][i];
             return <motion.div key={label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-90px' }} transition={{ duration: .45, delay: i * .04 }} className="stat-item px-4 py-2">
-              <div className="flex min-h-[3rem] items-center gap-4">
+              <div className="stat-row flex min-h-[3rem] items-center gap-4">
                 <StatIcon size={34} strokeWidth={1.8} className="shrink-0 text-[#D4AF37]" />
                 <strong className="block text-4xl font-semibold leading-none text-[#002147] md:text-[2.55rem]">{number}</strong>
               </div>
