@@ -152,16 +152,6 @@ a { text-decoration: none; }
 
 
 /* Phase 26 visual refinements */
-.service-tile-overlay {
-  background: linear-gradient(135deg, rgba(0,0,0,.66), rgba(0,0,0,.34));
-}
-.service-tile:hover .service-tile-overlay,
-.service-tile:focus .service-tile-overlay {
-  background: linear-gradient(135deg, rgba(0,33,71,.80), rgba(0,33,71,.48));
-}
-.service-tile-content {
-  text-shadow: 0 4px 20px rgba(0,0,0,.86), 0 1px 2px rgba(0,0,0,.85);
-}
 .stat-row {
   align-items: center;
   min-height: 3.1rem;
@@ -181,4 +171,48 @@ a { text-decoration: none; }
   .stat-item p {
     min-height: 2.5rem;
   }
+}
+
+/* Phase 27: Chatwoot local-session reset button */
+.chatwoot-reset-button {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 10.9rem;
+  z-index: 69;
+  border: 1px solid rgba(0,33,71,.14);
+  border-radius: 999px;
+  background: rgba(247,243,234,.94);
+  color: #002147;
+  padding: .72rem 1rem;
+  font-size: .78rem;
+  font-weight: 800;
+  box-shadow: 0 16px 36px rgba(0,33,71,.18);
+  backdrop-filter: blur(14px);
+  transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+}
+.chatwoot-reset-button:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,.98);
+  box-shadow: 0 22px 46px rgba(0,33,71,.24);
+}
+@media (max-width: 768px) {
+  .chatwoot-reset-button {
+    right: 1rem;
+    bottom: 10.35rem;
+    max-width: 11.5rem;
+    padding: .65rem .85rem;
+    font-size: .72rem;
+  }
+}
+
+/* Phase 27: services hover refinement */
+.service-tile-overlay {
+  background: linear-gradient(135deg, rgba(0,0,0,.62), rgba(0,0,0,.34));
+}
+.service-tile:hover .service-tile-overlay,
+.service-tile:focus .service-tile-overlay {
+  background: linear-gradient(135deg, rgba(0,0,0,.44), rgba(0,0,0,.22));
+}
+.service-tile-content {
+  text-shadow: 0 4px 22px rgba(0,0,0,.9), 0 1px 2px rgba(0,0,0,.9);
 }

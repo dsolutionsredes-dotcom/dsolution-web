@@ -18,6 +18,7 @@ export type SiteData = {
   portfolio: Array<{ title?: string; category?: string; description?: string; project_url?: string; image?: string; image_url?: string }>;
   blog: Array<{ title?: string; excerpt?: string; category?: string; slug?: string; featured_image?: string; image_url?: string }>;
   flex: Array<{ title?: string; subtitle?: string; content?: string; section_type?: string; is_published?: boolean; link_text?: string; link_url?: string; button_text?: string; button_url?: string; image?: string; image_url?: string }>;
+  process_steps?: Array<{ title?: string; description?: string; icon?: string; sort?: number; is_published?: boolean; image?: string; image_url?: string }>;
 };
 
 type Locale = 'es' | 'en';
@@ -139,6 +140,16 @@ const tools = [
 
 const processIcons = [MessageSquare, Target, Clapperboard, BarChart3];
 const processImages = ['/service-branding.jpg', '/service-marketing.jpg', '/service-audiovisual.jpg', '/service-web.jpg'];
+const processIconMap: Record<string, typeof MessageSquare> = {
+  message: MessageSquare,
+  chat: MessageSquare,
+  target: Target,
+  strategy: Target,
+  clapperboard: Clapperboard,
+  video: Clapperboard,
+  chart: BarChart3,
+  analytics: BarChart3,
+};
 
 function normalizeList(value?: string) { return (value || '').split(',').map(v => v.trim()).filter(Boolean); }
 function MediaFallback({ className = '' }: { className?: string }) {
@@ -195,12 +206,23 @@ export default function HomeClient({ data }: Props) {
     { title: locale === 'es' ? 'Sitio web corporativo' : 'Corporate website', category: 'Web', description: locale === 'es' ? 'Diseño y estructura para una presencia digital clara y premium.' : 'Design and structure for a clear premium digital presence.', image_url: '/service-web.jpg' },
   ];
 
+  const directusProcess = (data.process_steps || [])
+    .filter(item => item.is_published !== false)
+    .sort((a, b) => Number(a.sort ?? 9999) - Number(b.sort ?? 9999));
   const processMedia = data.flex.filter(item => item.is_published !== false && ['process_step', 'proceso', 'process'].includes(String(item.section_type || '').toLowerCase()));
-  const processItems = t.workSteps.map(([title, text], index) => ({
-    title,
-    text,
-    image: processMedia[index]?.image_url || processImages[index],
-  }));
+  const processItems = directusProcess.length
+    ? directusProcess.map((item, index) => ({
+        title: item.title || t.workSteps[index]?.[0] || `Paso ${index + 1}`,
+        text: item.description || t.workSteps[index]?.[1] || '',
+        image: item.image_url || processImages[index % processImages.length],
+        icon: item.icon || ['message', 'target', 'clapperboard', 'chart'][index] || 'message',
+      }))
+    : t.workSteps.map(([title, text], index) => ({
+        title,
+        text,
+        image: processMedia[index]?.image_url || processImages[index],
+        icon: ['message', 'target', 'clapperboard', 'chart'][index] || 'message',
+      }));
 
   return <main className="min-h-screen overflow-hidden bg-[#F7F3EA] text-[#002147]">
     <Navbar links={t.nav} ctaLabel={t.cta} locale={locale} onLocaleChange={setLocale} transparentOnTop />
@@ -232,13 +254,13 @@ export default function HomeClient({ data }: Props) {
           {localizedServices.map((service, index) => <motion.a key={service.key} href={service.href} initial={{ opacity: 0, y: 34 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: .48, delay: index * .035 }} className="group service-tile relative min-h-[190px] overflow-hidden border-white/10 md:border-r md:border-b lg:min-h-[205px]">
             <img src={service.image} alt={locale === 'es' ? service.es : service.en} className="absolute inset-0 h-full w-full object-cover grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0 group-focus:scale-105 group-focus:grayscale-0" />
             <div className="service-tile-overlay absolute inset-0 transition duration-500" />
-            <div className="service-tile-content absolute inset-x-0 bottom-0 p-5 text-white"><p className="text-xs font-bold uppercase tracking-[.22em] text-[#D4AF37]">0{index + 1}</p><h3 className="mt-2 text-xl font-bold tracking-wide md:text-2xl">{locale === 'es' ? service.es : service.en}</h3><p className="mt-2 max-w-sm text-sm leading-5 text-white/0 transition duration-500 group-hover:text-white/86">{service.description}</p><span className="mt-4 inline-flex translate-y-2 items-center gap-2 text-sm font-bold opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100">{t.servicesButton}<ArrowRight size={16}/></span></div>
+            <div className="service-tile-content absolute inset-x-0 bottom-0 p-5 text-white"><p className="text-xs font-bold uppercase tracking-[.22em] text-[#D4AF37]">0{index + 1}</p><h3 className="mt-2 text-xl font-bold tracking-wide md:text-2xl">{locale === 'es' ? service.es : service.en}</h3><span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-white/92 transition duration-500 group-hover:text-[#D4AF37]">{t.servicesButton}<ArrowRight size={16}/></span></div>
           </motion.a>)}
         </div>
       </div>
     </section>
 
-    <section id="proceso" className="bg-[#0B2F4D] px-5 py-14 text-white md:px-8">
+    <section id="proceso" className="bg-[#123D5F] px-5 py-14 text-white md:px-8">
       <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[.72fr_1.62fr] lg:items-center">
         <motion.div initial={{ opacity: 0, x: -34 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: '-80px' }}>
           <SectionHeader eyebrow="Proceso" title={t.workTitle} subtitle={t.workText} theme="dark" />
@@ -246,7 +268,7 @@ export default function HomeClient({ data }: Props) {
         </motion.div>
         <div className="grid gap-3 md:grid-cols-4">
           {processItems.map((step, i) => {
-            const Icon = processIcons[i];
+            const Icon = processIconMap[String(step.icon || '').toLowerCase()] || processIcons[i % processIcons.length] || MessageSquare;
             return <motion.article key={step.title} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ delay: i * .06 }} className="group relative min-h-[370px] overflow-hidden rounded-[1.35rem] border border-white/14 bg-white/[.045] shadow-[0_20px_70px_rgba(0,0,0,.20)]">
               <img src={step.image} alt={step.title} className="absolute inset-0 h-full w-full object-cover opacity-50 grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,35,61,.30),rgba(9,35,61,.62)_42%,rgba(3,11,21,.90))]" />

@@ -64,7 +64,7 @@ function assetUrl(file?: unknown) {
   return `${directusUrl}/assets/${fileId}`;
 }
 
-function normalizeAssets(site: any, home: any, about: any, services: any[], portfolio: any[], blog: any[], flex: any[]) {
+function normalizeAssets(site: any, home: any, about: any, services: any[], portfolio: any[], blog: any[], flex: any[], processSteps: any[]) {
   return {
     site,
     home: {
@@ -90,6 +90,10 @@ function normalizeAssets(site: any, home: any, about: any, services: any[], port
       image_url: item.image_url || assetUrl(item.featured_image || item.image),
     })),
     flex: flex.map((item) => ({
+      ...item,
+      image_url: item.image_url || assetUrl(item.image),
+    })),
+    process_steps: processSteps.map((item) => ({
       ...item,
       image_url: item.image_url || assetUrl(item.image),
     })),
@@ -146,7 +150,7 @@ const fallback: SiteData = {
 };
 
 export default async function Home() {
-  const [site, home, about, contact, services, portfolio, blog, flex] = await Promise.all([
+  const [site, home, about, contact, services, portfolio, blog, flex, processSteps] = await Promise.all([
     getItem('site_settings', fallback.site),
     getItem('home_page', fallback.home),
     getItem('about_page', fallback.about),
@@ -155,9 +159,10 @@ export default async function Home() {
     getItems('portfolio', fallback.portfolio),
     getItems('blog_posts', fallback.blog),
     getItems('flex_sections', fallback.flex),
+    getItems('process_steps', []),
   ]);
 
-  const normalized = normalizeAssets(site, home, about, services, portfolio, blog, flex);
+  const normalized = normalizeAssets(site, home, about, services, portfolio, blog, flex, processSteps);
 
   return <HomeClient data={{
     site: normalized.site,
@@ -168,5 +173,6 @@ export default async function Home() {
     portfolio: normalized.portfolio,
     blog: normalized.blog,
     flex: normalized.flex,
+    process_steps: normalized.process_steps,
   }} />;
 }
