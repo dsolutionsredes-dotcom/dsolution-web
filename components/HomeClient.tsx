@@ -210,19 +210,23 @@ export default function HomeClient({ data }: Props) {
     .filter(item => item.is_published !== false)
     .sort((a, b) => Number(a.sort ?? 9999) - Number(b.sort ?? 9999));
   const processMedia = data.flex.filter(item => item.is_published !== false && ['process_step', 'proceso', 'process'].includes(String(item.section_type || '').toLowerCase()));
-  const processItems = directusProcess.length
-    ? directusProcess.map((item, index) => ({
-        title: item.title || t.workSteps[index]?.[0] || `Paso ${index + 1}`,
-        text: item.description || t.workSteps[index]?.[1] || '',
-        image: item.image_url || processImages[index % processImages.length],
-        icon: item.icon || ['message', 'target', 'clapperboard', 'chart'][index] || 'message',
-      }))
-    : t.workSteps.map(([title, text], index) => ({
-        title,
-        text,
-        image: processMedia[index]?.image_url || processImages[index],
-        icon: ['message', 'target', 'clapperboard', 'chart'][index] || 'message',
-      }));
+  const baseProcessItems = t.workSteps.map(([title, text], index) => ({
+    title,
+    text,
+    image: processMedia[index]?.image_url || processImages[index],
+    icon: ['message', 'target', 'clapperboard', 'chart'][index] || 'message',
+  }));
+  const processItems = baseProcessItems.map((base, index) => {
+    const directus = directusProcess.find(item => Number(item.sort) === index + 1) || directusProcess[index];
+    if (!directus) return base;
+    return {
+      title: directus.title || base.title,
+      text: directus.description || base.text,
+      // Imagen editable desde Directus. Si no hay imagen, se mantiene el fallback visual.
+      image: directus.image_url || base.image,
+      icon: directus.icon || base.icon,
+    };
+  });
 
   return <main className="min-h-screen overflow-hidden bg-[#F7F3EA] text-[#002147]">
     <Navbar links={t.nav} ctaLabel={t.cta} locale={locale} onLocaleChange={setLocale} transparentOnTop />
@@ -304,11 +308,11 @@ export default function HomeClient({ data }: Props) {
       </div>
     </section>
 
-    <section className="overflow-hidden bg-[#082642] py-12 text-white">
-      <div className="mx-auto max-w-6xl px-5 md:px-8">
+    <section className="overflow-hidden bg-[#082642] px-5 py-12 text-white md:px-8">
+      <div className="mx-auto max-w-6xl">
         <SectionHeader eyebrow="Ecosistema" title={t.toolsTitle} theme="dark" />
       </div>
-      <div className="mt-9 space-y-5">
+      <div className="mx-auto mt-9 max-w-6xl space-y-5">
         <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-left">{[...tools.slice(0, 9), ...tools.slice(0, 9)].map((tool, index) => <ToolLogo key={`${tool.name}-${index}`} tool={tool} />)}</div></div>
         <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-right">{[...tools.slice(9), ...tools.slice(9)].map((tool, index) => <ToolLogo key={`${tool.name}-${index}`} tool={tool} />)}</div></div>
       </div>

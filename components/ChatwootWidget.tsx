@@ -78,7 +78,7 @@ export default function ChatwootWidget() {
       onClick={() => resetChatwootSession(true)}
       aria-label="Nuevo chat / Soy otra persona"
     >
-      Nuevo chat / Soy otra persona
+      Nuevo chat
     </button>
   );
 }

@@ -16,9 +16,9 @@ async function fetchWithTimeout(url: string, init: RequestInit = {}, timeoutMs =
   }
 }
 
-async function getItem<T>(collection: string, fallback: T): Promise<T> {
+async function getItem<T>(collection: string, fallback: T, fields = '*'): Promise<T> {
   try {
-    const res = await fetchWithTimeout(`${directusUrl}/items/${collection}?fields=*`, { cache: 'no-store' });
+    const res = await fetchWithTimeout(`${directusUrl}/items/${collection}?fields=${encodeURIComponent(fields)}`, { cache: 'no-store', next: { revalidate: 0 } });
     if (!res.ok) return fallback;
     const json = (await res.json()) as DirectusResponse<T>;
     if (Array.isArray(json.data)) return (json.data[0] as T) || fallback;
@@ -28,9 +28,9 @@ async function getItem<T>(collection: string, fallback: T): Promise<T> {
   }
 }
 
-async function getItems<T extends Record<string, any>>(collection: string, fallback: T[]): Promise<T[]> {
+async function getItems<T extends Record<string, any>>(collection: string, fallback: T[], fields = '*'): Promise<T[]> {
   try {
-    const url = `${directusUrl}/items/${collection}?fields=*&timestamp=${Date.now()}`;
+    const url = `${directusUrl}/items/${collection}?fields=${encodeURIComponent(fields)}&timestamp=${Date.now()}`;
     const res = await fetchWithTimeout(url, { cache: 'no-store', next: { revalidate: 0 } });
     if (!res.ok) return fallback;
     const json = (await res.json()) as DirectusResponse<T>;
@@ -48,11 +48,21 @@ function getFileId(file: unknown): string | undefined {
   if (!file) return undefined;
   if (typeof file === 'string') return file;
   if (typeof file === 'object') {
-    const item = file as { id?: string; filename_disk?: string; directus_files_id?: string | { id?: string } };
+    const item = file as {
+      id?: string;
+      filename_disk?: string;
+      data?: { id?: string; filename_disk?: string };
+      directus_files_id?: string | { id?: string; filename_disk?: string };
+    };
     if (typeof item.id === 'string') return item.id;
     if (typeof item.filename_disk === 'string') return item.filename_disk;
+    if (item.data?.id) return item.data.id;
+    if (item.data?.filename_disk) return item.data.filename_disk;
     if (typeof item.directus_files_id === 'string') return item.directus_files_id;
-    if (item.directus_files_id && typeof item.directus_files_id === 'object' && typeof item.directus_files_id.id === 'string') return item.directus_files_id.id;
+    if (item.directus_files_id && typeof item.directus_files_id === 'object') {
+      if (typeof item.directus_files_id.id === 'string') return item.directus_files_id.id;
+      if (typeof item.directus_files_id.filename_disk === 'string') return item.directus_files_id.filename_disk;
+    }
   }
   return undefined;
 }
@@ -152,14 +162,14 @@ const fallback: SiteData = {
 export default async function Home() {
   const [site, home, about, contact, services, portfolio, blog, flex, processSteps] = await Promise.all([
     getItem('site_settings', fallback.site),
-    getItem('home_page', fallback.home),
+    getItem('home_page', fallback.home, '*,hero_image.*,hero_video.*,hero_video_poster.*'),
     getItem('about_page', fallback.about),
     getItem('contact_settings', fallback.contact),
-    getItems('services', fallback.services),
-    getItems('portfolio', fallback.portfolio),
-    getItems('blog_posts', fallback.blog),
-    getItems('flex_sections', fallback.flex),
-    getItems('process_steps', []),
+    getItems('services', fallback.services, '*,image.*'),
+    getItems('portfolio', fallback.portfolio, '*,image.*'),
+    getItems('blog_posts', fallback.blog, '*,featured_image.*,image.*'),
+    getItems('flex_sections', fallback.flex, '*,image.*'),
+    getItems('process_steps', [], '*,image.*'),
   ]);
 
   const normalized = normalizeAssets(site, home, about, services, portfolio, blog, flex, processSteps);
