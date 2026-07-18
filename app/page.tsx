@@ -18,7 +18,7 @@ async function fetchWithTimeout(url: string, init: RequestInit = {}, timeoutMs =
 
 async function getItem<T>(collection: string, fallback: T, fields = '*'): Promise<T> {
   try {
-    const res = await fetchWithTimeout(`${directusUrl}/items/${collection}?fields=${encodeURIComponent(fields)}`, { cache: 'no-store', next: { revalidate: 0 } });
+    const res = await fetchWithTimeout(`${directusUrl}/items/${collection}?fields=${fields}`, { cache: 'no-store', next: { revalidate: 0 } });
     if (!res.ok) return fallback;
     const json = (await res.json()) as DirectusResponse<T>;
     if (Array.isArray(json.data)) return (json.data[0] as T) || fallback;
@@ -29,14 +29,20 @@ async function getItem<T>(collection: string, fallback: T, fields = '*'): Promis
 }
 
 async function getItems<T extends Record<string, any>>(collection: string, fallback: T[], fields = '*'): Promise<T[]> {
-  try {
-    const url = `${directusUrl}/items/${collection}?fields=${encodeURIComponent(fields)}&timestamp=${Date.now()}`;
+  const read = async (fieldList: string) => {
+    const url = `${directusUrl}/items/${collection}?fields=${fieldList}&timestamp=${Date.now()}`;
     const res = await fetchWithTimeout(url, { cache: 'no-store', next: { revalidate: 0 } });
-    if (!res.ok) return fallback;
+    if (!res.ok) return undefined;
     const json = (await res.json()) as DirectusResponse<T>;
-    if (!Array.isArray(json.data)) return fallback;
+    return Array.isArray(json.data) ? json.data : undefined;
+  };
 
-    const published = json.data.filter((item) => item.is_published !== false);
+  try {
+    // Primer intento con campos relacionales. Si Directus rechaza algún campo, se reintenta con `*`.
+    const data = (await read(fields)) || (fields !== '*' ? await read('*') : undefined);
+    if (!data) return fallback;
+
+    const published = data.filter((item) => item.is_published !== false);
     const sorted = published.sort((a, b) => Number(a.sort ?? a.id ?? 9999) - Number(b.sort ?? b.id ?? 9999));
     return sorted.length ? sorted : fallback;
   } catch {
@@ -50,18 +56,25 @@ function getFileId(file: unknown): string | undefined {
   if (typeof file === 'object') {
     const item = file as {
       id?: string;
+      uuid?: string;
       filename_disk?: string;
-      data?: { id?: string; filename_disk?: string };
-      directus_files_id?: string | { id?: string; filename_disk?: string };
+      data?: { id?: string; uuid?: string; filename_disk?: string };
+      image?: string | { id?: string; uuid?: string; filename_disk?: string };
+      file?: string | { id?: string; uuid?: string; filename_disk?: string };
+      directus_files_id?: string | { id?: string; uuid?: string; filename_disk?: string };
     };
     if (typeof item.id === 'string') return item.id;
+    if (typeof item.uuid === 'string') return item.uuid;
     if (typeof item.filename_disk === 'string') return item.filename_disk;
     if (item.data?.id) return item.data.id;
+    if (item.data?.uuid) return item.data.uuid;
     if (item.data?.filename_disk) return item.data.filename_disk;
-    if (typeof item.directus_files_id === 'string') return item.directus_files_id;
-    if (item.directus_files_id && typeof item.directus_files_id === 'object') {
-      if (typeof item.directus_files_id.id === 'string') return item.directus_files_id.id;
-      if (typeof item.directus_files_id.filename_disk === 'string') return item.directus_files_id.filename_disk;
+    const nested = item.image || item.file || item.directus_files_id;
+    if (typeof nested === 'string') return nested;
+    if (nested && typeof nested === 'object') {
+      if (typeof nested.id === 'string') return nested.id;
+      if (typeof nested.uuid === 'string') return nested.uuid;
+      if (typeof nested.filename_disk === 'string') return nested.filename_disk;
     }
   }
   return undefined;
@@ -105,7 +118,7 @@ function normalizeAssets(site: any, home: any, about: any, services: any[], port
     })),
     process_steps: processSteps.map((item) => ({
       ...item,
-      image_url: item.image_url || assetUrl(item.image),
+      image_url: item.image_url || assetUrl(item.image || item.Image || item.process_image || item.background_image),
     })),
   };
 }

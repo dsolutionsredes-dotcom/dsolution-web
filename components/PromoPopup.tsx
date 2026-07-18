@@ -29,7 +29,7 @@ function isValidLink(value?: string) {
   return !!value && (value.startsWith('http') || value.startsWith('/') || value.startsWith('#'));
 }
 
-export default function PromoPopup({ promo }: { promo?: PromoData }) {
+export default function PromoPopup({ promo, delaySeconds }: { promo?: PromoData; delaySeconds?: number | string }) {
   const [visible, setVisible] = useState(false);
   const content = useMemo(() => normalizeContent(promo?.content), [promo?.content]);
 
@@ -37,9 +37,10 @@ export default function PromoPopup({ promo }: { promo?: PromoData }) {
     if (!promo?.title) return;
     const dismissed = sessionStorage.getItem('dsolution_promo_dismissed');
     if (dismissed === promo.title) return;
-    const timer = window.setTimeout(() => setVisible(true), 900);
+    const safeDelay = Number.isFinite(Number(delaySeconds)) ? Math.max(0, Number(delaySeconds)) : 10;
+    const timer = window.setTimeout(() => setVisible(true), safeDelay * 1000);
     return () => window.clearTimeout(timer);
-  }, [promo?.title]);
+  }, [promo?.title, delaySeconds]);
 
   if (!promo?.title || !visible) return null;
 

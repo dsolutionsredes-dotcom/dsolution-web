@@ -10,7 +10,7 @@ import { motion } from '@/components/Motion';
 import { SERVICE_LINKS, serviceHrefFromTitle } from '@/lib/services';
 
 export type SiteData = {
-  site: { site_name?: string; footer_text?: string; seo_title?: string; seo_description?: string; primary_color?: string; secondary_color?: string; background_color?: string };
+  site: { site_name?: string; footer_text?: string; seo_title?: string; seo_description?: string; primary_color?: string; secondary_color?: string; background_color?: string; popup_delay_seconds?: number | string };
   home: { eyebrow?: string; hero_image?: string; hero_video?: string; hero_video_poster?: string; hero_title?: string; hero_subtitle?: string; primary_button_text?: string; primary_button_url?: string; secondary_button_text?: string; secondary_button_url?: string; primary_button_action?: string; secondary_button_action?: string; trusted_logos?: string; hero_image_url?: string; hero_video_url?: string; hero_video_poster_url?: string };
   about: { eyebrow?: string; about_image?: string; title?: string; intro?: string; difference?: string; where_we_work?: string; mission?: string; years_experience?: number; projects_count?: number; image_url?: string };
   contact: { email?: string; whatsapp?: string; city?: string; country?: string; instagram?: string; facebook?: string; tiktok?: string; n8n_webhook_url?: string };
@@ -18,7 +18,7 @@ export type SiteData = {
   portfolio: Array<{ title?: string; category?: string; description?: string; project_url?: string; image?: string; image_url?: string }>;
   blog: Array<{ title?: string; excerpt?: string; category?: string; slug?: string; featured_image?: string; image_url?: string }>;
   flex: Array<{ title?: string; subtitle?: string; content?: string; section_type?: string; is_published?: boolean; link_text?: string; link_url?: string; button_text?: string; button_url?: string; image?: string; image_url?: string }>;
-  process_steps?: Array<{ title?: string; description?: string; icon?: string; sort?: number; is_published?: boolean; image?: string; image_url?: string }>;
+  process_steps?: Array<{ title?: string; description?: string; icon?: string; sort?: number; is_published?: boolean; image?: string | { id?: string }; image_url?: string; Image?: string; process_image?: string; background_image?: string }>;
 };
 
 type Locale = 'es' | 'en';
@@ -181,6 +181,18 @@ function ToolLogo({ tool }: { tool: { name: string; mark: string; tone: string }
   );
 }
 
+function resolveDirectusImage(item: { image_url?: string; image?: unknown; Image?: unknown; process_image?: unknown; background_image?: unknown } | undefined) {
+  if (!item) return undefined;
+  if (item.image_url) return item.image_url;
+  const raw = item.image || item.Image || item.process_image || item.background_image;
+  if (typeof raw === 'string') return raw.startsWith('http') || raw.startsWith('/') ? raw : `${process.env.NEXT_PUBLIC_DIRECTUS_URL || 'https://admin.d-solution.org'}/assets/${raw}`;
+  if (raw && typeof raw === 'object') {
+    const id = (raw as { id?: string; uuid?: string; filename_disk?: string }).id || (raw as { uuid?: string }).uuid || (raw as { filename_disk?: string }).filename_disk;
+    if (id) return `${process.env.NEXT_PUBLIC_DIRECTUS_URL || 'https://admin.d-solution.org'}/assets/${id}`;
+  }
+  return undefined;
+}
+
 export default function HomeClient({ data }: Props) {
   const { home, contact } = data;
   const trustedLogos = normalizeList(home.trusted_logos);
@@ -223,7 +235,7 @@ export default function HomeClient({ data }: Props) {
       title: directus.title || base.title,
       text: directus.description || base.text,
       // Imagen editable desde Directus. Si no hay imagen, se mantiene el fallback visual.
-      image: directus.image_url || base.image,
+      image: resolveDirectusImage(directus) || base.image,
       icon: directus.icon || base.icon,
     };
   });
@@ -274,7 +286,7 @@ export default function HomeClient({ data }: Props) {
           {processItems.map((step, i) => {
             const Icon = processIconMap[String(step.icon || '').toLowerCase()] || processIcons[i % processIcons.length] || MessageSquare;
             return <motion.article key={step.title} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ delay: i * .06 }} className="group relative min-h-[370px] overflow-hidden rounded-[1.35rem] border border-white/14 bg-white/[.045] shadow-[0_20px_70px_rgba(0,0,0,.20)]">
-              <img src={step.image} alt={step.title} className="absolute inset-0 h-full w-full object-cover opacity-50 grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0" />
+              <img src={step.image || processImages[i % processImages.length]} alt={step.title} className="absolute inset-0 h-full w-full object-cover opacity-70 grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0" />
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,35,61,.30),rgba(9,35,61,.62)_42%,rgba(3,11,21,.90))]" />
               {i < 3 && <div className="absolute right-[-.85rem] top-1/2 z-20 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#D4AF37]/60 bg-[#0B2F4D] text-[#D4AF37] md:flex"><ArrowRight size={16}/></div>}
               <div className="relative z-10 flex h-full min-h-[370px] flex-col justify-end p-5">
@@ -308,13 +320,13 @@ export default function HomeClient({ data }: Props) {
       </div>
     </section>
 
-    <section className="overflow-hidden bg-[#082642] px-5 py-12 text-white md:px-8">
-      <div className="mx-auto max-w-6xl">
+    <section className="overflow-hidden bg-[#082642] py-12 text-white">
+      <div className="mx-auto max-w-6xl px-5 md:px-8">
         <SectionHeader eyebrow="Ecosistema" title={t.toolsTitle} theme="dark" />
       </div>
-      <div className="mx-auto mt-9 max-w-6xl space-y-5">
-        <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-left">{[...tools.slice(0, 9), ...tools.slice(0, 9)].map((tool, index) => <ToolLogo key={`${tool.name}-${index}`} tool={tool} />)}</div></div>
-        <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-right">{[...tools.slice(9), ...tools.slice(9)].map((tool, index) => <ToolLogo key={`${tool.name}-${index}`} tool={tool} />)}</div></div>
+      <div className="mt-9 w-full space-y-5">
+        <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-left">{[...tools.slice(0, 9), ...tools.slice(0, 9), ...tools.slice(0, 9)].map((tool, index) => <ToolLogo key={`${tool.name}-${index}`} tool={tool} />)}</div></div>
+        <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-right">{[...tools.slice(9), ...tools.slice(9), ...tools.slice(9)].map((tool, index) => <ToolLogo key={`${tool.name}-${index}`} tool={tool} />)}</div></div>
       </div>
     </section>
 
@@ -334,6 +346,6 @@ export default function HomeClient({ data }: Props) {
 
     <ContactSection locale={locale} contact={contact} source="d-solution.org" />
     <SiteFooter locale={locale} links={t.nav} />
-    <PromoPopup promo={promoPopup} />
+    <PromoPopup promo={promoPopup} delaySeconds={data.site.popup_delay_seconds} />
   </main>;
 }
