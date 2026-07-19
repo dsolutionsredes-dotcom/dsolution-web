@@ -1,8 +1,12 @@
 import HomeClient, { type SiteData } from '@/components/HomeClient';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 const directusUrl = (process.env.DIRECTUS_URL || process.env.NEXT_PUBLIC_DIRECTUS_URL || 'https://admin.d-solution.org').replace(/\/$/, '');
+// URL pública usada en HTML/CSS/IMG del navegador. No debe usar hosts internos de Docker.
+const directusPublicUrl = (process.env.NEXT_PUBLIC_DIRECTUS_URL || 'https://admin.d-solution.org').replace(/\/$/, '');
 
 type DirectusResponse<T> = { data?: T | T[] | null };
 
@@ -81,7 +85,7 @@ function assetUrl(file?: unknown) {
   const fileId = getFileId(file);
   if (!fileId) return undefined;
   if (fileId.startsWith('http')) return fileId;
-  return `${directusUrl}/assets/${fileId}`;
+  return `${directusPublicUrl}/assets/${fileId}`;
 }
 
 function normalizeAssets(site: any, home: any, about: any, services: any[], portfolio: any[], blog: any[], flex: any[], processSteps: any[]) {
