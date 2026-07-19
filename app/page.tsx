@@ -6,7 +6,7 @@ const directusUrl = (process.env.DIRECTUS_URL || process.env.NEXT_PUBLIC_DIRECTU
 
 type DirectusResponse<T> = { data?: T | T[] | null };
 
-async function fetchWithTimeout(url: string, init: RequestInit = {}, timeoutMs = 3000) {
+async function fetchWithTimeout(url: string, init: RequestInit = {}, timeoutMs = 10000) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -179,7 +179,7 @@ export default async function Home() {
     getItems('portfolio', fallback.portfolio, '*,image.*'),
     getItems('blog_posts', fallback.blog, '*,featured_image.*,image.*'),
     getItems('flex_sections', fallback.flex, '*,image.*'),
-    getItems('process_steps', [], 'id,title,description,icon,sort,is_published,image'),
+    getItems('process_steps', [], 'id,title,description,icon,sort,is_published,image,image.*'),
   ]);
 
   const normalized = normalizeAssets(site, home, about, services, portfolio, blog, flex, processSteps);

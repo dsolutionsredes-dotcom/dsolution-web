@@ -23,6 +23,7 @@ export type SiteData = {
 
 type Locale = 'es' | 'en';
 type Props = { data: SiteData };
+type DirectusProcessStep = NonNullable<SiteData['process_steps']>[number];
 const LOCALE_KEY = 'dsolution-language';
 
 const serviceMedia: Record<string, string> = {
@@ -33,6 +34,35 @@ const serviceMedia: Record<string, string> = {
   branding: '/service-branding.jpg',
   photography: '/service-photography.jpg',
 };
+
+const DIRECTUS_PUBLIC_URL = (process.env.NEXT_PUBLIC_DIRECTUS_URL || 'https://admin.d-solution.org').replace(/\/$/, '');
+
+function normalizeDirectusAsset(file: unknown): string | undefined {
+  if (!file) return undefined;
+  if (typeof file === 'string') {
+    return file.startsWith('http') || file.startsWith('/') ? file : `${DIRECTUS_PUBLIC_URL}/assets/${file}`;
+  }
+  if (Array.isArray(file)) return normalizeDirectusAsset(file[0]);
+  if (typeof file === 'object') {
+    const obj = file as {
+      id?: string;
+      uuid?: string;
+      filename_disk?: string;
+      data?: unknown;
+      image?: unknown;
+      Image?: unknown;
+      file?: unknown;
+      files?: unknown;
+      directus_files_id?: unknown;
+      process_image?: unknown;
+      background_image?: unknown;
+    };
+    const id = obj.id || obj.uuid || obj.filename_disk;
+    if (id) return `${DIRECTUS_PUBLIC_URL}/assets/${id}`;
+    return normalizeDirectusAsset(obj.data || obj.image || obj.Image || obj.file || obj.files || obj.directus_files_id || obj.process_image || obj.background_image);
+  }
+  return undefined;
+}
 
 const copy = {
   es: {
@@ -182,28 +212,17 @@ function ToolLogo({ tool }: { tool: { name: string; mark: string; tone: string }
 }
 
 function resolveDirectusImage(item: { image_url?: string; image?: unknown; Image?: unknown; process_image?: unknown; background_image?: unknown; files?: unknown } | undefined) {
-  const directusBase = (process.env.NEXT_PUBLIC_DIRECTUS_URL || 'https://admin.d-solution.org').replace(/\/$/, '');
-  const toAsset = (file: unknown): string | undefined => {
-    if (!file) return undefined;
-    if (typeof file === 'string') return file.startsWith('http') || file.startsWith('/') ? file : `${directusBase}/assets/${file}`;
-    if (Array.isArray(file)) return toAsset(file[0]);
-    if (typeof file === 'object') {
-      const obj = file as { id?: string; uuid?: string; filename_disk?: string; data?: unknown; image?: unknown; Image?: unknown; file?: unknown; files?: unknown; directus_files_id?: unknown; process_image?: unknown; background_image?: unknown };
-      const id = obj.id || obj.uuid || obj.filename_disk;
-      if (id) return `${directusBase}/assets/${id}`;
-      return toAsset(obj.data || obj.image || obj.Image || obj.file || obj.files || obj.directus_files_id || obj.process_image || obj.background_image);
-    }
-    return undefined;
-  };
   if (!item) return undefined;
-  return item.image_url || toAsset(item.image || item.Image || item.process_image || item.background_image || item.files);
+  return item.image_url || normalizeDirectusAsset(item.image || item.Image || item.process_image || item.background_image || item.files);
 }
+
 
 export default function HomeClient({ data }: Props) {
   const { home, contact } = data;
   const trustedLogos = normalizeList(home.trusted_logos);
   const promoPopup = data.flex.find(item => item.is_published !== false && item.section_type === 'promo_popup');
   const [locale, setLocale] = useState<Locale>('es');
+  const [clientProcessSteps, setClientProcessSteps] = useState<DirectusProcessStep[]>([]);
 
   useEffect(() => {
     const saved = localStorage.getItem(LOCALE_KEY);
@@ -212,6 +231,39 @@ export default function HomeClient({ data }: Props) {
     setLocale(nextLocale);
   }, []);
   useEffect(() => { document.documentElement.lang = locale === 'en' ? 'en' : 'es-ES'; localStorage.setItem(LOCALE_KEY, locale); }, [locale]);
+  useEffect(() => {
+    let cancelled = false;
+    const controller = new AbortController();
+
+    async function loadProcessStepsFromDirectus() {
+      try {
+        const params = new URLSearchParams({
+          fields: 'id,title,description,icon,sort,is_published,image,image.*',
+          sort: 'sort',
+          timestamp: String(Date.now()),
+        });
+        params.append('filter[is_published][_eq]', 'true');
+
+        const response = await fetch(`${DIRECTUS_PUBLIC_URL}/items/process_steps?${params.toString()}`, {
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+        if (!response.ok) return;
+        const json = await response.json() as { data?: DirectusProcessStep[] };
+        if (!cancelled && Array.isArray(json.data) && json.data.length > 0) {
+          setClientProcessSteps(json.data);
+        }
+      } catch {
+        // Si Directus no responde, se mantienen los datos del servidor/fallback.
+      }
+    }
+
+    loadProcessStepsFromDirectus();
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, []);
 
   const t = copy[locale];
   const localizedServices = useMemo(() => SERVICE_LINKS.map((service, index) => {
@@ -224,7 +276,7 @@ export default function HomeClient({ data }: Props) {
     { title: locale === 'es' ? 'Sitio web corporativo' : 'Corporate website', category: 'Web', description: locale === 'es' ? 'Diseño y estructura para una presencia digital clara y premium.' : 'Design and structure for a clear premium digital presence.', image_url: '/service-web.jpg' },
   ];
 
-  const directusProcess = (data.process_steps || [])
+  const directusProcess = (clientProcessSteps.length ? clientProcessSteps : (data.process_steps || []))
     .filter(item => item.is_published !== false)
     .sort((a, b) => Number(a.sort ?? 9999) - Number(b.sort ?? 9999));
   const processMedia = data.flex.filter(item => item.is_published !== false && ['process_step', 'proceso', 'process'].includes(String(item.section_type || '').toLowerCase()));
@@ -292,7 +344,13 @@ export default function HomeClient({ data }: Props) {
           {processItems.map((step, i) => {
             const Icon = processIconMap[String(step.icon || '').toLowerCase()] || processIcons[i % processIcons.length] || MessageSquare;
             return <motion.article key={step.title} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ delay: i * .06 }} className="group relative min-h-[370px] overflow-hidden rounded-[1.35rem] border border-white/14 bg-white/[.045] shadow-[0_20px_70px_rgba(0,0,0,.20)]">
-              <img src={step.image || processImages[i % processImages.length]} alt={step.title} className="absolute inset-0 h-full w-full object-cover opacity-70 grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0" />
+              <img
+                key={step.image || processImages[i % processImages.length]}
+                src={step.image || processImages[i % processImages.length]}
+                alt={step.title}
+                className="absolute inset-0 h-full w-full object-cover opacity-70 grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0"
+                onError={(event) => { event.currentTarget.src = processImages[i % processImages.length]; }}
+              />
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,35,61,.30),rgba(9,35,61,.62)_42%,rgba(3,11,21,.90))]" />
               {i < 3 && <div className="absolute right-[-.85rem] top-1/2 z-20 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#D4AF37]/60 bg-[#0B2F4D] text-[#D4AF37] md:flex"><ArrowRight size={16}/></div>}
               <div className="relative z-10 flex h-full min-h-[370px] flex-col justify-end p-5">
