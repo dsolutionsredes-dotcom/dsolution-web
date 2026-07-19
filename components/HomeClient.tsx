@@ -237,14 +237,9 @@ export default function HomeClient({ data }: Props) {
 
     async function loadProcessStepsFromDirectus() {
       try {
-        const params = new URLSearchParams({
-          fields: 'id,title,description,icon,sort,is_published,image,image.*',
-          sort: 'sort',
-          timestamp: String(Date.now()),
-        });
-        params.append('filter[is_published][_eq]', 'true');
-
-        const response = await fetch(`${DIRECTUS_PUBLIC_URL}/items/process_steps?${params.toString()}`, {
+        // Se lee mediante una API route propia para evitar CORS y cache del navegador.
+        // Esta ruta consulta Directus en servidor y devuelve image_url listo para usar.
+        const response = await fetch(`/api/process-steps?t=${Date.now()}`, {
           cache: 'no-store',
           signal: controller.signal,
         });
