@@ -223,6 +223,7 @@ export default function HomeClient({ data }: Props) {
   const promoPopup = data.flex.find(item => item.is_published !== false && item.section_type === 'promo_popup');
   const [locale, setLocale] = useState<Locale>('es');
   const [clientProcessSteps, setClientProcessSteps] = useState<DirectusProcessStep[]>([]);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem(LOCALE_KEY);
@@ -231,6 +232,10 @@ export default function HomeClient({ data }: Props) {
     setLocale(nextLocale);
   }, []);
   useEffect(() => { document.documentElement.lang = locale === 'en' ? 'en' : 'es-ES'; localStorage.setItem(LOCALE_KEY, locale); }, [locale]);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setIsPreviewMode(params.get('preview') === 'true');
+  }, []);
   useEffect(() => {
     let cancelled = false;
     const controller = new AbortController();
@@ -295,6 +300,7 @@ export default function HomeClient({ data }: Props) {
 
   return <main className="min-h-screen overflow-hidden bg-[#F7F3EA] text-[#002147]">
     <Navbar links={t.nav} ctaLabel={t.cta} locale={locale} onLocaleChange={setLocale} transparentOnTop />
+    {isPreviewMode && <div className="fixed bottom-5 left-5 z-[120] rounded-full border border-[#D4AF37]/40 bg-[#002147]/90 px-4 py-2 text-xs font-bold uppercase tracking-[.14em] text-white shadow-[0_18px_45px_rgba(0,0,0,.22)] backdrop-blur-xl">Vista previa Directus <a href="/api/preview/disable" className="ml-3 text-[#D4AF37] underline-offset-4 hover:underline">Salir</a></div>}
 
     <section id="inicio" className="relative min-h-screen overflow-hidden bg-[#002147] text-white">
       <video className="absolute inset-0 h-full w-full object-cover" autoPlay muted loop playsInline poster={home.hero_video_poster_url || home.hero_image_url || '/seo-image.jpg'}>
