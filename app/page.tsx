@@ -53,29 +53,26 @@ async function getItems<T extends Record<string, any>>(collection: string, fallb
 function getFileId(file: unknown): string | undefined {
   if (!file) return undefined;
   if (typeof file === 'string') return file;
+  if (Array.isArray(file)) return getFileId(file[0]);
   if (typeof file === 'object') {
     const item = file as {
       id?: string;
       uuid?: string;
       filename_disk?: string;
-      data?: { id?: string; uuid?: string; filename_disk?: string };
-      image?: string | { id?: string; uuid?: string; filename_disk?: string };
-      file?: string | { id?: string; uuid?: string; filename_disk?: string };
-      directus_files_id?: string | { id?: string; uuid?: string; filename_disk?: string };
+      data?: unknown;
+      image?: unknown;
+      Image?: unknown;
+      file?: unknown;
+      files?: unknown;
+      directus_files_id?: unknown;
+      process_image?: unknown;
+      background_image?: unknown;
     };
     if (typeof item.id === 'string') return item.id;
     if (typeof item.uuid === 'string') return item.uuid;
     if (typeof item.filename_disk === 'string') return item.filename_disk;
-    if (item.data?.id) return item.data.id;
-    if (item.data?.uuid) return item.data.uuid;
-    if (item.data?.filename_disk) return item.data.filename_disk;
-    const nested = item.image || item.file || item.directus_files_id;
-    if (typeof nested === 'string') return nested;
-    if (nested && typeof nested === 'object') {
-      if (typeof nested.id === 'string') return nested.id;
-      if (typeof nested.uuid === 'string') return nested.uuid;
-      if (typeof nested.filename_disk === 'string') return nested.filename_disk;
-    }
+    const nested = item.data || item.image || item.Image || item.file || item.files || item.directus_files_id || item.process_image || item.background_image;
+    return getFileId(nested);
   }
   return undefined;
 }
@@ -182,7 +179,7 @@ export default async function Home() {
     getItems('portfolio', fallback.portfolio, '*,image.*'),
     getItems('blog_posts', fallback.blog, '*,featured_image.*,image.*'),
     getItems('flex_sections', fallback.flex, '*,image.*'),
-    getItems('process_steps', [], '*,image.*'),
+    getItems('process_steps', [], 'id,title,description,icon,sort,is_published,image'),
   ]);
 
   const normalized = normalizeAssets(site, home, about, services, portfolio, blog, flex, processSteps);

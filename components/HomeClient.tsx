@@ -181,16 +181,22 @@ function ToolLogo({ tool }: { tool: { name: string; mark: string; tone: string }
   );
 }
 
-function resolveDirectusImage(item: { image_url?: string; image?: unknown; Image?: unknown; process_image?: unknown; background_image?: unknown } | undefined) {
+function resolveDirectusImage(item: { image_url?: string; image?: unknown; Image?: unknown; process_image?: unknown; background_image?: unknown; files?: unknown } | undefined) {
+  const directusBase = (process.env.NEXT_PUBLIC_DIRECTUS_URL || 'https://admin.d-solution.org').replace(/\/$/, '');
+  const toAsset = (file: unknown): string | undefined => {
+    if (!file) return undefined;
+    if (typeof file === 'string') return file.startsWith('http') || file.startsWith('/') ? file : `${directusBase}/assets/${file}`;
+    if (Array.isArray(file)) return toAsset(file[0]);
+    if (typeof file === 'object') {
+      const obj = file as { id?: string; uuid?: string; filename_disk?: string; data?: unknown; image?: unknown; Image?: unknown; file?: unknown; files?: unknown; directus_files_id?: unknown; process_image?: unknown; background_image?: unknown };
+      const id = obj.id || obj.uuid || obj.filename_disk;
+      if (id) return `${directusBase}/assets/${id}`;
+      return toAsset(obj.data || obj.image || obj.Image || obj.file || obj.files || obj.directus_files_id || obj.process_image || obj.background_image);
+    }
+    return undefined;
+  };
   if (!item) return undefined;
-  if (item.image_url) return item.image_url;
-  const raw = item.image || item.Image || item.process_image || item.background_image;
-  if (typeof raw === 'string') return raw.startsWith('http') || raw.startsWith('/') ? raw : `${process.env.NEXT_PUBLIC_DIRECTUS_URL || 'https://admin.d-solution.org'}/assets/${raw}`;
-  if (raw && typeof raw === 'object') {
-    const id = (raw as { id?: string; uuid?: string; filename_disk?: string }).id || (raw as { uuid?: string }).uuid || (raw as { filename_disk?: string }).filename_disk;
-    if (id) return `${process.env.NEXT_PUBLIC_DIRECTUS_URL || 'https://admin.d-solution.org'}/assets/${id}`;
-  }
-  return undefined;
+  return item.image_url || toAsset(item.image || item.Image || item.process_image || item.background_image || item.files);
 }
 
 export default function HomeClient({ data }: Props) {
@@ -320,11 +326,11 @@ export default function HomeClient({ data }: Props) {
       </div>
     </section>
 
-    <section className="overflow-hidden bg-[#082642] py-12 text-white">
-      <div className="mx-auto max-w-6xl px-5 md:px-8">
+    <section className="overflow-hidden bg-[#082642] px-5 py-12 text-white md:px-8">
+      <div className="mx-auto max-w-6xl">
         <SectionHeader eyebrow="Ecosistema" title={t.toolsTitle} theme="dark" />
       </div>
-      <div className="mt-9 w-full space-y-5">
+      <div className="-mx-5 mt-9 space-y-5 md:-mx-8">
         <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-left">{[...tools.slice(0, 9), ...tools.slice(0, 9), ...tools.slice(0, 9)].map((tool, index) => <ToolLogo key={`${tool.name}-${index}`} tool={tool} />)}</div></div>
         <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-right">{[...tools.slice(9), ...tools.slice(9), ...tools.slice(9)].map((tool, index) => <ToolLogo key={`${tool.name}-${index}`} tool={tool} />)}</div></div>
       </div>
