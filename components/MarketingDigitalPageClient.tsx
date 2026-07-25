@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import Navbar, { type NavLink } from '@/components/Navbar';
 import SiteFooter from '@/components/SiteFooter';
@@ -9,10 +8,10 @@ import ContactSection from '@/components/ContactSection';
 import {
   ArrowRight,
   BarChart3,
+  ChevronRight,
   BriefcaseBusiness,
   LineChart,
   Megaphone,
-  Send,
   ShoppingCart,
   Store,
   Target,
@@ -157,45 +156,17 @@ export default function MarketingDigitalPageClient() {
               </a>
             </div>
 
-            <div className="hidden lg:block">
-              <div className="relative ml-auto aspect-[1.35] max-w-2xl overflow-hidden rounded-[2rem] border border-white/18 bg-white/8 p-3 shadow-[0_40px_90px_rgba(0,0,0,.42)] backdrop-blur-sm">
-                <div className="h-full rounded-[1.35rem] bg-[linear-gradient(135deg,rgba(255,255,255,.96),rgba(248,249,250,.72))] p-6 text-[#002147]">
-                  <div className="grid grid-cols-4 gap-3">
-                    {['Clicks', 'Leads', 'CPL', 'ROAS'].map((item, index) => (
-                      <div key={item} className={`rounded-xl p-4 text-white ${index === 0 ? 'bg-blue-600' : index === 1 ? 'bg-red-600' : index === 2 ? 'bg-green-600' : 'bg-indigo-700'}`}>
-                        <p className="text-xs font-semibold opacity-80">{item}</p>
-                        <p className="mt-1 text-xl font-black">{index === 0 ? '4.35K' : index === 1 ? '248' : index === 2 ? '€10.7' : '4.21'}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-6 grid grid-cols-[1.2fr_.8fr] gap-5">
-                    <div className="rounded-2xl border border-slate-200 bg-white p-5">
-                      <div className="mb-5 h-2 w-32 rounded bg-slate-200" />
-                      <div className="flex h-40 items-end gap-3">
-                        {[44, 62, 46, 76, 54, 82, 68, 88].map((h, i) => <span key={i} className="flex-1 rounded-t bg-[#D4AF37]/75" style={{ height: `${h}%` }} />)}
-                      </div>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-5">
-                      <div className="mx-auto h-28 w-28 rounded-full border-[18px] border-[#D4AF37] border-r-blue-600 border-t-green-600" />
-                      <div className="mt-5 space-y-2">
-                        <div className="h-2 rounded bg-slate-200" />
-                        <div className="h-2 w-3/4 rounded bg-slate-200" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <div className="hidden lg:block" aria-hidden="true" />
           </div>
 
-          <div className="relative z-10 -mb-24 mt-8 overflow-hidden rounded-[1.6rem] border border-white/10 bg-[#05121f]/92 p-7 shadow-[0_35px_80px_rgba(0,0,0,.34)] backdrop-blur-xl">
+          <div className="relative z-10 mt-8 overflow-hidden rounded-[1.75rem] border border-white/12 bg-[#05121f]/94 p-7 shadow-[0_35px_80px_rgba(0,0,0,.34)] backdrop-blur-xl md:p-8">
             <div className="mb-6 flex items-center gap-4">
               <p className="shrink-0 text-xs font-black uppercase tracking-[.2em] text-[#D4AF37]">{t.servicesLabel}</p>
               <div className="h-px flex-1 bg-[linear-gradient(90deg,rgba(212,175,55,.55),transparent)]" />
             </div>
-            <div className="grid gap-6 md:grid-cols-4">
-              {t.serviceItems.map(([title, text], index) => (
-                <div key={title} className="flex gap-4 border-white/15 md:border-r md:pr-6 last:border-r-0">
+            <div className="grid gap-5 md:grid-cols-4">
+              {t.serviceItems.map(([title, text]) => (
+                <div key={title} className="flex min-h-[112px] items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:-translate-y-1 hover:bg-white/[0.07] md:border-r md:border-y-0 md:border-l-0 md:rounded-none md:bg-transparent md:p-0 md:pr-6 last:border-r-0">
                   <BrandMark label={title} />
                   <div>
                     <h3 className="font-black text-white">{title}</h3>
@@ -208,25 +179,37 @@ export default function MarketingDigitalPageClient() {
         </div>
       </section>
 
-      <section className="bg-white px-5 pb-16 pt-36 md:px-8">
-        <div className="mx-auto max-w-6xl text-center">
-          <h2 className="text-3xl font-black uppercase tracking-[-.03em] text-[#061523]">{t.processTitle}</h2>
-          <span className="mx-auto mt-4 block h-0.5 w-12 bg-[#D4AF37]" />
-          <div className="mt-12 grid gap-6 md:grid-cols-4">
-            {t.process.map(([title, text], index) => {
-              const Icon = processIcons[index];
-              return (
-                <article key={title} className="relative text-left md:text-center">
-                  {index < t.process.length - 1 && <div className="absolute left-[62%] top-11 hidden h-px w-[76%] bg-[#002147]/10 md:block" />}
-                  <div className="relative z-10 mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#F7F3EA] text-[#002147] shadow-[inset_0_0_0_1px_rgba(0,33,71,.06)]">
-                    <Icon size={28} />
-                    <span className="absolute -right-3 -top-1 text-lg font-black text-[#D4AF37]">0{index + 1}</span>
-                  </div>
-                  <h3 className="mt-5 text-xl font-black text-[#061523]">{title}</h3>
-                  <p className="mx-auto mt-3 max-w-[13rem] text-sm leading-6 text-[#212529]/70">{text}</p>
-                </article>
-              );
-            })}
+      <section className="bg-white px-5 py-20 md:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="text-center">
+            <h2 className="text-3xl font-black uppercase tracking-[-.03em] text-[#061523] md:text-4xl">{t.processTitle}</h2>
+            <span className="mx-auto mt-4 block h-0.5 w-12 bg-[#D4AF37]" />
+          </div>
+
+          <div className="mt-12 rounded-[2rem] border border-[#002147]/8 bg-[#F7F3EA] p-6 shadow-[0_28px_75px_rgba(0,33,71,.08)] md:p-8">
+            <div className="grid gap-5 md:grid-cols-4">
+              {t.process.map(([title, text], index) => {
+                const Icon = processIcons[index];
+                return (
+                  <article key={title} className="relative rounded-[1.5rem] bg-white p-6 shadow-[0_18px_45px_rgba(0,33,71,.07)]">
+                    {index < t.process.length - 1 && (
+                      <span className="absolute -right-4 top-1/2 z-20 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-[#D4AF37]/35 bg-white text-[#D4AF37] shadow-lg md:flex">
+                        <ChevronRight size={18} />
+                      </span>
+                    )}
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F7F3EA] text-[#002147] shadow-[inset_0_0_0_1px_rgba(0,33,71,.06)]">
+                        <Icon size={27} />
+                      </span>
+                      <span className="text-2xl font-black text-[#D4AF37]">0{index + 1}</span>
+                    </div>
+                    <h3 className="mt-6 text-2xl font-black text-[#061523]">{title}</h3>
+                    <span className="mt-3 block h-0.5 w-10 bg-[#D4AF37]" />
+                    <p className="mt-4 text-base leading-7 text-[#212529]/70">{text}</p>
+                  </article>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
