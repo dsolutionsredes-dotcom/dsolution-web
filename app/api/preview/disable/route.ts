@@ -1,14 +1,16 @@
 import { draftMode } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
-export async function GET(request: NextRequest) {
-  const { origin } = new URL(request.url);
+function getSiteUrl() {
+  return (process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://d-solution.org').replace(/\/$/, '');
+}
+
+export async function GET() {
   draftMode().disable();
 
-  return NextResponse.redirect(new URL('/', origin), {
+  return NextResponse.redirect(new URL('/', getSiteUrl()), {
     headers: {
       'Cache-Control': 'no-store, no-cache, must-revalidate',
     },

@@ -2,7 +2,6 @@ import { draftMode } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 const previewRoutes: Record<string, { pathname: string; hash?: string }> = {
   home_page: { pathname: '/' },
@@ -15,16 +14,21 @@ const previewRoutes: Record<string, { pathname: string; hash?: string }> = {
   flex_sections: { pathname: '/' },
 };
 
+function getSiteUrl() {
+  return (process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://d-solution.org').replace(/\/$/, '');
+}
+
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const collection = String(searchParams.get('collection') || '').toLowerCase();
   const id = searchParams.get('id');
   const route = previewRoutes[collection] || { pathname: '/' };
 
-  // Modo vista previa: habilita draft mode para que Next.js no trate esta navegación como estática.
+  // Vista previa Directus: se limpia cualquier origen interno como localhost:80.
+  // La redirección siempre usa SITE_URL / NEXT_PUBLIC_SITE_URL o el dominio público fallback.
   draftMode().enable();
 
-  const redirectUrl = new URL(route.pathname, origin);
+  const redirectUrl = new URL(route.pathname, getSiteUrl());
   redirectUrl.searchParams.set('preview', 'true');
   if (collection) redirectUrl.searchParams.set('preview_collection', collection);
   if (id) redirectUrl.searchParams.set('preview_id', id);

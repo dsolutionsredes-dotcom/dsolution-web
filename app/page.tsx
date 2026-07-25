@@ -22,7 +22,7 @@ async function fetchWithTimeout(url: string, init: RequestInit = {}, timeoutMs =
 
 async function getItem<T>(collection: string, fallback: T, fields = '*'): Promise<T> {
   try {
-    const res = await fetchWithTimeout(`${directusUrl}/items/${collection}?fields=${fields}`, { cache: 'no-store', next: { revalidate: 0 } });
+    const res = await fetchWithTimeout(`${directusUrl}/items/${collection}?fields=${fields}`, { cache: 'no-store' });
     if (!res.ok) return fallback;
     const json = (await res.json()) as DirectusResponse<T>;
     if (Array.isArray(json.data)) return (json.data[0] as T) || fallback;
@@ -35,7 +35,7 @@ async function getItem<T>(collection: string, fallback: T, fields = '*'): Promis
 async function getItems<T extends Record<string, any>>(collection: string, fallback: T[], fields = '*'): Promise<T[]> {
   const read = async (fieldList: string) => {
     const url = `${directusUrl}/items/${collection}?fields=${fieldList}&timestamp=${Date.now()}`;
-    const res = await fetchWithTimeout(url, { cache: 'no-store', next: { revalidate: 0 } });
+    const res = await fetchWithTimeout(url, { cache: 'no-store' });
     if (!res.ok) return undefined;
     const json = (await res.json()) as DirectusResponse<T>;
     return Array.isArray(json.data) ? json.data : undefined;
