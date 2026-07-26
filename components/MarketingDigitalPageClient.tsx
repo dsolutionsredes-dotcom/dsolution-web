@@ -8,10 +8,11 @@ import ContactSection from '@/components/ContactSection';
 import {
   ArrowRight,
   BarChart3,
-  ChevronRight,
   BriefcaseBusiness,
+  FileText,
   LineChart,
   Megaphone,
+  Settings2,
   ShoppingCart,
   Store,
   Target,
@@ -43,27 +44,28 @@ const copy = {
     eyebrow: 'Servicio',
     titleA: 'Marketing',
     titleB: 'digital',
-    subtitle: 'Estrategias y campañas que se traducen en más clientes y mejores resultados.',
+    subtitle: 'Creamos campañas digitales claras, bien segmentadas y medibles para atraer a las personas correctas hacia tu negocio.',
     heroButton: 'Quiero impulsar mi negocio',
     servicesLabel: 'Servicios que ofrecemos',
     serviceItems: [
-      ['Google Ads', 'Búsqueda, display y remarketing.'],
-      ['Meta Ads', 'Facebook e Instagram Ads.'],
-      ['Google Analytics', 'Eventos y conversiones claras.'],
-      ['Google Tag Manager', 'Tracking limpio y ordenado.'],
+      ['Google Ads', 'Aparece justo cuando tus clientes buscan lo que ofreces, con campañas precisas que atraen contactos de calidad.'],
+      ['Meta Ads', 'Creamos anuncios para Facebook e Instagram que captan atención y conectan con tu audiencia.'],
+      ['Google Analytics', 'Configuramos métricas, eventos y conversiones para saber qué funciona y qué mejorar.'],
+      ['Google Tag Manager', 'Instalamos etiquetas y tracking ordenado para tener datos claros desde el inicio.'],
     ],
-    processTitle: 'Cómo impulsamos tu negocio',
+    processTitle: 'Qué incluye nuestro servicio',
     process: [
-      ['Estrategia', 'Definimos la mejor ruta.'],
-      ['Ejecución', 'Lanzamos campañas efectivas.'],
-      ['Optimización', 'Mejoramos con datos reales.'],
-      ['Resultados', 'Medimos y reportamos claro.'],
+      ['Configuración de campañas', 'Estructuramos campañas desde el inicio para atraer a tu cliente ideal.'],
+      ['Creación de anuncios', 'Diseñamos anuncios con mensajes claros que captan atención rápido.'],
+      ['Tracking y conversiones', 'Medimos lo importante para saber qué funciona y qué no.'],
+      ['Optimización continua', 'Probamos, analizamos y ajustamos para mejorar cada campaña.'],
+      ['Reporte claro', 'Te entregamos datos simples, insights y próximos pasos.'],
     ],
     audienceTitle: '¿Para quién es?',
     audience: [
-      ['Negocios locales', 'Más clientes cerca de tu zona.'],
-      ['Empresas en crecimiento', 'Escalar con una estrategia clara.'],
-      ['E-commerce', 'Convertir visitas en ventas.'],
+      ['Negocios locales', 'Para negocios que quieren aparecer frente a personas cercanas y listas para contactarlos.'],
+      ['Empresas en crecimiento', 'Para marcas que necesitan ordenar su marketing y dejar de improvisar.'],
+      ['E-commerce', 'Para tiendas online que quieren campañas más claras, medibles y mejor dirigidas.'],
     ],
   },
   en: {
@@ -71,45 +73,68 @@ const copy = {
     eyebrow: 'Service',
     titleA: 'Digital',
     titleB: 'marketing',
-    subtitle: 'Strategies and campaigns built to bring more customers and clearer results.',
+    subtitle: 'We build clear, well-targeted and measurable campaigns to attract the right people to your business.',
     heroButton: 'I want to grow my business',
     servicesLabel: 'What we offer',
     serviceItems: [
-      ['Google Ads', 'Search, display and remarketing.'],
-      ['Meta Ads', 'Facebook and Instagram Ads.'],
-      ['Google Analytics', 'Clear events and conversions.'],
-      ['Google Tag Manager', 'Clean and organised tracking.'],
+      ['Google Ads', 'Appear right when customers search for what you offer, with precise campaigns that attract quality enquiries.'],
+      ['Meta Ads', 'We create Facebook and Instagram ads that grab attention and connect with your audience.'],
+      ['Google Analytics', 'We configure metrics, events and conversions to know what works and what to improve.'],
+      ['Google Tag Manager', 'We set up organised tags and tracking so your data is clear from day one.'],
     ],
-    processTitle: 'How we grow your business',
+    processTitle: 'What our service includes',
     process: [
-      ['Strategy', 'We define the best route.'],
-      ['Execution', 'We launch effective campaigns.'],
-      ['Optimisation', 'We improve with real data.'],
-      ['Results', 'We measure and report clearly.'],
+      ['Campaign setup', 'We structure campaigns from the start to attract your ideal customer.'],
+      ['Ad creation', 'We design ads with clear messages that quickly capture attention.'],
+      ['Tracking & conversions', 'We measure what matters to know what works and what does not.'],
+      ['Continuous optimisation', 'We test, analyse and adjust to improve every campaign.'],
+      ['Clear reporting', 'We deliver simple data, insights and next steps.'],
     ],
     audienceTitle: 'Who is it for?',
     audience: [
-      ['Local businesses', 'More customers near your area.'],
-      ['Growing companies', 'Scale with a clear strategy.'],
-      ['E-commerce', 'Turn visits into sales.'],
+      ['Local businesses', 'For businesses that want to appear in front of nearby people ready to contact them.'],
+      ['Growing companies', 'For brands that need to organise their marketing and stop improvising.'],
+      ['E-commerce', 'For online stores that need clearer, measurable and better-targeted campaigns.'],
     ],
   },
 } as const;
 
-const processIcons = [Megaphone, Target, LineChart, BarChart3];
+const processIcons = [Target, Megaphone, LineChart, Settings2, FileText];
 const audienceIcons = [Store, BriefcaseBusiness, ShoppingCart];
 const audienceImages = ['/service-photography.jpg', '/service-marketing.jpg', '/service-web.jpg'];
 
 function BrandMark({ label }: { label: string }) {
-  const initials: Record<string, string> = {
-    'Google Ads': 'A',
-    'Meta Ads': '∞',
-    'Google Analytics': 'GA',
-    'Google Tag Manager': 'GTM',
-  };
+  if (label === 'Google Ads') {
+    return (
+      <span className="relative inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/7 shadow-[inset_0_1px_0_rgba(255,255,255,.12)]">
+        <span className="absolute h-9 w-3 -rotate-32 rounded-full bg-[#34A853]" />
+        <span className="absolute h-9 w-3 rotate-32 rounded-full bg-[#4285F4]" />
+        <span className="absolute bottom-3.5 right-3 h-3.5 w-3.5 rounded-full bg-[#FBBC05]" />
+      </span>
+    );
+  }
+
+  if (label === 'Meta Ads') {
+    return (
+      <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/7 text-4xl font-black leading-none text-[#1877F2] shadow-[inset_0_1px_0_rgba(255,255,255,.12)]">
+        ∞
+      </span>
+    );
+  }
+
+  if (label === 'Google Analytics') {
+    return (
+      <span className="inline-flex h-14 w-14 shrink-0 items-end justify-center gap-1 rounded-2xl border border-white/10 bg-white/7 px-3 pb-3 shadow-[inset_0_1px_0_rgba(255,255,255,.12)]">
+        <span className="h-3 w-2.5 rounded-full bg-[#F9AB00]" />
+        <span className="h-6 w-2.5 rounded-full bg-[#E8710A]" />
+        <span className="h-9 w-2.5 rounded-full bg-[#F9AB00]" />
+      </span>
+    );
+  }
+
   return (
-    <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/8 text-lg font-black text-[#D4AF37] shadow-[inset_0_1px_0_rgba(255,255,255,.1)]">
-      {initials[label] || label.slice(0, 2)}
+    <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/7 text-sm font-black text-[#D4AF37] shadow-[inset_0_1px_0_rgba(255,255,255,.12)]">
+      GTM
     </span>
   );
 }
@@ -187,14 +212,14 @@ export default function MarketingDigitalPageClient() {
           </div>
 
           <div className="mt-12 rounded-[2rem] border border-[#002147]/8 bg-[#F7F3EA] p-6 shadow-[0_28px_75px_rgba(0,33,71,.08)] md:p-8">
-            <div className="grid gap-5 md:grid-cols-4">
+            <div className="grid gap-5 md:grid-cols-5">
               {t.process.map(([title, text], index) => {
                 const Icon = processIcons[index];
                 return (
                   <article key={title} className="relative rounded-[1.5rem] bg-white p-6 shadow-[0_18px_45px_rgba(0,33,71,.07)]">
-                    {index < t.process.length - 1 && (
+                    {false && index < t.process.length - 1 && (
                       <span className="absolute -right-4 top-1/2 z-20 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-[#D4AF37]/35 bg-white text-[#D4AF37] shadow-lg md:flex">
-                        <ChevronRight size={18} />
+                        <ArrowRight size={18} />
                       </span>
                     )}
                     <div className="flex items-center justify-between gap-4">
