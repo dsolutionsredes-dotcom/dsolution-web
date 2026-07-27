@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "directus:marketing-page": "node directus-upgrade/phase39-marketing-page-directus.mjs"
   },
   "dependencies": {
     "@next/font": "latest",

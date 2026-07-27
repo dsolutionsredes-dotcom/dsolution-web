@@ -19,6 +19,22 @@ import {
 } from 'lucide-react';
 
 type Locale = 'es' | 'en';
+
+export type MarketingPageCms = {
+  heroEyebrow?: string;
+  heroTitle?: string;
+  heroTitleHighlight?: string;
+  heroDescription?: string;
+  heroCtaText?: string;
+  heroImageUrl?: string;
+  servicesLabel?: string;
+  services?: { title: string; description: string; logo?: string }[];
+  includesTitle?: string;
+  includes?: { title: string; description: string; icon?: string }[];
+  audienceTitle?: string;
+  audience?: { title: string; description: string; imageUrl?: string; icon?: string }[];
+};
+
 const LOCALE_KEY = 'dsolution-language';
 
 const navLinks = {
@@ -139,7 +155,7 @@ function BrandMark({ label }: { label: string }) {
   );
 }
 
-export default function MarketingDigitalPageClient() {
+export default function MarketingDigitalPageClient({ cms }: { cms?: MarketingPageCms }) {
   const [locale, setLocale] = useState<Locale>('es');
 
   useEffect(() => {
@@ -152,8 +168,26 @@ export default function MarketingDigitalPageClient() {
     window.localStorage.setItem(LOCALE_KEY, value);
   };
 
-  const t = copy[locale];
+  const base = copy[locale];
+  const t = locale === 'es' && cms ? {
+    ...base,
+    eyebrow: cms.heroEyebrow || base.eyebrow,
+    titleA: cms.heroTitle || base.titleA,
+    titleB: cms.heroTitleHighlight || base.titleB,
+    subtitle: cms.heroDescription || base.subtitle,
+    heroButton: cms.heroCtaText || base.heroButton,
+    servicesLabel: cms.servicesLabel || base.servicesLabel,
+    serviceItems: cms.services?.length ? cms.services.map((item) => [item.title, item.description] as const) : base.serviceItems,
+    processTitle: cms.includesTitle || base.processTitle,
+    process: cms.includes?.length ? cms.includes.map((item) => [item.title, item.description] as const) : base.process,
+    audienceTitle: cms.audienceTitle || base.audienceTitle,
+    audience: cms.audience?.length ? cms.audience.map((item) => [item.title, item.description] as const) : base.audience,
+  } : base;
   const links = navLinks[locale];
+  const heroImage = locale === 'es' && cms?.heroImageUrl ? cms.heroImageUrl : '/service-marketing.jpg';
+  const currentAudienceImages = locale === 'es' && cms?.audience?.length
+    ? cms.audience.map((item, index) => item.imageUrl || audienceImages[index] || audienceImages[0])
+    : audienceImages;
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#F7F3EA] text-[#002147]">
@@ -161,7 +195,7 @@ export default function MarketingDigitalPageClient() {
 
       <section className="relative min-h-[760px] overflow-hidden bg-[#020912] px-5 pb-10 pt-28 text-white md:px-8 md:pt-32">
         <div className="absolute inset-0">
-          <Image src="/service-marketing.jpg" alt="Marketing digital" fill priority className="object-cover opacity-45" />
+          <Image src={heroImage} alt="Marketing digital" fill priority className="object-cover opacity-45" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_20%,rgba(212,175,55,.16),transparent_30%),linear-gradient(90deg,rgba(2,9,18,.94)_0%,rgba(2,9,18,.76)_42%,rgba(2,9,18,.44)_100%)]" />
         </div>
 
@@ -251,7 +285,7 @@ export default function MarketingDigitalPageClient() {
               const Icon = audienceIcons[index];
               return (
                 <article key={title} className="group relative min-h-[250px] overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/5 shadow-[0_25px_70px_rgba(0,0,0,.25)]">
-                  <Image src={audienceImages[index]} alt={title} fill className="object-cover opacity-54 grayscale transition duration-500 group-hover:scale-105 group-hover:opacity-72 group-hover:grayscale-0" />
+                  <Image src={currentAudienceImages[index] || audienceImages[index]} alt={title} fill className="object-cover opacity-54 grayscale transition duration-500 group-hover:scale-105 group-hover:opacity-72 group-hover:grayscale-0" />
                   <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,9,18,.90),rgba(2,9,18,.44))]" />
                   <div className="relative z-10 flex h-full min-h-[250px] items-end gap-5 p-7">
                     <span className="text-5xl font-black text-[#D4AF37]">0{index + 1}</span>
