@@ -24,8 +24,10 @@ export function isDirectusVisualEditingFrame() {
   if (params.get('visual-editing') === 'true') return true;
 
   try {
-    if (window.self === window.top || !document.referrer) return false;
-    return new URL(document.referrer).origin === new URL(DIRECTUS_URL).origin;
+    // Internal navigation inside Directus changes document.referrer to the
+    // previous website page and drops the query parameter. Remaining inside
+    // an iframe is therefore the reliable signal across every service page.
+    return window.self !== window.top;
   } catch {
     return false;
   }
