@@ -12,6 +12,7 @@ const previewRoutes: Record<string, { pathname: string; hash?: string }> = {
   blog_posts: { pathname: '/', hash: 'blog' },
   contact_settings: { pathname: '/', hash: 'contacto' },
   flex_sections: { pathname: '/' },
+  page_elements: { pathname: '/' },
 };
 
 function getSiteUrl() {

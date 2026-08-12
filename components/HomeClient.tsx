@@ -9,6 +9,7 @@ import SiteFooter from '@/components/SiteFooter';
 import { motion } from '@/components/Motion';
 import { SERVICE_LINKS, serviceHrefFromTitle } from '@/lib/services';
 import DirectusVisualEditing, { directusAttr, isDirectusVisualEditingFrame } from '@/components/DirectusVisualEditing';
+import { elementText, pageElement, pageSection, type PageElement } from '@/lib/page-elements';
 
 type DirectusId = string | number;
 
@@ -22,6 +23,7 @@ export type SiteData = {
   blog: Array<{ id?: DirectusId; title?: string; excerpt?: string; category?: string; slug?: string; featured_image?: string; image_url?: string }>;
   flex: Array<{ id?: DirectusId; title?: string; subtitle?: string; content?: string; section_type?: string; is_published?: boolean; link_text?: string; link_url?: string; button_text?: string; button_url?: string; image?: string; image_url?: string }>;
   process_steps?: Array<{ id?: DirectusId; title?: string; description?: string; icon?: string; sort?: number; is_published?: boolean; image?: string | { id?: string }; image_url?: string; Image?: string; process_image?: string; background_image?: string }>;
+  page_elements?: PageElement[];
 };
 
 type Locale = 'es' | 'en';
@@ -208,13 +210,13 @@ function ImageBox({ src, alt, className = '' }: { src?: string; alt: string; cla
   return <MediaFallback className={className} />;
 }
 
-function SectionHeader({ eyebrow, title, subtitle, theme = 'light', className = '' }: { eyebrow: string; title: string; subtitle?: string; theme?: 'light' | 'dark'; className?: string }) {
+function SectionHeader({ eyebrow, title, subtitle, theme = 'light', className = '', eyebrowAttr, titleAttr, subtitleAttr }: { eyebrow: string; title: string; subtitle?: string; theme?: 'light' | 'dark'; className?: string; eyebrowAttr?: string; titleAttr?: string; subtitleAttr?: string }) {
   const dark = theme === 'dark';
   return (
     <div className={`section-heading ${className}`}>
-      <p className="section-eyebrow">{eyebrow}</p>
-      <h2 className={`section-title ${dark ? 'text-white' : 'text-[#002147]'}`}>{title}</h2>
-      {subtitle && <p className={`section-subtitle ${dark ? 'text-white/72' : 'text-[#212529]/70'}`}>{subtitle}</p>}
+      <p className="section-eyebrow" data-directus={eyebrowAttr}>{eyebrow}</p>
+      <h2 className={`section-title ${dark ? 'text-white' : 'text-[#002147]'}`} data-directus={titleAttr}>{title}</h2>
+      {subtitle && <p className={`section-subtitle ${dark ? 'text-white/72' : 'text-[#212529]/70'}`} data-directus={subtitleAttr}>{subtitle}</p>}
       <span className="section-divider" aria-hidden="true" />
     </div>
   );
@@ -285,19 +287,52 @@ export default function HomeClient({ data }: Props) {
     };
   }, []);
 
-  const t = copy[locale];
-  const heroTitle = locale === 'es' ? (home.hero_title || `${t.heroLine1} ${t.heroLine2}`) : `${t.heroLine1} ${t.heroLine2}`;
+  const baseCopy = copy[locale];
+  const homeElement = (key: string) => pageElement(data.page_elements, 'home', locale, key);
+  const globalElement = (key: string) => pageElement(data.page_elements, 'global', locale, key);
+  const homeValue = (key: string, fallback: string, field: 'text' | 'secondary_text' | 'tertiary_text' = 'text') => elementText(homeElement(key), fallback, field);
+  const globalValue = (key: string, fallback: string) => elementText(globalElement(key), fallback);
+  const elementAttr = (item: PageElement | undefined, field: 'text' | 'secondary_text' | 'tertiary_text' | 'link' | 'image' = 'text') => directusAttr(visualEditingEnabled, 'page_elements', item?.id, field);
+  const navKeys = ['home', 'services', 'portfolio', 'process', 'contact'];
+  const cmsNav = baseCopy.nav.map(([label, href], index) => {
+    const item = globalElement(`nav.${navKeys[index]}`);
+    return [elementText(item, label), item?.link || href] as NavLink;
+  });
+  const t = {
+    ...baseCopy,
+    nav: cmsNav,
+    cta: globalValue('nav.cta', baseCopy.cta),
+    servicesEyebrow: homeValue('services.eyebrow', baseCopy.servicesEyebrow),
+    servicesTitle: homeValue('services.title', baseCopy.servicesTitle),
+    servicesIntro: homeValue('services.intro', baseCopy.servicesIntro),
+    servicesButton: homeValue('services.button', baseCopy.servicesButton),
+    workTitle: homeValue('process.title', baseCopy.workTitle),
+    workText: homeValue('process.intro', baseCopy.workText),
+    workCta: homeValue('process.cta', baseCopy.workCta),
+    whyTitle: homeValue('why.eyebrow', baseCopy.whyTitle),
+    whyHeadline: homeValue('why.title', baseCopy.whyHeadline),
+    toolsTitle: homeValue('ecosystem.title', baseCopy.toolsTitle),
+    portfolioEyebrow: homeValue('portfolio.eyebrow', baseCopy.portfolioEyebrow),
+    portfolioTitle: homeValue('portfolio.title', baseCopy.portfolioTitle),
+    portfolioIntro: homeValue('portfolio.intro', baseCopy.portfolioIntro),
+    portfolioButton: homeValue('portfolio.button', baseCopy.portfolioButton),
+  };
+  const heroTitleElement = homeElement('hero.title');
+  const heroTitleFallback = locale === 'es' ? (home.hero_title || `${baseCopy.heroLine1} ${baseCopy.heroLine2}`) : `${baseCopy.heroLine1} ${baseCopy.heroLine2}`;
+  const heroTitle = elementText(heroTitleElement, heroTitleFallback);
   const [heroLine1, heroLine2] = splitHeroTitle(heroTitle);
   const localizedServices = useMemo(() => SERVICE_LINKS.map((service, index) => {
     const directus = data.services.find(item => serviceHrefFromTitle(item.title) === service.href) || data.services[index] || {};
+    const editable = pageElement(data.page_elements, 'home', locale, `service-card.${service.key}`);
     return {
       ...service,
       directusId: directus.id,
-      title: locale === 'es' ? (directus.title || service.es) : service.en,
-      description: locale === 'es' ? (directus.description || t.serviceDescriptions[index]) : t.serviceDescriptions[index],
+      editable,
+      title: elementText(editable, locale === 'es' ? (directus.title || service.es) : service.en),
+      description: elementText(editable, locale === 'es' ? (directus.description || t.serviceDescriptions[index]) : t.serviceDescriptions[index], 'secondary_text'),
       image: directus.image_url || serviceMedia[service.key],
     };
-  }), [data.services, t.serviceDescriptions]);
+  }), [data.page_elements, data.services, locale, t.serviceDescriptions]);
   const portfolio = data.portfolio.length ? data.portfolio : [
     { title: locale === 'es' ? 'Producción audiovisual' : 'Audiovisual production', category: 'Audiovisual', description: locale === 'es' ? 'Contenido visual y soporte técnico para comunicar con más impacto.' : 'Visual content and technical support for stronger communication.', image_url: '/service-audiovisual.jpg' },
     { title: locale === 'es' ? 'Campaña digital' : 'Digital campaign', category: 'Marketing', description: locale === 'es' ? 'Estrategia, medición y optimización para generar oportunidades reales.' : 'Strategy, measurement and optimisation to generate real opportunities.', image_url: '/service-marketing.jpg' },
@@ -317,11 +352,13 @@ export default function HomeClient({ data }: Props) {
   }));
   const processItems = baseProcessItems.map((base, index) => {
     const directus = directusProcess.find(item => Number(item.sort) === index + 1) || directusProcess[index];
-    if (!directus) return base;
+    const editable = homeElement(`process-step.${index + 1}`);
+    if (!directus) return { ...base, editable, title: elementText(editable, base.title), text: elementText(editable, base.text, 'secondary_text') };
     return {
       directusId: directus.id,
-      title: directus.title || base.title,
-      text: directus.description || base.text,
+      editable,
+      title: elementText(editable, locale === 'es' ? (directus.title || base.title) : base.title),
+      text: elementText(editable, locale === 'es' ? (directus.description || base.text) : base.text, 'secondary_text'),
       // Imagen editable desde Directus. Si no hay imagen, se mantiene el fallback visual.
       image: resolveDirectusImage(directus) || base.image,
       icon: directus.icon || base.icon,
@@ -334,10 +371,19 @@ export default function HomeClient({ data }: Props) {
     ...processItems.map(item => item.directusId || ''),
     ...portfolio.map(item => item.id || ''),
   ].join(':');
+  const editableNavLinks = navKeys.map(key => globalElement(`nav.${key}`));
+  const statsRows = pageSection(data.page_elements, 'home', locale, 'stats');
+  const displayStats = statsRows.length
+    ? statsRows.map(item => ({ item, number: elementText(item, ''), label: elementText(item, '', 'secondary_text') }))
+    : t.stats.map(([number, label]) => ({ item: undefined, number, label }));
+  const toolRows = pageSection(data.page_elements, 'home', locale, 'tools');
+  const displayTools = toolRows.length
+    ? toolRows.map(item => ({ item, name: elementText(item, ''), mark: elementText(item, '', 'secondary_text'), tone: item.color || '#FFFFFF' }))
+    : tools.map(tool => ({ item: undefined, ...tool }));
 
   return <main className="min-h-screen overflow-hidden bg-[#F7F3EA] text-[#002147]">
     <DirectusVisualEditing enabled={visualEditingEnabled} refreshKey={visualEditingRefreshKey} />
-    <Navbar links={t.nav} ctaLabel={t.cta} locale={locale} onLocaleChange={setLocale} transparentOnTop />
+    <Navbar links={t.nav} ctaLabel={t.cta} locale={locale} onLocaleChange={setLocale} transparentOnTop editableLinks={editableNavLinks} ctaElement={globalElement('nav.cta')} visualEditingEnabled={visualEditingEnabled} pageElements={data.page_elements} />
     {isPreviewMode && <div className="fixed bottom-5 left-5 z-[120] rounded-full border border-[#D4AF37]/40 bg-[#002147]/90 px-4 py-2 text-xs font-bold uppercase tracking-[.14em] text-white shadow-[0_18px_45px_rgba(0,0,0,.22)] backdrop-blur-xl">Vista previa Directus <a href="/api/preview/disable" className="ml-3 text-[#D4AF37] underline-offset-4 hover:underline">Salir</a></div>}
 
     <section id="inicio" className="relative min-h-screen overflow-hidden bg-[#002147] text-white">
@@ -357,7 +403,7 @@ export default function HomeClient({ data }: Props) {
         <motion.div initial={{ opacity: 0, y: 38 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .85 }} className="mx-auto max-w-5xl">
           <h1
             className="mx-auto max-w-[980px] text-[clamp(2.45rem,5vw,5.25rem)] leading-[1.04] tracking-[-0.045em] text-white drop-shadow-[0_18px_45px_rgba(0,0,0,.34)]"
-            data-directus={locale === 'es' ? directusAttr(visualEditingEnabled, 'home_page', home.id, 'hero_title') : undefined}
+            data-directus={heroTitleElement ? elementAttr(heroTitleElement) : (locale === 'es' ? directusAttr(visualEditingEnabled, 'home_page', home.id, 'hero_title') : undefined)}
           >
             <span className="block font-extrabold">{heroLine1}</span>
             {heroLine2 && <span className="block font-normal tracking-[-0.035em] text-white/95">{heroLine2}</span>}
@@ -372,13 +418,13 @@ export default function HomeClient({ data }: Props) {
       <div className="absolute left-0 top-8 h-48 w-32 rounded-r-full bg-[#D4AF37]/10 blur-3xl" />
       <div className="mx-auto max-w-6xl">
         <motion.div initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-90px' }} className="mb-7 max-w-4xl">
-          <SectionHeader eyebrow={t.servicesEyebrow} title={t.servicesTitle} subtitle={t.servicesIntro} />
+          <SectionHeader eyebrow={t.servicesEyebrow} title={t.servicesTitle} subtitle={t.servicesIntro} eyebrowAttr={elementAttr(homeElement('services.eyebrow'))} titleAttr={elementAttr(homeElement('services.title'))} subtitleAttr={elementAttr(homeElement('services.intro'))} />
         </motion.div>
         <div className="grid overflow-hidden rounded-[1.75rem] border border-white/60 bg-[#002147] shadow-[0_24px_70px_rgba(0,33,71,.16)] md:grid-cols-3">
           {localizedServices.map((service, index) => <motion.a key={service.key} href={service.href} initial={{ opacity: 0, y: 34 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: .48, delay: index * .035 }} className="group service-tile relative min-h-[190px] overflow-hidden border-white/10 md:border-r md:border-b lg:min-h-[205px]">
             <img src={service.image} alt={service.title} className="absolute inset-0 h-full w-full object-cover grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0 group-focus:scale-105 group-focus:grayscale-0" data-directus={directusAttr(visualEditingEnabled, 'services', service.directusId, 'image')} />
             <div className="service-tile-overlay absolute inset-0 transition duration-500" />
-            <div className="service-tile-content absolute inset-x-0 bottom-0 p-5 text-white"><p className="text-xs font-bold uppercase tracking-[.22em] text-[#D4AF37]">0{index + 1}</p><h3 className="mt-2 text-xl font-bold tracking-wide md:text-2xl" data-directus={locale === 'es' ? directusAttr(visualEditingEnabled, 'services', service.directusId, 'title') : undefined}>{service.title}</h3><span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-white/92 transition duration-500 group-hover:text-[#D4AF37]">{t.servicesButton}<ArrowRight size={16}/></span></div>
+            <div className="service-tile-content absolute inset-x-0 bottom-0 p-5 text-white"><p className="text-xs font-bold uppercase tracking-[.22em] text-[#D4AF37]">0{index + 1}</p><h3 className="mt-2 text-xl font-bold tracking-wide md:text-2xl" data-directus={service.editable ? directusAttr(visualEditingEnabled, 'page_elements', service.editable.id, 'text') : (locale === 'es' ? directusAttr(visualEditingEnabled, 'services', service.directusId, 'title') : undefined)}>{service.title}</h3><span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-white/92 transition duration-500 group-hover:text-[#D4AF37]" data-directus={elementAttr(homeElement('services.button'))}>{t.servicesButton}<ArrowRight size={16}/></span></div>
           </motion.a>)}
         </div>
       </div>
@@ -387,8 +433,8 @@ export default function HomeClient({ data }: Props) {
     <section id="proceso" className="bg-[#123D5F] px-5 py-14 text-white md:px-8">
       <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[.72fr_1.62fr] lg:items-center">
         <motion.div initial={{ opacity: 0, x: -34 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: '-80px' }}>
-          <SectionHeader eyebrow="Proceso" title={t.workTitle} subtitle={t.workText} theme="dark" />
-          <a href="#contacto" className="mt-7 inline-flex h-[50px] items-center gap-3 rounded-full border border-[#D4AF37] px-6 text-sm font-bold text-[#D4AF37] transition hover:-translate-y-1 hover:bg-[#D4AF37] hover:text-[#002147]">{t.workCta}<ArrowRight size={16}/></a>
+          <SectionHeader eyebrow={homeValue('process.eyebrow', locale === 'es' ? 'Proceso' : 'Process')} title={t.workTitle} subtitle={t.workText} theme="dark" eyebrowAttr={elementAttr(homeElement('process.eyebrow'))} titleAttr={elementAttr(homeElement('process.title'))} subtitleAttr={elementAttr(homeElement('process.intro'))} />
+          <a href="#contacto" className="mt-7 inline-flex h-[50px] items-center gap-3 rounded-full border border-[#D4AF37] px-6 text-sm font-bold text-[#D4AF37] transition hover:-translate-y-1 hover:bg-[#D4AF37] hover:text-[#002147]" data-directus={elementAttr(homeElement('process.cta'))}>{t.workCta}<ArrowRight size={16}/></a>
         </motion.div>
         <div className="grid gap-3 md:grid-cols-4">
           {processItems.map((step, i) => {
@@ -407,8 +453,8 @@ export default function HomeClient({ data }: Props) {
               <div className="relative z-10 flex h-full min-h-[370px] flex-col justify-end p-5">
                 <p className="text-3xl font-bold leading-none text-[#D4AF37]">0{i + 1}</p>
                 <div className="mt-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#D4AF37]/45 bg-black/30 text-[#D4AF37]"><Icon size={19}/></div>
-                <h3 className="mt-4 min-h-[2.85rem] text-lg font-bold leading-tight" data-directus={locale === 'es' ? directusAttr(visualEditingEnabled, 'process_steps', step.directusId, 'title') : undefined}>{step.title}</h3>
-                <p className="mt-2 min-h-[6rem] text-sm leading-6 text-white/78" data-directus={locale === 'es' ? directusAttr(visualEditingEnabled, 'process_steps', step.directusId, 'description') : undefined}>{step.text}</p>
+                <h3 className="mt-4 min-h-[2.85rem] text-lg font-bold leading-tight" data-directus={step.editable ? elementAttr(step.editable) : (locale === 'es' ? directusAttr(visualEditingEnabled, 'process_steps', step.directusId, 'title') : undefined)}>{step.title}</h3>
+                <p className="mt-2 min-h-[6rem] text-sm leading-6 text-white/78" data-directus={step.editable ? elementAttr(step.editable, 'secondary_text') : (locale === 'es' ? directusAttr(visualEditingEnabled, 'process_steps', step.directusId, 'description') : undefined)}>{step.text}</p>
               </div>
             </motion.article>;
           })}
@@ -419,16 +465,16 @@ export default function HomeClient({ data }: Props) {
     <section className="relative overflow-hidden bg-[#F7F3EA] px-5 py-10 text-[#002147] md:px-8 md:py-12">
       <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white/55 to-transparent" />
       <div className="relative mx-auto max-w-6xl">
-        <SectionHeader eyebrow={t.whyTitle} title={t.whyHeadline} />
+        <SectionHeader eyebrow={t.whyTitle} title={t.whyHeadline} eyebrowAttr={elementAttr(homeElement('why.eyebrow'))} titleAttr={elementAttr(homeElement('why.title'))} />
         <div className="mt-7 grid gap-5 md:grid-cols-4 md:divide-x md:divide-[#002147]/14">
-          {t.stats.map(([number, label], i) => {
+          {displayStats.map(({ item, number, label }, i) => {
             const StatIcon = [Rocket, Folder, Globe2, BarChart3][i];
             return <motion.div key={label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-90px' }} transition={{ duration: .45, delay: i * .04 }} className="stat-item px-4 py-2">
               <div className="stat-row flex min-h-[3rem] items-center gap-4">
                 <StatIcon size={34} strokeWidth={1.8} className="shrink-0 text-[#D4AF37]" />
-                <strong className="block text-4xl font-semibold leading-none text-[#002147] md:text-[2.55rem]">{number}</strong>
+                <strong className="block text-4xl font-semibold leading-none text-[#002147] md:text-[2.55rem]" data-directus={elementAttr(item)}>{number}</strong>
               </div>
-              <p className="mt-3 max-w-[12rem] text-sm leading-5 text-[#002147]/78">{label}</p>
+              <p className="mt-3 max-w-[12rem] text-sm leading-5 text-[#002147]/78" data-directus={elementAttr(item, 'secondary_text')}>{label}</p>
             </motion.div>;
           })}
         </div>
@@ -437,30 +483,30 @@ export default function HomeClient({ data }: Props) {
 
     <section className="overflow-hidden bg-[#082642] px-5 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
-        <SectionHeader eyebrow="Ecosistema" title={t.toolsTitle} theme="dark" />
+        <SectionHeader eyebrow={homeValue('ecosystem.eyebrow', locale === 'es' ? 'Ecosistema' : 'Ecosystem')} title={t.toolsTitle} theme="dark" eyebrowAttr={elementAttr(homeElement('ecosystem.eyebrow'))} titleAttr={elementAttr(homeElement('ecosystem.title'))} />
       </div>
       <div className="-mx-5 mt-9 space-y-5 md:-mx-8">
-        <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-left">{[...tools.slice(0, 9), ...tools.slice(0, 9), ...tools.slice(0, 9)].map((tool, index) => <ToolLogo key={`${tool.name}-${index}`} tool={tool} />)}</div></div>
-        <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-right">{[...tools.slice(9), ...tools.slice(9), ...tools.slice(9)].map((tool, index) => <ToolLogo key={`${tool.name}-${index}`} tool={tool} />)}</div></div>
+        <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-left">{[...displayTools.slice(0, 9), ...displayTools.slice(0, 9), ...displayTools.slice(0, 9)].map((tool, index) => <span key={`${tool.name}-${index}`} data-directus={index < 9 ? directusAttr(visualEditingEnabled, 'page_elements', tool.item?.id, ['text', 'secondary_text', 'color']) : undefined}><ToolLogo tool={tool} /></span>)}</div></div>
+        <div className="tools-marquee tools-marquee-panel"><div className="tools-track tools-right">{[...displayTools.slice(9), ...displayTools.slice(9), ...displayTools.slice(9)].map((tool, index) => <span key={`${tool.name}-${index}`} data-directus={index < displayTools.slice(9).length ? directusAttr(visualEditingEnabled, 'page_elements', tool.item?.id, ['text', 'secondary_text', 'color']) : undefined}><ToolLogo tool={tool} /></span>)}</div></div>
       </div>
     </section>
 
     <section id="portafolio" className="border-y border-[#002147]/10 bg-white/60 px-5 py-16 md:px-8">
       <div className="mx-auto max-w-6xl">
         <div className="mb-10 max-w-4xl">
-          <SectionHeader eyebrow={t.portfolioEyebrow} title={t.portfolioTitle} subtitle={t.portfolioIntro} />
+          <SectionHeader eyebrow={t.portfolioEyebrow} title={t.portfolioTitle} subtitle={t.portfolioIntro} eyebrowAttr={elementAttr(homeElement('portfolio.eyebrow'))} titleAttr={elementAttr(homeElement('portfolio.title'))} subtitleAttr={elementAttr(homeElement('portfolio.intro'))} />
         </div>
         <div className="grid gap-5 md:grid-cols-3">
           {portfolio.slice(0,3).map((p, i) => <motion.article key={`${p.title}-${i}`} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * .05 }} className="group overflow-hidden rounded-[1.6rem] border border-[#002147]/10 bg-white shadow-[0_16px_45px_rgba(0,33,71,.09)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_60px_rgba(0,33,71,.13)]">
             <div className="relative h-52 overflow-hidden" data-directus={directusAttr(visualEditingEnabled, 'portfolio', p.id, 'image')}><ImageBox src={p.image_url} alt={p.title || 'Proyecto'} className="transition duration-700 group-hover:scale-105" /></div>
-            <div className="p-7"><p className="text-xs font-bold uppercase tracking-[.2em] text-[#B58F18]" data-directus={directusAttr(visualEditingEnabled, 'portfolio', p.id, 'category')}>{p.category}</p><h3 className="mt-3 text-2xl font-semibold tracking-[-.02em]" data-directus={directusAttr(visualEditingEnabled, 'portfolio', p.id, 'title')}>{p.title}</h3><p className="mt-3 leading-7 text-[#212529]/68" data-directus={directusAttr(visualEditingEnabled, 'portfolio', p.id, 'description')}>{p.description}</p><a href={p.project_url || '#contacto'} className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#002147] transition hover:text-[#B58F18]" data-directus={directusAttr(visualEditingEnabled, 'portfolio', p.id, 'project_url')}>{t.portfolioButton}<ArrowRight size={16}/></a></div>
+            <div className="p-7"><p className="text-xs font-bold uppercase tracking-[.2em] text-[#B58F18]" data-directus={directusAttr(visualEditingEnabled, 'portfolio', p.id, 'category')}>{p.category}</p><h3 className="mt-3 text-2xl font-semibold tracking-[-.02em]" data-directus={directusAttr(visualEditingEnabled, 'portfolio', p.id, 'title')}>{p.title}</h3><p className="mt-3 leading-7 text-[#212529]/68" data-directus={directusAttr(visualEditingEnabled, 'portfolio', p.id, 'description')}>{p.description}</p><a href={p.project_url || '#contacto'} className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#002147] transition hover:text-[#B58F18]" data-directus={directusAttr(visualEditingEnabled, 'portfolio', p.id, 'project_url')}><span data-directus={elementAttr(homeElement('portfolio.button'))}>{t.portfolioButton}</span><ArrowRight size={16}/></a></div>
           </motion.article>)}
         </div>
       </div>
     </section>
 
-    <ContactSection locale={locale} contact={contact} source="d-solution.org" visualEditingEnabled={visualEditingEnabled} />
-    <SiteFooter locale={locale} links={t.nav} siteId={data.site.id} siteName={data.site.site_name} description={data.site.footer_text} visualEditingEnabled={visualEditingEnabled} />
-    <PromoPopup promo={promoPopup} delaySeconds={data.site.popup_delay_seconds} visualEditingEnabled={visualEditingEnabled} />
+    <ContactSection locale={locale} contact={contact} source="d-solution.org" visualEditingEnabled={visualEditingEnabled} pageElements={data.page_elements} />
+    <SiteFooter locale={locale} links={t.nav} siteId={data.site.id} siteName={data.site.site_name} description={data.site.footer_text} visualEditingEnabled={visualEditingEnabled} pageElements={data.page_elements} />
+    <PromoPopup promo={promoPopup} delaySeconds={data.site.popup_delay_seconds} visualEditingEnabled={visualEditingEnabled} locale={locale} pageElements={data.page_elements} />
   </main>;
 }

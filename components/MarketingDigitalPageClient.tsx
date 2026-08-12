@@ -5,6 +5,8 @@ import Image from 'next/image';
 import Navbar, { type NavLink } from '@/components/Navbar';
 import SiteFooter from '@/components/SiteFooter';
 import ContactSection from '@/components/ContactSection';
+import DirectusVisualEditing, { directusAttr, isDirectusVisualEditingFrame } from '@/components/DirectusVisualEditing';
+import { elementText, pageElement, type PageElement } from '@/lib/page-elements';
 import {
   ArrowRight,
   BarChart3,
@@ -155,12 +157,14 @@ function BrandMark({ label }: { label: string }) {
   );
 }
 
-export default function MarketingDigitalPageClient({ cms }: { cms?: MarketingPageCms }) {
+export default function MarketingDigitalPageClient({ cms, pageElements = [] }: { cms?: MarketingPageCms; pageElements?: PageElement[] }) {
   const [locale, setLocale] = useState<Locale>('es');
+  const [visualEditingEnabled, setVisualEditingEnabled] = useState(false);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(LOCALE_KEY);
     if (stored === 'en' || stored === 'es') setLocale(stored);
+    setVisualEditingEnabled(isDirectusVisualEditingFrame());
   }, []);
 
   const handleLocale = (value: Locale) => {
@@ -169,7 +173,10 @@ export default function MarketingDigitalPageClient({ cms }: { cms?: MarketingPag
   };
 
   const base = copy[locale];
-  const t = locale === 'es' && cms ? {
+  const item = (key: string) => pageElement(pageElements, 'service-marketing', locale, key);
+  const value = (key: string, fallback: string, field: 'text' | 'secondary_text' = 'text') => elementText(item(key), fallback, field);
+  const attr = (key: string, field: 'text' | 'secondary_text' | 'image' = 'text') => directusAttr(visualEditingEnabled, 'page_elements', item(key)?.id, field);
+  const cmsCopy = locale === 'es' && cms ? {
     ...base,
     eyebrow: cms.heroEyebrow || base.eyebrow,
     titleA: cms.heroTitle || base.titleA,
@@ -183,33 +190,46 @@ export default function MarketingDigitalPageClient({ cms }: { cms?: MarketingPag
     audienceTitle: cms.audienceTitle || base.audienceTitle,
     audience: cms.audience?.length ? cms.audience.map((item) => [item.title, item.description] as const) : base.audience,
   } : base;
-  const links = navLinks[locale];
-  const heroImage = locale === 'es' && cms?.heroImageUrl ? cms.heroImageUrl : '/service-marketing.jpg';
+  const t = {
+    ...cmsCopy,
+    cta: value('cta', cmsCopy.cta), eyebrow: value('eyebrow', cmsCopy.eyebrow), titleA: value('titleA', cmsCopy.titleA), titleB: value('titleB', cmsCopy.titleB),
+    subtitle: value('subtitle', cmsCopy.subtitle), heroButton: value('heroButton', cmsCopy.heroButton), servicesLabel: value('servicesLabel', cmsCopy.servicesLabel),
+    processTitle: value('processTitle', cmsCopy.processTitle), audienceTitle: value('audienceTitle', cmsCopy.audienceTitle),
+    serviceItems: cmsCopy.serviceItems.map((entry, index) => [value(`serviceItems.${index + 1}`, entry[0]), value(`serviceItems.${index + 1}`, entry[1], 'secondary_text')] as const),
+    process: cmsCopy.process.map((entry, index) => [value(`process.${index + 1}`, entry[0]), value(`process.${index + 1}`, entry[1], 'secondary_text')] as const),
+    audience: cmsCopy.audience.map((entry, index) => [value(`audience.${index + 1}`, entry[0]), value(`audience.${index + 1}`, entry[1], 'secondary_text')] as const),
+  };
+  const globalItem = (key: string) => pageElement(pageElements, 'global', locale, key);
+  const keys = ['home', 'services', 'portfolio', 'process', 'contact'];
+  const links = navLinks[locale].map(([label, href], index) => { const nav = globalItem(`nav.${keys[index]}`); return [elementText(nav, label), nav?.link || href] as NavLink; });
+  const heroImageItem = item('hero.image');
+  const heroImage = heroImageItem?.image_url || (locale === 'es' && cms?.heroImageUrl ? cms.heroImageUrl : '/service-marketing.jpg');
   const currentAudienceImages = locale === 'es' && cms?.audience?.length
-    ? cms.audience.map((item, index) => item.imageUrl || audienceImages[index] || audienceImages[0])
-    : audienceImages;
+    ? cms.audience.map((audienceItem, index) => item(`audience.${index + 1}`)?.image_url || audienceItem.imageUrl || audienceImages[index] || audienceImages[0])
+    : audienceImages.map((fallback, index) => item(`audience.${index + 1}`)?.image_url || fallback);
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#F7F3EA] text-[#002147]">
-      <Navbar links={links} ctaLabel={t.cta} locale={locale} onLocaleChange={handleLocale} transparentOnTop />
+      <DirectusVisualEditing enabled={visualEditingEnabled} refreshKey={`marketing:${locale}:${pageElements.length}`} />
+      <Navbar links={links} ctaLabel={t.cta} locale={locale} onLocaleChange={handleLocale} transparentOnTop editableLinks={keys.map(key => globalItem(`nav.${key}`))} ctaElement={item('cta')} visualEditingEnabled={visualEditingEnabled} pageElements={pageElements} />
 
       <section className="relative min-h-[760px] overflow-hidden bg-[#020912] px-5 pb-10 pt-28 text-white md:px-8 md:pt-32">
         <div className="absolute inset-0">
-          <Image src={heroImage} alt="Marketing digital" fill priority className="object-cover opacity-45" />
+          <Image src={heroImage} alt="Marketing digital" fill priority className="object-cover opacity-45" data-directus={attr('hero.image', 'image')} />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_20%,rgba(212,175,55,.16),transparent_30%),linear-gradient(90deg,rgba(2,9,18,.94)_0%,rgba(2,9,18,.76)_42%,rgba(2,9,18,.44)_100%)]" />
         </div>
 
         <div className="relative mx-auto max-w-7xl">
           <div className="grid min-h-[520px] items-center gap-10 lg:grid-cols-[.95fr_1.05fr]">
             <div className="max-w-xl">
-              <p className="text-xs font-black uppercase tracking-[.25em] text-[#D4AF37]">{t.eyebrow}</p>
+              <p className="text-xs font-black uppercase tracking-[.25em] text-[#D4AF37]" data-directus={attr('eyebrow')}>{t.eyebrow}</p>
               <h1 className="mt-5 text-5xl font-black leading-[.95] tracking-[-.055em] md:text-7xl">
-                {t.titleA}
-                <span className="block text-[#D4AF37]">{t.titleB}</span>
+                <span data-directus={attr('titleA')}>{t.titleA}</span>
+                <span className="block text-[#D4AF37]" data-directus={attr('titleB')}>{t.titleB}</span>
               </h1>
               <span className="mt-6 block h-0.5 w-16 bg-[#D4AF37]" />
-              <p className="mt-6 max-w-md text-xl leading-8 text-white/86">{t.subtitle}</p>
-              <a href="#contacto" className="mt-9 inline-flex items-center gap-3 rounded-xl bg-[#D4AF37] px-6 py-4 font-black text-[#002147] shadow-[0_22px_45px_rgba(212,175,55,.28)] transition hover:-translate-y-1 hover:bg-white">
+              <p className="mt-6 max-w-md text-xl leading-8 text-white/86" data-directus={attr('subtitle')}>{t.subtitle}</p>
+              <a href="#contacto" className="mt-9 inline-flex items-center gap-3 rounded-xl bg-[#D4AF37] px-6 py-4 font-black text-[#002147] shadow-[0_22px_45px_rgba(212,175,55,.28)] transition hover:-translate-y-1 hover:bg-white" data-directus={attr('heroButton')}>
                 {t.heroButton}
                 <ArrowRight size={18} />
               </a>
@@ -220,16 +240,16 @@ export default function MarketingDigitalPageClient({ cms }: { cms?: MarketingPag
 
           <div className="relative z-10 mt-8 overflow-hidden rounded-[1.75rem] border border-white/12 bg-[#05121f]/94 p-7 shadow-[0_35px_80px_rgba(0,0,0,.34)] backdrop-blur-xl md:p-8">
             <div className="mb-6 flex items-center gap-4">
-              <p className="shrink-0 text-xs font-black uppercase tracking-[.2em] text-[#D4AF37]">{t.servicesLabel}</p>
+              <p className="shrink-0 text-xs font-black uppercase tracking-[.2em] text-[#D4AF37]" data-directus={attr('servicesLabel')}>{t.servicesLabel}</p>
               <div className="h-px flex-1 bg-[linear-gradient(90deg,rgba(212,175,55,.55),transparent)]" />
             </div>
             <div className="grid gap-5 md:grid-cols-4">
-              {t.serviceItems.map(([title, text]) => (
+              {t.serviceItems.map(([title, text], index) => (
                 <div key={title} className="flex min-h-[112px] items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:-translate-y-1 hover:bg-white/[0.07] md:border-r md:border-y-0 md:border-l-0 md:rounded-none md:bg-transparent md:p-0 md:pr-6 last:border-r-0">
                   <BrandMark label={title} />
                   <div>
-                    <h3 className="font-black text-white">{title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-white/68">{text}</p>
+                    <h3 className="font-black text-white" data-directus={attr(`serviceItems.${index + 1}`)}>{title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-white/68" data-directus={attr(`serviceItems.${index + 1}`, 'secondary_text')}>{text}</p>
                   </div>
                 </div>
               ))}
@@ -241,7 +261,7 @@ export default function MarketingDigitalPageClient({ cms }: { cms?: MarketingPag
       <section className="bg-white px-5 py-20 md:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="text-center">
-            <h2 className="text-3xl font-black uppercase tracking-[-.03em] text-[#061523] md:text-4xl">{t.processTitle}</h2>
+            <h2 className="text-3xl font-black uppercase tracking-[-.03em] text-[#061523] md:text-4xl" data-directus={attr('processTitle')}>{t.processTitle}</h2>
             <span className="mx-auto mt-4 block h-0.5 w-12 bg-[#D4AF37]" />
           </div>
 
@@ -262,9 +282,9 @@ export default function MarketingDigitalPageClient({ cms }: { cms?: MarketingPag
                       </span>
                       <span className="text-2xl font-black text-[#D4AF37]">0{index + 1}</span>
                     </div>
-                    <h3 className="mt-6 text-2xl font-black text-[#061523]">{title}</h3>
+                    <h3 className="mt-6 text-2xl font-black text-[#061523]" data-directus={attr(`process.${index + 1}`)}>{title}</h3>
                     <span className="mt-3 block h-0.5 w-10 bg-[#D4AF37]" />
-                    <p className="mt-4 text-base leading-7 text-[#212529]/70">{text}</p>
+                    <p className="mt-4 text-base leading-7 text-[#212529]/70" data-directus={attr(`process.${index + 1}`, 'secondary_text')}>{text}</p>
                   </article>
                 );
               })}
@@ -277,7 +297,7 @@ export default function MarketingDigitalPageClient({ cms }: { cms?: MarketingPag
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,55,.14),transparent_30%),radial-gradient(circle_at_85%_15%,rgba(0,166,166,.12),transparent_32%)]" />
         <div className="relative mx-auto max-w-7xl">
           <div className="text-center">
-            <h2 className="text-3xl font-black uppercase tracking-[-.03em]">{t.audienceTitle}</h2>
+            <h2 className="text-3xl font-black uppercase tracking-[-.03em]" data-directus={attr('audienceTitle')}>{t.audienceTitle}</h2>
             <span className="mx-auto mt-4 block h-0.5 w-12 bg-[#D4AF37]" />
           </div>
           <div className="mt-9 grid gap-5 lg:grid-cols-3">
@@ -285,7 +305,7 @@ export default function MarketingDigitalPageClient({ cms }: { cms?: MarketingPag
               const Icon = audienceIcons[index];
               return (
                 <article key={title} className="group relative min-h-[250px] overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/5 shadow-[0_25px_70px_rgba(0,0,0,.25)]">
-                  <Image src={currentAudienceImages[index] || audienceImages[index]} alt={title} fill className="object-cover opacity-54 grayscale transition duration-500 group-hover:scale-105 group-hover:opacity-72 group-hover:grayscale-0" />
+                  <Image src={currentAudienceImages[index] || audienceImages[index]} alt={title} fill className="object-cover opacity-54 grayscale transition duration-500 group-hover:scale-105 group-hover:opacity-72 group-hover:grayscale-0" data-directus={directusAttr(visualEditingEnabled, 'page_elements', item(`audience.${index + 1}`)?.id, 'image')} />
                   <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,9,18,.90),rgba(2,9,18,.44))]" />
                   <div className="relative z-10 flex h-full min-h-[250px] items-end gap-5 p-7">
                     <span className="text-5xl font-black text-[#D4AF37]">0{index + 1}</span>
@@ -293,9 +313,9 @@ export default function MarketingDigitalPageClient({ cms }: { cms?: MarketingPag
                       <span className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#D4AF37] text-[#002147]">
                         <Icon size={25} />
                       </span>
-                      <h3 className="text-2xl font-black text-white">{title}</h3>
+                      <h3 className="text-2xl font-black text-white" data-directus={attr(`audience.${index + 1}`)}>{title}</h3>
                       <span className="mt-3 block h-0.5 w-10 bg-[#D4AF37]" />
-                      <p className="mt-4 max-w-[13rem] text-sm leading-6 text-white/78">{text}</p>
+                      <p className="mt-4 max-w-[13rem] text-sm leading-6 text-white/78" data-directus={attr(`audience.${index + 1}`, 'secondary_text')}>{text}</p>
                     </div>
                   </div>
                 </article>
@@ -306,10 +326,10 @@ export default function MarketingDigitalPageClient({ cms }: { cms?: MarketingPag
       </section>
 
       <div className="bg-[#F7F3EA] pt-14">
-        <ContactSection locale={locale} source="d-solution.org/marketing-digital" />
+        <ContactSection locale={locale} source="d-solution.org/marketing-digital" visualEditingEnabled={visualEditingEnabled} pageElements={pageElements} />
       </div>
 
-      <SiteFooter locale={locale} links={links} />
+      <SiteFooter locale={locale} links={links} visualEditingEnabled={visualEditingEnabled} pageElements={pageElements} />
     </main>
   );
 }

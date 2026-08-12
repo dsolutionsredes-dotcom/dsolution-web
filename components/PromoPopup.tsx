@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { X, ArrowRight } from 'lucide-react';
 import { motion } from '@/components/Motion';
 import { directusAttr } from '@/components/DirectusVisualEditing';
+import { elementText, pageElement, type PageElement } from '@/lib/page-elements';
 
 export type PromoData = {
   id?: string | number;
@@ -31,7 +32,19 @@ function isValidLink(value?: string) {
   return !!value && (value.startsWith('http') || value.startsWith('/') || value.startsWith('#'));
 }
 
-export default function PromoPopup({ promo, delaySeconds, visualEditingEnabled = false }: { promo?: PromoData; delaySeconds?: number | string; visualEditingEnabled?: boolean }) {
+export default function PromoPopup({
+  promo,
+  delaySeconds,
+  visualEditingEnabled = false,
+  locale = 'es',
+  pageElements = [],
+}: {
+  promo?: PromoData;
+  delaySeconds?: number | string;
+  visualEditingEnabled?: boolean;
+  locale?: 'es' | 'en';
+  pageElements?: PageElement[];
+}) {
   const [visible, setVisible] = useState(false);
   const content = useMemo(() => normalizeContent(promo?.content), [promo?.content]);
 
@@ -47,7 +60,11 @@ export default function PromoPopup({ promo, delaySeconds, visualEditingEnabled =
   if (!promo?.title || !visible) return null;
 
   const link = promo.link_url || promo.button_url || (isValidLink(content) ? content : undefined);
-  const text = promo.link_text || promo.button_text || 'Ver promoción';
+  const labelElement = pageElement(pageElements, 'global', locale, 'promo.label');
+  const buttonElement = pageElement(pageElements, 'global', locale, 'promo.button');
+  const brandElement = pageElement(pageElements, 'global', locale, 'brand.name');
+  const hasPromoButtonText = Boolean(promo.link_text || promo.button_text);
+  const text = promo.link_text || promo.button_text || elementText(buttonElement, locale === 'es' ? 'Ver promoción' : 'View promotion');
 
   const close = () => {
     sessionStorage.setItem('dsolution_promo_dismissed', promo.title || 'promo');
@@ -88,14 +105,14 @@ export default function PromoPopup({ promo, delaySeconds, visualEditingEnabled =
             <div className="flex h-full min-h-[260px] items-center justify-center bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,55,.35),transparent_34%),linear-gradient(135deg,#09233d,#061523)] p-8 text-center text-white/80 md:min-h-[470px]">
               <div>
                 <img src="/logo.png" alt="D-Solution" className="mx-auto mb-5 h-20 w-20 rounded-full object-cover" />
-                <p className="text-sm font-semibold uppercase tracking-[.25em] text-[#D4AF37]">D-Solution</p>
+                <p className="text-sm font-semibold uppercase tracking-[.25em] text-[#D4AF37]" data-directus={directusAttr(visualEditingEnabled, 'page_elements', brandElement?.id, 'text')}>{elementText(brandElement, 'D-Solution')}</p>
               </div>
             </div>
           )}
         </div>
 
         <div className="flex flex-col justify-center p-6 md:p-10">
-          <p className="text-xs font-bold uppercase tracking-[.24em] text-[#D4AF37]">Promoción</p>
+          <p className="text-xs font-bold uppercase tracking-[.24em] text-[#D4AF37]" data-directus={directusAttr(visualEditingEnabled, 'page_elements', labelElement?.id, 'text')}>{elementText(labelElement, locale === 'es' ? 'Promoción' : 'Promotion')}</p>
           <h3 className="mt-3 text-3xl font-semibold tracking-tight text-[#002147] md:text-4xl" data-directus={directusAttr(visualEditingEnabled, 'flex_sections', promo.id, 'title')}>{promo.title}</h3>
           {promo.subtitle && <p className="mt-4 leading-7 text-slate-600" data-directus={directusAttr(visualEditingEnabled, 'flex_sections', promo.id, 'subtitle')}>{promo.subtitle}</p>}
           {content && !isValidLink(content) && <p className="mt-3 text-sm leading-6 text-slate-500" data-directus={directusAttr(visualEditingEnabled, 'flex_sections', promo.id, 'content')}>{content}</p>}
@@ -106,7 +123,9 @@ export default function PromoPopup({ promo, delaySeconds, visualEditingEnabled =
                 target={link.startsWith('http') ? '_blank' : undefined}
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-xl bg-[#D4AF37] px-5 py-3 text-sm font-bold text-[#002147] transition hover:-translate-y-0.5"
-                data-directus={directusAttr(visualEditingEnabled, 'flex_sections', promo.id, ['button_text', 'button_url', 'link_text', 'link_url'])}
+                data-directus={hasPromoButtonText
+                  ? directusAttr(visualEditingEnabled, 'flex_sections', promo.id, ['button_text', 'button_url', 'link_text', 'link_url'])
+                  : directusAttr(visualEditingEnabled, 'page_elements', buttonElement?.id, 'text')}
               >
                 {text} <ArrowRight size={16} />
               </a>

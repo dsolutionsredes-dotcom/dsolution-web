@@ -1,6 +1,8 @@
 
 import type { Metadata } from 'next';
 import ServicePageClient from '@/components/ServicePageClient';
+import { draftMode } from 'next/headers';
+import { fetchPageElements } from '@/lib/page-elements';
 
 export const metadata: Metadata = {
   title: 'Tecnología audiovisual | D-Solution',
@@ -104,6 +106,7 @@ const localeContent = {
   },
 } as const;
 
-export default function AudiovisualPage() {
-  return <ServicePageClient serviceKey="audiovisual" localeContent={localeContent} variant="immersive" />;
+export default async function AudiovisualPage() {
+  const elements = await fetchPageElements(['global', 'service-audiovisual'], draftMode().isEnabled);
+  return <ServicePageClient serviceKey="audiovisual" localeContent={localeContent} variant="immersive" pageElements={elements} />;
 }

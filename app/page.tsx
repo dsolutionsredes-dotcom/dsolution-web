@@ -1,5 +1,6 @@
 import HomeClient, { type SiteData } from '@/components/HomeClient';
 import { draftMode } from 'next/headers';
+import { fetchPageElements } from '@/lib/page-elements';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -183,7 +184,7 @@ const fallback: SiteData = {
 
 export default async function Home() {
   const preview = draftMode().isEnabled;
-  const [site, home, about, contact, services, portfolio, blog, flex, processSteps] = await Promise.all([
+  const [site, home, about, contact, services, portfolio, blog, flex, processSteps, pageElements] = await Promise.all([
     getItem('site_settings', fallback.site, '*', preview),
     getItem('home_page', fallback.home, '*,hero_image.*,hero_video.*,hero_video_poster.*', preview),
     getItem('about_page', fallback.about, '*', preview),
@@ -193,6 +194,7 @@ export default async function Home() {
     getItems('blog_posts', fallback.blog, '*,featured_image.*,image.*', preview),
     getItems('flex_sections', fallback.flex, '*,image.*', preview),
     getItems('process_steps', [], 'id,title,description,icon,sort,is_published,image,image.*', preview),
+    fetchPageElements(['global', 'home'], preview),
   ]);
 
   const normalized = normalizeAssets(site, home, about, services, portfolio, blog, flex, processSteps);
@@ -207,5 +209,6 @@ export default async function Home() {
     blog: normalized.blog,
     flex: normalized.flex,
     process_steps: normalized.process_steps,
+    page_elements: pageElements,
   }} />;
 }

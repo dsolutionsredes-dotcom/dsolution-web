@@ -50,3 +50,7 @@ URL recomendada para el módulo Visual Editor:
 ```txt
 https://d-solution.org/?visual-editing=true
 ```
+
+## Editare completă a conținutului
+
+Versiunea curentă extinde Visual Editor la toate paginile și la ambele limbi. Instrucțiunile pentru instalarea colecției `page_elements` se află în `directus-upgrade/phase42-complete-editing-ro.md`.

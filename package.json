@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "directus:marketing-page": "node directus-upgrade/phase40-marketing-single-page.mjs"
+    "directus:marketing-page": "node directus-upgrade/phase40-marketing-single-page.mjs",
+    "directus:complete-editing": "node directus-upgrade/phase42-complete-editing.mjs"
   },
   "dependencies": {
     "@directus/visual-editing": "2.1.0",

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import MarketingDigitalPageClient, { type MarketingPageCms } from '@/components/MarketingDigitalPageClient';
+import { draftMode } from 'next/headers';
+import { fetchPageElements } from '@/lib/page-elements';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -108,6 +110,6 @@ async function getMarketingPageCms(): Promise<MarketingPageCms | undefined> {
 }
 
 export default async function MarketingPage() {
-  const cms = await getMarketingPageCms();
-  return <MarketingDigitalPageClient cms={cms} />;
+  const [cms, elements] = await Promise.all([getMarketingPageCms(), fetchPageElements(['global', 'service-marketing'], draftMode().isEnabled)]);
+  return <MarketingDigitalPageClient cms={cms} pageElements={elements} />;
 }
