@@ -20,6 +20,13 @@ function getSiteUrl() {
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
+  const expectedSecret = process.env.DIRECTUS_PREVIEW_SECRET;
+  const suppliedSecret = searchParams.get('secret');
+
+  if (expectedSecret && suppliedSecret !== expectedSecret) {
+    return NextResponse.json({ error: 'Token de vista previa no válido.' }, { status: 401 });
+  }
+
   const collection = String(searchParams.get('collection') || '').toLowerCase();
   const id = searchParams.get('id');
   const route = previewRoutes[collection] || { pathname: '/' };
@@ -32,6 +39,7 @@ export async function GET(request: NextRequest) {
   redirectUrl.searchParams.set('preview', 'true');
   if (collection) redirectUrl.searchParams.set('preview_collection', collection);
   if (id) redirectUrl.searchParams.set('preview_id', id);
+  if (searchParams.get('visual-editing') === 'true') redirectUrl.searchParams.set('visual-editing', 'true');
   if (route.hash) redirectUrl.hash = route.hash;
 
   return NextResponse.redirect(redirectUrl, {

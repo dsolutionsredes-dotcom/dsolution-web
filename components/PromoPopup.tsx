@@ -3,8 +3,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { X, ArrowRight } from 'lucide-react';
 import { motion } from '@/components/Motion';
+import { directusAttr } from '@/components/DirectusVisualEditing';
 
 export type PromoData = {
+  id?: string | number;
   title?: string;
   subtitle?: string;
   content?: string | unknown;
@@ -29,7 +31,7 @@ function isValidLink(value?: string) {
   return !!value && (value.startsWith('http') || value.startsWith('/') || value.startsWith('#'));
 }
 
-export default function PromoPopup({ promo, delaySeconds }: { promo?: PromoData; delaySeconds?: number | string }) {
+export default function PromoPopup({ promo, delaySeconds, visualEditingEnabled = false }: { promo?: PromoData; delaySeconds?: number | string; visualEditingEnabled?: boolean }) {
   const [visible, setVisible] = useState(false);
   const content = useMemo(() => normalizeContent(promo?.content), [promo?.content]);
 
@@ -37,10 +39,10 @@ export default function PromoPopup({ promo, delaySeconds }: { promo?: PromoData;
     if (!promo?.title) return;
     const dismissed = sessionStorage.getItem('dsolution_promo_dismissed');
     if (dismissed === promo.title) return;
-    const safeDelay = Number.isFinite(Number(delaySeconds)) ? Math.max(0, Number(delaySeconds)) : 10;
+    const safeDelay = visualEditingEnabled ? 0 : (Number.isFinite(Number(delaySeconds)) ? Math.max(0, Number(delaySeconds)) : 10);
     const timer = window.setTimeout(() => setVisible(true), safeDelay * 1000);
     return () => window.clearTimeout(timer);
-  }, [promo?.title, delaySeconds]);
+  }, [promo?.title, delaySeconds, visualEditingEnabled]);
 
   if (!promo?.title || !visible) return null;
 
@@ -80,6 +82,7 @@ export default function PromoPopup({ promo, delaySeconds }: { promo?: PromoData;
               src={promo.image_url}
               alt={promo.title}
               className="h-full w-full object-contain p-4 md:p-6"
+              data-directus={directusAttr(visualEditingEnabled, 'flex_sections', promo.id, 'image')}
             />
           ) : (
             <div className="flex h-full min-h-[260px] items-center justify-center bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,55,.35),transparent_34%),linear-gradient(135deg,#09233d,#061523)] p-8 text-center text-white/80 md:min-h-[470px]">
@@ -93,9 +96,9 @@ export default function PromoPopup({ promo, delaySeconds }: { promo?: PromoData;
 
         <div className="flex flex-col justify-center p-6 md:p-10">
           <p className="text-xs font-bold uppercase tracking-[.24em] text-[#D4AF37]">Promoción</p>
-          <h3 className="mt-3 text-3xl font-semibold tracking-tight text-[#002147] md:text-4xl">{promo.title}</h3>
-          {promo.subtitle && <p className="mt-4 leading-7 text-slate-600">{promo.subtitle}</p>}
-          {content && !isValidLink(content) && <p className="mt-3 text-sm leading-6 text-slate-500">{content}</p>}
+          <h3 className="mt-3 text-3xl font-semibold tracking-tight text-[#002147] md:text-4xl" data-directus={directusAttr(visualEditingEnabled, 'flex_sections', promo.id, 'title')}>{promo.title}</h3>
+          {promo.subtitle && <p className="mt-4 leading-7 text-slate-600" data-directus={directusAttr(visualEditingEnabled, 'flex_sections', promo.id, 'subtitle')}>{promo.subtitle}</p>}
+          {content && !isValidLink(content) && <p className="mt-3 text-sm leading-6 text-slate-500" data-directus={directusAttr(visualEditingEnabled, 'flex_sections', promo.id, 'content')}>{content}</p>}
           <div className="mt-7 flex flex-wrap gap-3">
             {link && (
               <a
@@ -103,6 +106,7 @@ export default function PromoPopup({ promo, delaySeconds }: { promo?: PromoData;
                 target={link.startsWith('http') ? '_blank' : undefined}
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-xl bg-[#D4AF37] px-5 py-3 text-sm font-bold text-[#002147] transition hover:-translate-y-0.5"
+                data-directus={directusAttr(visualEditingEnabled, 'flex_sections', promo.id, ['button_text', 'button_url', 'link_text', 'link_url'])}
               >
                 {text} <ArrowRight size={16} />
               </a>

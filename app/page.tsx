@@ -1,4 +1,5 @@
 import HomeClient, { type SiteData } from '@/components/HomeClient';
+import { draftMode } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -7,6 +8,7 @@ export const fetchCache = 'force-no-store';
 const directusUrl = (process.env.DIRECTUS_URL || process.env.NEXT_PUBLIC_DIRECTUS_URL || 'https://admin.d-solution.org').replace(/\/$/, '');
 // URL pública usada en HTML/CSS/IMG del navegador. No debe usar hosts internos de Docker.
 const directusPublicUrl = (process.env.NEXT_PUBLIC_DIRECTUS_URL || 'https://admin.d-solution.org').replace(/\/$/, '');
+const directusToken = process.env.DIRECTUS_TOKEN;
 
 type DirectusResponse<T> = { data?: T | T[] | null };
 
@@ -20,9 +22,15 @@ async function fetchWithTimeout(url: string, init: RequestInit = {}, timeoutMs =
   }
 }
 
-async function getItem<T>(collection: string, fallback: T, fields = '*'): Promise<T> {
+function directusRequestInit(preview: boolean): RequestInit {
+  const headers = new Headers();
+  if (preview && directusToken) headers.set('Authorization', `Bearer ${directusToken}`);
+  return { cache: 'no-store', headers };
+}
+
+async function getItem<T>(collection: string, fallback: T, fields = '*', preview = false): Promise<T> {
   try {
-    const res = await fetchWithTimeout(`${directusUrl}/items/${collection}?fields=${fields}`, { cache: 'no-store' });
+    const res = await fetchWithTimeout(`${directusUrl}/items/${collection}?fields=${fields}`, directusRequestInit(preview));
     if (!res.ok) return fallback;
     const json = (await res.json()) as DirectusResponse<T>;
     if (Array.isArray(json.data)) return (json.data[0] as T) || fallback;
@@ -32,10 +40,10 @@ async function getItem<T>(collection: string, fallback: T, fields = '*'): Promis
   }
 }
 
-async function getItems<T extends Record<string, any>>(collection: string, fallback: T[], fields = '*'): Promise<T[]> {
+async function getItems<T extends Record<string, any>>(collection: string, fallback: T[], fields = '*', preview = false): Promise<T[]> {
   const read = async (fieldList: string) => {
     const url = `${directusUrl}/items/${collection}?fields=${fieldList}&timestamp=${Date.now()}`;
-    const res = await fetchWithTimeout(url, { cache: 'no-store' });
+    const res = await fetchWithTimeout(url, directusRequestInit(preview));
     if (!res.ok) return undefined;
     const json = (await res.json()) as DirectusResponse<T>;
     return Array.isArray(json.data) ? json.data : undefined;
@@ -46,8 +54,8 @@ async function getItems<T extends Record<string, any>>(collection: string, fallb
     const data = (await read(fields)) || (fields !== '*' ? await read('*') : undefined);
     if (!data) return fallback;
 
-    const published = data.filter((item) => item.is_published !== false);
-    const sorted = published.sort((a, b) => Number(a.sort ?? a.id ?? 9999) - Number(b.sort ?? b.id ?? 9999));
+    const visible = preview ? data : data.filter((item) => item.is_published !== false);
+    const sorted = visible.sort((a, b) => Number(a.sort ?? a.id ?? 9999) - Number(b.sort ?? b.id ?? 9999));
     return sorted.length ? sorted : fallback;
   } catch {
     return fallback;
@@ -174,16 +182,17 @@ const fallback: SiteData = {
 };
 
 export default async function Home() {
+  const preview = draftMode().isEnabled;
   const [site, home, about, contact, services, portfolio, blog, flex, processSteps] = await Promise.all([
-    getItem('site_settings', fallback.site),
-    getItem('home_page', fallback.home, '*,hero_image.*,hero_video.*,hero_video_poster.*'),
-    getItem('about_page', fallback.about),
-    getItem('contact_settings', fallback.contact),
-    getItems('services', fallback.services, '*,image.*'),
-    getItems('portfolio', fallback.portfolio, '*,image.*'),
-    getItems('blog_posts', fallback.blog, '*,featured_image.*,image.*'),
-    getItems('flex_sections', fallback.flex, '*,image.*'),
-    getItems('process_steps', [], 'id,title,description,icon,sort,is_published,image,image.*'),
+    getItem('site_settings', fallback.site, '*', preview),
+    getItem('home_page', fallback.home, '*,hero_image.*,hero_video.*,hero_video_poster.*', preview),
+    getItem('about_page', fallback.about, '*', preview),
+    getItem('contact_settings', fallback.contact, '*', preview),
+    getItems('services', fallback.services, '*,image.*', preview),
+    getItems('portfolio', fallback.portfolio, '*,image.*', preview),
+    getItems('blog_posts', fallback.blog, '*,featured_image.*,image.*', preview),
+    getItems('flex_sections', fallback.flex, '*,image.*', preview),
+    getItems('process_steps', [], 'id,title,description,icon,sort,is_published,image,image.*', preview),
   ]);
 
   const normalized = normalizeAssets(site, home, about, services, portfolio, blog, flex, processSteps);

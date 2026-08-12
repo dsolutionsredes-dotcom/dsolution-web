@@ -40,3 +40,13 @@ Si no existe un item promo_popup publicado, no aparece banner.
 - Unified header and footer across Home and service pages.
 - Added shared contact form to every service page, using the existing n8n webhook flow.
 - Added service dropdown navigation, clickable footer services, and improved floating WhatsApp button.
+
+## Directus Visual Editor
+
+La portada ya integra la librería oficial `@directus/visual-editing` y Draft Mode de Next.js. La configuración completa de Directus y EasyPanel está en `directus-upgrade/phase41-visual-editor.md`.
+
+URL recomendada para el módulo Visual Editor:
+
+```txt
+https://d-solution.org/?visual-editing=true
+```
