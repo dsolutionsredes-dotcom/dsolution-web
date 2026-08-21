@@ -44,12 +44,12 @@ type PreviewTemplate = {
   heroText: string;
   primaryCta: string;
   secondaryCta: string;
-  pills: string[];
+  pills: readonly string[];
   tabletTitle: string;
   tabletText: string;
-  tabletItems: string[];
+  tabletItems: readonly string[];
   mobileTitle: string;
-  mobileItems: string[];
+  mobileItems: readonly string[];
 };
 
 const LOCALE_KEY = 'dsolution-language';
