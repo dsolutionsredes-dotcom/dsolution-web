@@ -234,7 +234,8 @@ function previewTemplate(id: string, locale: Locale): PreviewTemplate {
     },
   } as const;
 
-  return (t as Record<string, Record<string, PreviewTemplate>>)[locale][id];
+  const templates = t as Record<Locale, Record<string, PreviewTemplate>>;
+  return templates[locale][id];
 }
 
 function DesktopPreviewContent({ selected, locale }: { selected: WebType; locale: Locale }) {
