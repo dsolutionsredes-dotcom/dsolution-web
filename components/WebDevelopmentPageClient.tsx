@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Navbar, { type NavLink } from '@/components/Navbar';
 import SiteFooter from '@/components/SiteFooter';
 import ContactSection from '@/components/ContactSection';
-import DirectusVisualEditing, { isDirectusVisualEditingFrame } from '@/components/DirectusVisualEditing';
+import DirectusVisualEditing, { directusAttr, isDirectusVisualEditingFrame } from '@/components/DirectusVisualEditing';
 import { elementText, pageElement, type PageElement } from '@/lib/page-elements';
 import {
   ArrowRight,
@@ -363,27 +363,53 @@ function PreviewImageSlot({
   );
 }
 
-function DevicePreview({ selected, locale }: { selected: WebType; locale: Locale }) {
+function DevicePreview({
+  selected,
+  locale,
+  previewItem,
+  previewAttr,
+}: {
+  selected: WebType;
+  locale: Locale;
+  previewItem: (key: string) => PageElement | undefined;
+  previewAttr: (key: string, field?: 'text' | 'secondary_text' | 'tertiary_text' | 'image') => string | undefined;
+}) {
+  const desktop = previewItem(`preview.${selected.id}.desktop`);
+  const tablet = previewItem(`preview.${selected.id}.tablet`);
+  const mobile = previewItem(`preview.${selected.id}.mobile`);
+
   return (
     <div className="relative min-h-[470px] w-full">
       <div className="absolute left-[5%] top-8 w-[70%] rounded-[1.7rem] border border-white/30 bg-[#131922] p-3 shadow-[0_35px_90px_rgba(0,0,0,.35)]">
         <div className="h-[360px] overflow-hidden rounded-[1.2rem] bg-white">
           <div className="web-scroll-demo web-scroll-demo-slow">
-            <PreviewImageSlot device="desktop" typeTitle={selected.title} locale={locale} variant="light" />
+            {desktop?.image_url ? (
+              <img src={desktop.image_url} alt={`${selected.title} desktop preview`} className="block w-full max-w-none" data-directus={previewAttr(`preview.${selected.id}.desktop`, 'image')} />
+            ) : (
+              <PreviewImageSlot device="desktop" typeTitle={selected.title} locale={locale} variant="light" />
+            )}
           </div>
         </div>
       </div>
       <div className="absolute right-[10%] top-24 w-[22%] min-w-[150px] rounded-[1.5rem] border border-white/40 bg-[#0f1620] p-2 shadow-[0_25px_70px_rgba(0,0,0,.38)]">
         <div className="h-[305px] overflow-hidden rounded-[1rem] bg-white">
           <div className="web-scroll-demo web-scroll-demo-medium">
-            <PreviewImageSlot device="tablet" typeTitle={selected.title} locale={locale} variant="dark" />
+            {tablet?.image_url ? (
+              <img src={tablet.image_url} alt={`${selected.title} tablet preview`} className="block w-full max-w-none" data-directus={previewAttr(`preview.${selected.id}.tablet`, 'image')} />
+            ) : (
+              <PreviewImageSlot device="tablet" typeTitle={selected.title} locale={locale} variant="dark" />
+            )}
           </div>
         </div>
       </div>
       <div className="absolute right-[1%] top-36 w-[13%] min-w-[92px] rounded-[1.25rem] border border-white/40 bg-[#0f1620] p-1.5 shadow-[0_22px_60px_rgba(0,0,0,.42)]">
         <div className="h-[240px] overflow-hidden rounded-[.9rem] bg-white">
           <div className="web-scroll-demo web-scroll-demo-fast">
-            <PreviewImageSlot device="mobile" typeTitle={selected.title} locale={locale} variant="light" />
+            {mobile?.image_url ? (
+              <img src={mobile.image_url} alt={`${selected.title} mobile preview`} className="block w-full max-w-none" data-directus={previewAttr(`preview.${selected.id}.mobile`, 'image')} />
+            ) : (
+              <PreviewImageSlot device="mobile" typeTitle={selected.title} locale={locale} variant="light" />
+            )}
           </div>
         </div>
       </div>
@@ -408,13 +434,39 @@ export default function WebDevelopmentPageClient({ pageElements = [] }: { pageEl
   };
 
   const base = copy[locale];
-  const selected = base.types[active];
+  const page = 'service-web';
+  const item = (key: string) => pageElement(pageElements, page, locale, key);
+  const value = (key: string, fallback: string, field: 'text' | 'secondary_text' | 'tertiary_text' = 'text') => elementText(item(key), fallback, field);
+  const attr = (key: string, field: 'text' | 'secondary_text' | 'tertiary_text' | 'image' = 'text') => directusAttr(visualEditingEnabled, 'page_elements', item(key)?.id, field);
+
+  const editableTypes = base.types.map((type, index) => ({
+    ...type,
+    title: value(`types.${index + 1}`, type.title),
+    short: value(`types.${index + 1}`, type.short, 'secondary_text'),
+    description: value(`types.${index + 1}.description`, type.description),
+    benefits: type.benefits.map((benefit, benefitIndex) => value(`types.${index + 1}.benefit.${benefitIndex + 1}`, benefit)),
+  }));
+  const selected = editableTypes[active];
   const globalItem = (key: string) => pageElement(pageElements, 'global', locale, key);
   const keys = ['home', 'services', 'portfolio', 'process', 'contact'];
   const links = navLinks[locale].map(([label, href], index) => {
     const nav = globalItem(`nav.${keys[index]}`);
     return [elementText(nav, label), nav?.link || href] as NavLink;
   });
+
+  const heroEyebrow = value('hero.eyebrow', base.heroEyebrow);
+  const heroTitle = value('hero.title', base.heroTitle);
+  const heroTitleHighlight = value('hero.title.highlight', 'tipo de web');
+  const heroText = value('hero.text', base.heroText);
+  const selectedCta = value('selected.cta', base.selectedCta);
+  const helpText = value('selected.helpText', base.helpText);
+  const extraEyebrow = value('extras.eyebrow', base.extraEyebrow);
+  const extraTitleA = value('extras.titleA', base.extraTitleA);
+  const extraTitleB = value('extras.titleB', base.extraTitleB);
+  const extraText = value('extras.text', base.extraText);
+  const receiveTitle = value('deliverables.title', base.receiveTitle);
+  const editableExtras = base.extras.map(([title, text], index) => [value(`extras.${index + 1}`, title), value(`extras.${index + 1}`, text, 'secondary_text')] as const);
+  const editableDeliverables = base.deliverables.map(([title, text], index) => [value(`deliverables.${index + 1}`, title), value(`deliverables.${index + 1}`, text, 'secondary_text')] as const);
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#F7F3EA] text-[#002147]">
@@ -430,7 +482,7 @@ export default function WebDevelopmentPageClient({ pageElements = [] }: { pageEl
         @media (prefers-reduced-motion: reduce) { .web-scroll-demo { animation: none; } }
       `}</style>
       <DirectusVisualEditing enabled={visualEditingEnabled} refreshKey={`web-development:${locale}:${pageElements.length}`} />
-      <Navbar links={links} ctaLabel={base.cta} locale={locale} onLocaleChange={handleLocale} transparentOnTop editableLinks={keys.map(key => globalItem(`nav.${key}`))} ctaElement={globalItem('cta')} visualEditingEnabled={visualEditingEnabled} pageElements={pageElements} />
+      <Navbar links={links} ctaLabel={value('cta', base.cta)} locale={locale} onLocaleChange={handleLocale} transparentOnTop editableLinks={keys.map(key => globalItem(`nav.${key}`))} ctaElement={globalItem('cta')} visualEditingEnabled={visualEditingEnabled} pageElements={pageElements} />
 
       <section className="relative overflow-hidden bg-[#07315C] px-5 pb-20 pt-28 text-white md:px-8 md:pt-32">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_15%,rgba(212,175,55,.20),transparent_25%),radial-gradient(circle_at_80%_20%,rgba(0,166,166,.18),transparent_30%),linear-gradient(180deg,#052744_0%,#07315C_48%,#08213A_100%)]" />
@@ -438,42 +490,42 @@ export default function WebDevelopmentPageClient({ pageElements = [] }: { pageEl
         <div className="relative mx-auto max-w-7xl">
           <div className="text-center">
             <div className="mx-auto mb-5 flex w-fit items-center gap-4 text-[#D4AF37]"><span className="h-px w-24 bg-[#D4AF37]/65"/><MonitorSmartphone/><span className="h-px w-24 bg-[#D4AF37]/65"/></div>
-            <p className="text-xs font-black uppercase tracking-[.24em] text-[#D4AF37]">{base.heroEyebrow}</p>
-            <h1 className="mt-3 text-4xl font-black tracking-[-.04em] md:text-6xl">{base.heroTitle.split('tipo de web')[0]}<span className="text-[#D4AF37]">tipo de web</span>{base.heroTitle.split('tipo de web')[1]}</h1>
-            <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-white/78">{base.heroText}</p>
+            <p className="text-xs font-black uppercase tracking-[.24em] text-[#D4AF37]" data-directus={attr('hero.eyebrow')}>{heroEyebrow}</p>
+            <h1 className="mt-3 text-4xl font-black tracking-[-.04em] md:text-6xl" data-directus={attr('hero.title')}>{heroTitle.includes(heroTitleHighlight) ? (<>{heroTitle.split(heroTitleHighlight)[0]}<span className="text-[#D4AF37]" data-directus={attr('hero.title.highlight')}>{heroTitleHighlight}</span>{heroTitle.split(heroTitleHighlight).slice(1).join(heroTitleHighlight)}</>) : heroTitle}</h1>
+            <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-white/78" data-directus={attr('hero.text')}>{heroText}</p>
           </div>
 
           <div className="mt-12 grid items-center gap-9 lg:grid-cols-[330px_1fr]">
             <div className="grid gap-3">
-              {base.types.map((type, index) => {
+              {editableTypes.map((type, index) => {
                 const Icon = typeIcons[index];
                 const isActive = index === active;
                 return (
                   <button key={type.id} onClick={() => setActive(index)} className={`group flex min-h-[74px] items-center justify-between rounded-2xl border px-5 text-left transition ${isActive ? 'border-[#D4AF37] bg-[#D4AF37]/12 shadow-[0_18px_45px_rgba(212,175,55,.15)]' : 'border-white/12 bg-white/[.04] hover:border-[#D4AF37]/55 hover:bg-white/[.07]'}`}>
-                    <span className="flex items-center gap-4"><Icon className="text-[#D4AF37]" size={26}/><span><span className="block font-black text-white">{type.title}</span><span className="mt-1 block text-xs text-white/55">{type.short}</span></span></span>
+                    <span className="flex items-center gap-4"><Icon className="text-[#D4AF37]" size={26}/><span><span className="block font-black text-white" data-directus={attr(`types.${index + 1}`)}>{type.title}</span><span className="mt-1 block text-xs text-white/55" data-directus={attr(`types.${index + 1}`, 'secondary_text')}>{type.short}</span></span></span>
                     <span className={`flex h-8 w-8 items-center justify-center rounded-full ${isActive ? 'bg-[#D4AF37] text-[#061523]' : 'text-white/70'}`}>{isActive ? <Check size={18}/> : <ChevronRight size={18}/>}</span>
                   </button>
                 );
               })}
             </div>
 
-            <DevicePreview selected={selected} locale={locale} />
+            <DevicePreview selected={selected} locale={locale} previewItem={item} previewAttr={attr} />
           </div>
 
           <div className="mt-10 grid gap-8 rounded-[2rem] border border-white/12 bg-[#061523]/55 p-7 backdrop-blur-xl lg:grid-cols-[1fr_360px]">
             <div className="flex gap-5">
               {(() => { const Icon = typeIcons[active]; return <span className="hidden h-20 w-20 shrink-0 items-center justify-center rounded-full border border-[#D4AF37]/60 text-[#D4AF37] md:flex"><Icon size={34}/></span>; })()}
               <div>
-                <h2 className="text-4xl font-black tracking-[-.04em]">{selected.title}</h2>
-                <p className="mt-4 max-w-2xl text-lg leading-8 text-white/76">{selected.description}</p>
+                <h2 className="text-4xl font-black tracking-[-.04em]" data-directus={attr(`types.${active + 1}`)}>{selected.title}</h2>
+                <p className="mt-4 max-w-2xl text-lg leading-8 text-white/76" data-directus={attr(`types.${active + 1}.description`)}>{selected.description}</p>
                 <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                  {selected.benefits.map((benefit) => <span key={benefit} className="flex items-center gap-2 text-sm font-bold text-white/82"><Check size={18} className="text-[#D4AF37]"/>{benefit}</span>)}
+                  {selected.benefits.map((benefit, benefitIndex) => <span key={benefit} className="flex items-center gap-2 text-sm font-bold text-white/82"><Check size={18} className="text-[#D4AF37]"/><span data-directus={attr(`types.${active + 1}.benefit.${benefitIndex + 1}`)}>{benefit}</span></span>)}
                 </div>
               </div>
             </div>
             <div className="flex flex-col justify-center border-[#D4AF37]/30 lg:border-l lg:pl-9">
-              <a href="#contacto" className="inline-flex items-center justify-center gap-3 rounded-xl bg-[#D4AF37] px-6 py-4 font-black text-[#061523] shadow-[0_22px_45px_rgba(212,175,55,.28)] transition hover:-translate-y-1 hover:bg-white">{base.selectedCta} <ArrowRight size={18}/></a>
-              <p className="mt-5 text-sm leading-6 text-white/68"><MessageCircle className="mr-2 inline text-[#25D366]" size={18}/>{base.helpText}</p>
+              <a href="#contacto" data-directus={attr('selected.cta')} className="inline-flex items-center justify-center gap-3 rounded-xl bg-[#D4AF37] px-6 py-4 font-black text-[#061523] shadow-[0_22px_45px_rgba(212,175,55,.28)] transition hover:-translate-y-1 hover:bg-white">{selectedCta} <ArrowRight size={18}/></a>
+              <p className="mt-5 text-sm leading-6 text-white/68" data-directus={attr('selected.helpText')}><MessageCircle className="mr-2 inline text-[#25D366]" size={18}/>{helpText}</p>
             </div>
           </div>
         </div>
@@ -481,21 +533,21 @@ export default function WebDevelopmentPageClient({ pageElements = [] }: { pageEl
 
       <section className="bg-[#F7F3EA] px-5 py-20 md:px-8">
         <div className="mx-auto max-w-7xl text-center">
-          <p className="text-xs font-black uppercase tracking-[.22em] text-[#B88A1A]">{base.extraEyebrow}</p>
-          <h2 className="mt-3 text-4xl font-black tracking-[-.04em] text-[#061523] md:text-6xl">{base.extraTitleA} <span className="text-[#B88A1A]">{base.extraTitleB}</span></h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-[#061523]/65">{base.extraText}</p>
+          <p className="text-xs font-black uppercase tracking-[.22em] text-[#B88A1A]" data-directus={attr('extras.eyebrow')}>{extraEyebrow}</p>
+          <h2 className="mt-3 text-4xl font-black tracking-[-.04em] text-[#061523] md:text-6xl"><span data-directus={attr('extras.titleA')}>{extraTitleA}</span> <span className="text-[#B88A1A]" data-directus={attr('extras.titleB')}>{extraTitleB}</span></h2>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-[#061523]/65" data-directus={attr('extras.text')}>{extraText}</p>
           <span className="mx-auto mt-6 block h-0.5 w-16 bg-[#D4AF37]" />
         </div>
         <div className="mx-auto mt-12 grid max-w-7xl gap-5 md:grid-cols-2 lg:grid-cols-4">
-          {base.extras.map(([title, text], index) => {
+          {editableExtras.map(([title, text], index) => {
             const Icon = extraIcons[index];
             return <article key={title} className="group rounded-[1.45rem] border border-[#D4AF37]/20 bg-white p-6 shadow-[0_18px_45px_rgba(0,33,71,.06)] transition hover:-translate-y-1 hover:border-[#D4AF37]/55 hover:shadow-[0_28px_70px_rgba(0,33,71,.12)]">
               <div className="flex items-start gap-4">
                 <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-[#D4AF37]/40 bg-[#F7F3EA] text-[#002147]"><Icon size={28}/></span>
                 <span className="text-sm font-black text-[#D4AF37]">{String(index + 1).padStart(2, '0')}</span>
               </div>
-              <h3 className="mt-5 text-xl font-black text-[#061523]">{title}</h3>
-              <p className="mt-3 text-base leading-7 text-[#061523]/64">{text}</p>
+              <h3 className="mt-5 text-xl font-black text-[#061523]" data-directus={attr(`extras.${index + 1}`)}>{title}</h3>
+              <p className="mt-3 text-base leading-7 text-[#061523]/64" data-directus={attr(`extras.${index + 1}`, 'secondary_text')}>{text}</p>
             </article>;
           })}
         </div>
@@ -505,11 +557,11 @@ export default function WebDevelopmentPageClient({ pageElements = [] }: { pageEl
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 flex items-center justify-center gap-5 text-center">
             <span className="hidden h-px flex-1 bg-[linear-gradient(90deg,transparent,#D4AF37)] md:block"/>
-            <h2 className="text-4xl font-black uppercase tracking-[-.035em] md:text-6xl">{base.receiveTitle}</h2>
+            <h2 className="text-4xl font-black uppercase tracking-[-.035em] md:text-6xl" data-directus={attr('deliverables.title')}>{receiveTitle}</h2>
             <span className="hidden h-px flex-1 bg-[linear-gradient(90deg,#D4AF37,transparent)] md:block"/>
           </div>
           <div className="grid gap-6 lg:grid-cols-4">
-            {base.deliverables.map(([title, text], index) => {
+            {editableDeliverables.map(([title, text], index) => {
               const Icon = deliverableIcons[index];
               const gradients = ['from-[#E9EEF5] to-[#FFFFFF]', 'from-[#071827] to-[#0B2C4F]', 'from-[#05223D] to-[#0B5B8F]', 'from-[#071827] to-[#0B2C4F]'];
               return <article key={title} className="overflow-hidden rounded-[1.45rem] border border-[#D4AF37]/38 bg-[#061523] shadow-[0_24px_60px_rgba(0,0,0,.20)]">
@@ -521,8 +573,8 @@ export default function WebDevelopmentPageClient({ pageElements = [] }: { pageEl
                 </div>
                 <div className="p-6">
                   <Icon size={28} className="text-[#D4AF37]" />
-                  <h3 className="mt-4 text-xl font-black">{title}</h3>
-                  <p className="mt-3 text-base leading-7 text-white/72">{text}</p>
+                  <h3 className="mt-4 text-xl font-black" data-directus={attr(`deliverables.${index + 1}`)}>{title}</h3>
+                  <p className="mt-3 text-base leading-7 text-white/72" data-directus={attr(`deliverables.${index + 1}`, 'secondary_text')}>{text}</p>
                 </div>
               </article>;
             })}
