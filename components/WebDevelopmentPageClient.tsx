@@ -237,364 +237,127 @@ function previewTemplate(id: string, locale: Locale): PreviewTemplate {
   return (t as Record<string, Record<string, PreviewTemplate>>)[locale][id];
 }
 
-function DesktopPreviewContent({ selected, locale }: { selected: WebType; locale: Locale }) {
-  const data = previewTemplate(selected.id, locale);
+function PreviewPlaceholderBlock({
+  title,
+  subtitle,
+  className = '',
+  dark = false,
+}: {
+  title: string;
+  subtitle: string;
+  className?: string;
+  dark?: boolean;
+}) {
+  return (
+    <div className={`rounded-2xl border border-dashed p-4 shadow-sm ${dark ? 'border-white/12 bg-white/10 text-white' : 'border-[#D4AF37]/35 bg-white/80 text-[#061523]'} ${className}`}>
+      <div className="h-2 w-16 rounded-full bg-[#D4AF37]/70" />
+      <p className="mt-4 text-sm font-black">{title}</p>
+      <p className={`mt-2 text-xs leading-5 ${dark ? 'text-white/68' : 'text-[#061523]/55'}`}>{subtitle}</p>
+    </div>
+  );
+}
 
-  if (selected.id === 'corporativa') {
-    return (
-      <div className="min-h-[760px] bg-[#f7f6f2] text-[#061523]">
-        <div className="flex items-center justify-between border-b border-[#e7deca] bg-white px-8 py-4 text-xs font-bold uppercase tracking-[.14em] text-[#061523]/60">
-          <span>NEXORA</span>
-          <span>Inicio · Servicios · Casos · Contacto</span>
-        </div>
-        <div className="grid grid-cols-[1.05fr_.95fr] gap-8 px-8 py-8">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[.24em] text-[#B88A1A]">{data.eyebrow}</p>
-            <h3 className="mt-3 text-4xl font-black leading-tight">{data.heroTitle}</h3>
-            <p className="mt-4 max-w-md text-sm leading-6 text-[#061523]/70">{data.heroText}</p>
-            <div className="mt-5 flex gap-3">
-              <span className="rounded-lg bg-[#D4AF37] px-4 py-3 text-sm font-black text-[#061523]">{data.primaryCta}</span>
-              <span className="rounded-lg border border-[#d8ccaf] px-4 py-3 text-sm font-black text-[#061523]">{data.secondaryCta}</span>
-            </div>
-            <div className="mt-7 grid grid-cols-4 gap-3 text-center text-xs font-bold text-[#061523]/45">
-              <span>ALMARA</span><span>ZENTRO</span><span>VERDEX</span><span>LUMEN</span>
-            </div>
-          </div>
-          <div className="rounded-[1.75rem] border border-[#efe7d8] bg-[linear-gradient(135deg,#d8e1eb,#ffffff)] p-5">
-            <div className="h-full rounded-[1.2rem] bg-[linear-gradient(180deg,#dbe4ee,#ffffff)] p-4">
-              <div className="h-36 rounded-2xl bg-[linear-gradient(135deg,#cfd8e5,#fdfefe)]" />
-              <div className="mt-4 grid grid-cols-3 gap-3">
-                {data.pills.map((pill) => (
-                  <div key={pill} className="rounded-xl bg-white p-3 text-center text-xs font-bold shadow-sm">{pill}</div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="grid grid-cols-3 gap-4 px-8">
-          {['Experiencia sólida', 'Mensaje claro', 'Llamado a la acción'].map((item) => (
-            <div key={item} className="rounded-2xl bg-white p-5 shadow-sm">
-              <div className="h-1.5 w-12 rounded-full bg-[#D4AF37]" />
-              <p className="mt-4 text-sm font-black">{item}</p>
-              <p className="mt-2 text-xs leading-5 text-[#061523]/60">Contenido ordenado para comunicar mejor tu propuesta.</p>
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-2 gap-5 p-8">
-          <div className="rounded-2xl bg-white p-5 shadow-sm">
-            <p className="text-xs font-black uppercase tracking-[.2em] text-[#B88A1A]">Quiénes somos</p>
-            <div className="mt-4 h-24 rounded-2xl bg-[#ecf0f4]" />
-            <div className="mt-4 space-y-2">
-              <div className="h-2 rounded-full bg-[#dde3ea]" />
-              <div className="h-2 w-5/6 rounded-full bg-[#dde3ea]" />
-              <div className="h-2 w-4/6 rounded-full bg-[#dde3ea]" />
-            </div>
-          </div>
-          <div className="rounded-2xl bg-[#061523] p-5 text-white">
-            <div className="grid grid-cols-3 gap-3 text-center">
-              {['+50', '12 años', '24/7'].map((metric) => (
-                <div key={metric} className="rounded-xl bg-white/6 p-4">
-                  <p className="text-2xl font-black text-[#D4AF37]">{metric}</p>
-                  <p className="mt-2 text-[10px] uppercase tracking-[.18em] text-white/60">Confianza</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-5 h-24 rounded-2xl border border-white/10 bg-white/5" />
-          </div>
-        </div>
+function PreviewImageSlot({
+  device,
+  typeTitle,
+  locale,
+  variant,
+}: {
+  device: 'desktop' | 'tablet' | 'mobile';
+  typeTitle: string;
+  locale: Locale;
+  variant: 'light' | 'dark';
+}) {
+  const isDark = variant === 'dark';
+  const copy = locale === 'es'
+    ? {
+        slot: 'Espacio para imagen larga',
+        title: 'Aquí se cargará el mockup de esta categoría',
+        hintDesktop: 'Mockup vertical para escritorio. Ideal para una captura larga del landing completo.',
+        hintTablet: 'Mockup vertical para tablet. Mantiene el desplazamiento automático suave.',
+        hintMobile: 'Mockup vertical para móvil. Úsalo para mostrar la versión responsive completa.',
+        autoScroll: 'Desplazamiento automático suave',
+        path: 'Aquí irá la imagen del preview',
+        sections: ['Hero', 'Contenido', 'CTA final'],
+      }
+    : {
+        slot: 'Long image placeholder',
+        title: 'The mockup for this category will appear here',
+        hintDesktop: 'Vertical desktop mockup. Ideal for a long full landing page screenshot.',
+        hintTablet: 'Vertical tablet mockup with smooth auto-scroll behaviour.',
+        hintMobile: 'Vertical mobile mockup for the full responsive version.',
+        autoScroll: 'Smooth auto-scroll',
+        path: 'Preview image will go here',
+        sections: ['Hero', 'Content', 'Final CTA'],
+      };
+
+  const deviceLabel =
+    locale === 'es'
+      ? device === 'desktop'
+        ? 'Vista desktop'
+        : device === 'tablet'
+          ? 'Vista tablet'
+          : 'Vista móvil'
+      : device === 'desktop'
+        ? 'Desktop view'
+        : device === 'tablet'
+          ? 'Tablet view'
+          : 'Mobile view';
+
+  const hint =
+    device === 'desktop'
+      ? copy.hintDesktop
+      : device === 'tablet'
+        ? copy.hintTablet
+        : copy.hintMobile;
+
+  const minHeightClass =
+    device === 'desktop' ? 'min-h-[980px]' : device === 'tablet' ? 'min-h-[760px]' : 'min-h-[620px]';
+
+  const shellClass = isDark ? 'bg-[#091A2B] text-white' : 'bg-[#F7F3EA] text-[#061523]';
+  const innerClass = isDark ? 'bg-[linear-gradient(180deg,#0B2944_0%,#102B47_100%)]' : 'bg-[linear-gradient(180deg,#FFFDF8_0%,#F3EFE5_100%)]';
+  const textClass = isDark ? 'text-white/72' : 'text-[#061523]/60';
+  const cardClass = isDark ? 'bg-white/8 border-white/12 text-white' : 'bg-white/85 border-[#D4AF37]/20 text-[#061523]';
+
+  return (
+    <div className={`${minHeightClass} ${shellClass}`}>
+      <div className={`flex items-center justify-between border-b px-4 py-3 text-[10px] font-black uppercase tracking-[.18em] ${isDark ? 'border-white/10 text-white/60' : 'border-[#D4AF37]/18 text-[#061523]/45'}`}>
+        <span>{deviceLabel}</span>
+        <span>{copy.autoScroll}</span>
       </div>
-    );
-  }
 
-  if (selected.id === 'landing') {
-    return (
-      <div className="min-h-[760px] bg-[#fbfaf7] text-[#061523]">
-        <div className="bg-[#061523] px-8 py-6 text-white">
-          <div className="flex items-center justify-between text-xs font-bold uppercase tracking-[.14em] text-white/65"><span>NEXORA</span><span>Oferta · Beneficios · Contacto</span></div>
-          <div className="grid grid-cols-[1fr_.85fr] gap-8 py-8">
+      <div className={`p-4 ${innerClass}`}>
+        <div className={`rounded-[1.4rem] border p-4 ${cardClass}`}>
+          <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-black uppercase tracking-[.22em] text-[#D4AF37]">{data.eyebrow}</p>
-              <h3 className="mt-3 text-4xl font-black leading-tight">{data.heroTitle}</h3>
-              <p className="mt-4 max-w-sm text-sm leading-6 text-white/72">{data.heroText}</p>
-              <div className="mt-5 flex gap-3">
-                <span className="rounded-lg bg-[#D4AF37] px-4 py-3 text-sm font-black text-[#061523]">{data.primaryCta}</span>
-                <span className="rounded-lg border border-white/20 px-4 py-3 text-sm font-black">{data.secondaryCta}</span>
+              <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#D4AF37]">{typeTitle}</p>
+              <h4 className={`mt-3 text-xl font-black leading-tight ${isDark ? 'text-white' : 'text-[#061523]'}`}>{copy.slot}</h4>
+              <p className={`mt-3 max-w-sm text-xs leading-5 ${textClass}`}>{copy.title}</p>
+            </div>
+            <span className={`rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[.18em] ${isDark ? 'bg-white/10 text-white' : 'bg-[#D4AF37]/18 text-[#061523]'}`}>{device}</span>
+          </div>
+
+          <div className={`mt-5 rounded-2xl border border-dashed p-4 ${isDark ? 'border-white/16 bg-black/10' : 'border-[#D4AF37]/30 bg-white/70'}`}>
+            <div className="h-2 w-24 rounded-full bg-[#D4AF37]/70" />
+            <div className={`mt-4 flex h-32 items-center justify-center rounded-2xl border border-dashed ${isDark ? 'border-white/14 bg-white/5' : 'border-[#D4AF37]/22 bg-[#F7F3EA]'}`}>
+              <div className="text-center">
+                <p className={`text-sm font-black ${isDark ? 'text-white' : 'text-[#061523]'}`}>{copy.path}</p>
+                <p className={`mt-2 text-[11px] ${textClass}`}>{hint}</p>
               </div>
             </div>
-            <div className="rounded-[1.75rem] bg-white p-5 text-[#061523] shadow-lg">
-              <div className="rounded-2xl bg-[#f5efe0] px-4 py-5">
-                <p className="text-xs font-black uppercase tracking-[.18em] text-[#B88A1A]">Oferta especial</p>
-                <div className="mt-3 grid grid-cols-2 gap-3 text-center">
-                  <div className="rounded-xl bg-white p-4"><p className="text-3xl font-black">50%</p><p className="mt-1 text-xs font-bold text-[#061523]/55">OFF</p></div>
-                  <div className="rounded-xl bg-white p-4"><p className="text-3xl font-black">24h</p><p className="mt-1 text-xs font-bold text-[#061523]/55">respuesta</p></div>
-                </div>
-              </div>
-            </div>
           </div>
-        </div>
-        <div className="grid grid-cols-3 gap-4 px-8 py-6">
-          {data.pills.map((pill) => (
-            <div key={pill} className="rounded-2xl bg-white p-5 shadow-sm">
-              <p className="text-sm font-black">{pill}</p>
-              <div className="mt-4 h-2 rounded-full bg-[#e8dcc0]" />
-              <div className="mt-2 h-2 w-4/5 rounded-full bg-[#ece3cf]" />
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-[1fr_.9fr] gap-5 px-8 pb-8">
-          <div className="rounded-2xl bg-white p-5 shadow-sm">
-            <p className="text-xs font-black uppercase tracking-[.18em] text-[#B88A1A]">Testimonio</p>
-            <p className="mt-4 text-lg font-black leading-7">“Ahora recibimos más contactos calificados sin complicar la navegación.”</p>
-            <div className="mt-5 h-10 w-36 rounded-full bg-[#f0f2f4]" />
-          </div>
-          <div className="rounded-2xl bg-[#061523] p-5 text-white">
-            <p className="text-sm font-black">Formulario rápido</p>
-            <div className="mt-4 space-y-3">
-              <div className="h-10 rounded-xl bg-white/10" />
-              <div className="h-10 rounded-xl bg-white/10" />
-              <div className="h-20 rounded-xl bg-white/10" />
-              <div className="h-11 rounded-xl bg-[#D4AF37]" />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
-  if (selected.id === 'ecommerce') {
-    return (
-      <div className="min-h-[760px] bg-[#f6f7f8] text-[#061523]">
-        <div className="flex items-center justify-between bg-white px-8 py-4 text-xs font-bold uppercase tracking-[.14em] text-[#061523]/60"><span>NEXORA SHOP</span><span>Categorías · Ofertas · Carrito</span></div>
-        <div className="grid grid-cols-[1fr_.9fr] gap-8 px-8 py-8">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[.22em] text-[#B88A1A]">{data.eyebrow}</p>
-            <h3 className="mt-3 text-4xl font-black leading-tight">{data.heroTitle}</h3>
-            <p className="mt-4 max-w-md text-sm leading-6 text-[#061523]/70">{data.heroText}</p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {['Moda', 'Hogar', 'Tecnología', 'Ofertas'].map((chip) => <span key={chip} className="rounded-full border border-[#d8ccaf] bg-white px-3 py-2 text-xs font-black">{chip}</span>)}
-            </div>
-          </div>
-          <div className="rounded-[1.75rem] border border-[#ece8df] bg-white p-5 shadow-sm">
-            <div className="grid grid-cols-2 gap-3">
-              {['Producto A', 'Producto B', 'Producto C', 'Producto D'].map((item, index) => (
-                <div key={item} className="rounded-2xl bg-[#f6f7f8] p-3">
-                  <div className="h-20 rounded-xl bg-[linear-gradient(135deg,#dce4ee,#ffffff)]" />
-                  <p className="mt-3 text-xs font-black">{item}</p>
-                  <p className="mt-1 text-xs text-[#061523]/55">€{29 + index * 11}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="grid grid-cols-[1.2fr_.8fr] gap-5 px-8 pb-8">
-          <div className="rounded-2xl bg-white p-5 shadow-sm">
-            <div className="mb-4 flex gap-3">
-              {data.pills.map((pill) => <span key={pill} className="rounded-full bg-[#f2eee6] px-3 py-2 text-xs font-black">{pill}</span>)}
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              {['Envíos claros', 'Cupones', 'Stock visible'].map((text) => (
-                <div key={text} className="rounded-2xl border border-[#ebe3d2] p-4 text-sm font-bold">{text}</div>
-              ))}
-            </div>
-          </div>
-          <div className="rounded-2xl bg-[#061523] p-5 text-white">
-            <p className="text-sm font-black">Resumen de compra</p>
-            <div className="mt-4 space-y-3">
-              <div className="flex justify-between rounded-xl bg-white/8 p-3 text-xs"><span>Subtotal</span><span>€124</span></div>
-              <div className="flex justify-between rounded-xl bg-white/8 p-3 text-xs"><span>Envío</span><span>€6</span></div>
-              <div className="flex justify-between rounded-xl bg-[#D4AF37] p-3 text-xs font-black text-[#061523]"><span>Total</span><span>€130</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (selected.id === 'catalogo') {
-    return (
-      <div className="min-h-[760px] bg-[#f8f6f1] text-[#061523]">
-        <div className="flex items-center justify-between bg-white px-8 py-4 text-xs font-bold uppercase tracking-[.14em] text-[#061523]/60"><span>NEXORA CATALOG</span><span>Categorías · Productos · Consultas</span></div>
-        <div className="grid grid-cols-[260px_1fr] gap-5 px-8 py-8">
-          <div className="rounded-[1.7rem] bg-white p-5 shadow-sm">
-            <p className="text-xs font-black uppercase tracking-[.2em] text-[#B88A1A]">Categorías</p>
-            <div className="mt-5 space-y-3">
-              {['Equipos', 'Accesorios', 'Soluciones', 'Paquetes'].map((item) => <div key={item} className="rounded-xl border border-[#eee7d8] px-4 py-3 text-sm font-bold">{item}</div>)}
-            </div>
-          </div>
-          <div>
-            <p className="text-xs font-black uppercase tracking-[.22em] text-[#B88A1A]">{data.eyebrow}</p>
-            <h3 className="mt-3 text-4xl font-black leading-tight">{data.heroTitle}</h3>
-            <p className="mt-4 max-w-xl text-sm leading-6 text-[#061523]/70">{data.heroText}</p>
-            <div className="mt-6 grid grid-cols-3 gap-4">
-              {['Catálogo 01', 'Catálogo 02', 'Catálogo 03', 'Catálogo 04', 'Catálogo 05', 'Catálogo 06'].map((item) => (
-                <div key={item} className="rounded-2xl bg-white p-4 shadow-sm">
-                  <div className="h-24 rounded-xl bg-[linear-gradient(135deg,#dbe3ed,#ffffff)]" />
-                  <p className="mt-3 text-xs font-black">{item}</p>
-                  <p className="mt-1 text-xs text-[#061523]/55">Ficha + consulta</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-5 rounded-2xl bg-[#061523] p-5 text-white">
-              <p className="text-sm font-black">Consulta por WhatsApp</p>
-              <div className="mt-3 flex items-center justify-between rounded-xl bg-white/8 px-4 py-3 text-xs"><span>Producto seleccionado</span><span className="text-[#D4AF37]">Enviar ahora</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (selected.id === 'reservas') {
-    return (
-      <div className="min-h-[760px] bg-[#f8f6f1] text-[#061523]">
-        <div className="flex items-center justify-between bg-white px-8 py-4 text-xs font-bold uppercase tracking-[.14em] text-[#061523]/60"><span>NEXORA BOOKING</span><span>Servicios · Agenda · Confirmación</span></div>
-        <div className="grid grid-cols-[1fr_.95fr] gap-8 px-8 py-8">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[.22em] text-[#B88A1A]">{data.eyebrow}</p>
-            <h3 className="mt-3 text-4xl font-black leading-tight">{data.heroTitle}</h3>
-            <p className="mt-4 max-w-md text-sm leading-6 text-[#061523]/70">{data.heroText}</p>
-            <div className="mt-6 grid grid-cols-3 gap-3">
-              {['Consulta', 'Reunión', 'Sesión'].map((item) => <div key={item} className="rounded-2xl bg-white p-4 text-center text-sm font-bold shadow-sm">{item}</div>)}
-            </div>
-          </div>
-          <div className="rounded-[1.75rem] bg-white p-5 shadow-sm">
-            <div className="flex items-center justify-between text-sm font-black"><span>Septiembre</span><span className="text-[#B88A1A]">Disponibilidad</span></div>
-            <div className="mt-4 grid grid-cols-7 gap-2 text-center text-[10px] font-bold">
-              {['L','M','X','J','V','S','D'].map((d) => <span key={d} className="text-[#061523]/45">{d}</span>)}
-              {Array.from({ length: 28 }, (_, i) => i + 1).map((n) => <span key={n} className={`rounded-lg px-2 py-2 ${n === 12 || n === 18 ? 'bg-[#D4AF37] text-[#061523]' : 'bg-[#f5f1e8]'}`}>{n}</span>)}
-            </div>
-            <div className="mt-5 grid grid-cols-3 gap-3">
-              {['09:00', '11:30', '16:00'].map((slot) => <div key={slot} className="rounded-xl border border-[#eadfc6] px-3 py-3 text-center text-xs font-black">{slot}</div>)}
-            </div>
-          </div>
-        </div>
-        <div className="grid grid-cols-[1.05fr_.95fr] gap-5 px-8 pb-8">
-          <div className="rounded-2xl bg-white p-5 shadow-sm">
-            <div className="mb-4 flex gap-3">{data.pills.map((pill) => <span key={pill} className="rounded-full bg-[#f3eee3] px-3 py-2 text-xs font-black">{pill}</span>)}</div>
-            <div className="h-28 rounded-2xl bg-[#edf1f4]" />
-          </div>
-          <div className="rounded-2xl bg-[#061523] p-5 text-white">
-            <p className="text-sm font-black">Confirmación automática</p>
-            <div className="mt-4 space-y-3">
-              {['Reserva recibida', 'Recordatorio enviado', 'Datos del cliente guardados'].map((item) => <div key={item} className="rounded-xl bg-white/8 p-3 text-xs font-bold">{item}</div>)}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-[760px] bg-[#f6f8fb] text-[#061523]">
-      <div className="flex items-center justify-between bg-[#061523] px-8 py-4 text-xs font-bold uppercase tracking-[.14em] text-white/70"><span>NEXORA PLATFORM</span><span>Dashboard · Usuarios · Reportes</span></div>
-      <div className="grid grid-cols-[1fr_.95fr] gap-8 px-8 py-8">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[.22em] text-[#B88A1A]">{data.eyebrow}</p>
-          <h3 className="mt-3 text-4xl font-black leading-tight">{data.heroTitle}</h3>
-          <p className="mt-4 max-w-md text-sm leading-6 text-[#061523]/70">{data.heroText}</p>
-          <div className="mt-5 flex gap-3">
-            <span className="rounded-lg bg-[#D4AF37] px-4 py-3 text-sm font-black text-[#061523]">{data.primaryCta}</span>
-            <span className="rounded-lg border border-[#d8ccaf] px-4 py-3 text-sm font-black text-[#061523]">{data.secondaryCta}</span>
-          </div>
-        </div>
-        <div className="grid grid-cols-3 gap-3">
-          {['+124', '98%', '24/7'].map((metric) => (
-            <div key={metric} className="rounded-2xl bg-white p-4 shadow-sm text-center">
-              <p className="text-2xl font-black text-[#061523]">{metric}</p>
-              <p className="mt-2 text-[10px] uppercase tracking-[.18em] text-[#061523]/50">actividad</p>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="grid grid-cols-[1.15fr_.85fr] gap-5 px-8 pb-8">
-        <div className="rounded-2xl bg-white p-5 shadow-sm">
-          <p className="text-xs font-black uppercase tracking-[.2em] text-[#B88A1A]">Flujos de trabajo</p>
-          <div className="mt-5 grid grid-cols-3 gap-3">
-            {['Pendiente', 'En proceso', 'Completado'].map((col) => (
-              <div key={col} className="rounded-2xl bg-[#f5f7fa] p-3">
-                <p className="text-xs font-black">{col}</p>
-                <div className="mt-3 space-y-2">
-                  <div className="h-12 rounded-xl bg-white shadow-sm" />
-                  <div className="h-12 rounded-xl bg-white shadow-sm" />
-                </div>
-              </div>
+          <div className="mt-5 grid gap-3">
+            {copy.sections.map((section) => (
+              <PreviewPlaceholderBlock
+                key={section}
+                title={section}
+                subtitle={locale === 'es' ? 'Zona visual reservada para la captura larga del ejemplo.' : 'Reserved visual area for the long sample capture.'}
+                dark={isDark}
+              />
             ))}
           </div>
         </div>
-        <div className="rounded-2xl bg-[#061523] p-5 text-white">
-          <p className="text-sm font-black">Módulos conectados</p>
-          <div className="mt-4 grid gap-3">
-            {['Usuarios', 'Automatizaciones', 'Reportes', 'Permisos'].map((module) => <div key={module} className="rounded-xl bg-white/8 p-3 text-xs font-bold">{module}</div>)}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TabletPreviewContent({ selected, locale }: { selected: WebType; locale: Locale }) {
-  const data = previewTemplate(selected.id, locale);
-  const dark = selected.id === 'landing' || selected.id === 'plataforma';
-
-  return (
-    <div className={`min-h-[560px] ${dark ? 'bg-[#061523] text-white' : 'bg-[#f8f4eb] text-[#061523]'}`}>
-      <div className={`p-4 ${dark ? 'bg-[#061523]' : 'bg-white'}`}>
-        <p className="text-[10px] font-black uppercase tracking-[.16em]">NEXORA</p>
-        <h4 className="mt-7 text-xl font-black leading-tight">{data.tabletTitle}</h4>
-        <p className={`mt-3 text-xs leading-5 ${dark ? 'text-white/70' : 'text-[#061523]/60'}`}>{data.tabletText}</p>
-        <span className="mt-5 inline-flex rounded-md bg-[#D4AF37] px-3 py-2 text-[10px] font-black text-[#061523]">{data.primaryCta}</span>
-      </div>
-      <div className="space-y-3 p-4">
-        {selected.id === 'ecommerce' ? (
-          <div className="grid grid-cols-2 gap-3">
-            {['Producto', 'Oferta', 'Checkout', 'Pago'].map((item) => (
-              <div key={item} className={`rounded-xl p-3 shadow-sm ${dark ? 'bg-white/8' : 'bg-white'}`}>
-                <div className={`h-12 rounded-lg ${dark ? 'bg-white/10' : 'bg-[#eef2f5]'}`} />
-                <p className="mt-2 text-[10px] font-black">{item}</p>
-              </div>
-            ))}
-          </div>
-        ) : selected.id === 'reservas' ? (
-          <div className="rounded-xl bg-white p-3 text-[#061523] shadow-sm">
-            <div className="grid grid-cols-4 gap-2 text-center text-[10px] font-black">
-              {['L','M','X','J','V','09:00','11:30','16:00'].map((item) => <span key={item} className="rounded-lg bg-[#f4efdf] px-2 py-2">{item}</span>)}
-            </div>
-          </div>
-        ) : selected.id === 'plataforma' ? (
-          <div className="grid grid-cols-2 gap-3">
-            {['Dashboard', 'Usuarios', 'Reportes', 'Alertas'].map((item) => <div key={item} className="rounded-xl bg-white/8 p-3 text-[10px] font-black">{item}</div>)}
-          </div>
-        ) : (
-          data.tabletItems.map((row) => (
-            <div key={row} className={`rounded-xl p-3 text-xs font-bold shadow-sm ${dark ? 'bg-white/8' : 'bg-white'}`}>{row}</div>
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
-
-function MobilePreviewContent({ selected, locale }: { selected: WebType; locale: Locale }) {
-  const data = previewTemplate(selected.id, locale);
-  const dark = selected.id === 'landing' || selected.id === 'plataforma';
-
-  return (
-    <div className={`min-h-[460px] ${dark ? 'bg-[#061523] text-white' : 'bg-[#f8f4eb] text-[#061523]'}`}>
-      <div className={`p-3 ${dark ? 'bg-[#061523]' : 'bg-white'}`}>
-        <p className="text-[9px] font-black">NEXORA</p>
-        <h4 className="mt-7 text-sm font-black leading-tight">{data.mobileTitle}</h4>
-        <span className="mt-4 inline-flex rounded bg-[#D4AF37] px-2 py-1 text-[8px] font-black text-[#061523]">CTA</span>
-      </div>
-      <div className="space-y-2 p-2">
-        {selected.id === 'ecommerce' ? (
-          ['Producto', 'Carrito', 'Pago'].map((item) => <div key={item} className="rounded bg-white p-2 text-[8px] font-bold text-[#061523] shadow">{item}</div>)
-        ) : selected.id === 'reservas' ? (
-          ['Servicio', 'Calendario', 'Confirmación'].map((item) => <div key={item} className="rounded bg-white p-2 text-[8px] font-bold text-[#061523] shadow">{item}</div>)
-        ) : selected.id === 'plataforma' ? (
-          ['Panel', 'Alerta', 'Tarea'].map((item) => <div key={item} className="rounded bg-white/10 p-2 text-[8px] font-bold shadow">{item}</div>)
-        ) : (
-          data.mobileItems.map((row) => <div key={row} className="rounded bg-white p-2 text-[8px] font-bold text-[#061523] shadow">{row}</div>)
-        )}
       </div>
     </div>
   );
@@ -605,22 +368,22 @@ function DevicePreview({ selected, locale }: { selected: WebType; locale: Locale
     <div className="relative min-h-[470px] w-full">
       <div className="absolute left-[5%] top-8 w-[70%] rounded-[1.7rem] border border-white/30 bg-[#131922] p-3 shadow-[0_35px_90px_rgba(0,0,0,.35)]">
         <div className="h-[360px] overflow-hidden rounded-[1.2rem] bg-white">
-          <div className="web-scroll-demo web-scroll-demo-slow min-h-[760px]">
-            <DesktopPreviewContent selected={selected} locale={locale} />
+          <div className="web-scroll-demo web-scroll-demo-slow">
+            <PreviewImageSlot device="desktop" typeTitle={selected.title} locale={locale} variant="light" />
           </div>
         </div>
       </div>
       <div className="absolute right-[10%] top-24 w-[22%] min-w-[150px] rounded-[1.5rem] border border-white/40 bg-[#0f1620] p-2 shadow-[0_25px_70px_rgba(0,0,0,.38)]">
         <div className="h-[305px] overflow-hidden rounded-[1rem] bg-white">
-          <div className="web-scroll-demo web-scroll-demo-medium min-h-[560px]">
-            <TabletPreviewContent selected={selected} locale={locale} />
+          <div className="web-scroll-demo web-scroll-demo-medium">
+            <PreviewImageSlot device="tablet" typeTitle={selected.title} locale={locale} variant="dark" />
           </div>
         </div>
       </div>
       <div className="absolute right-[1%] top-36 w-[13%] min-w-[92px] rounded-[1.25rem] border border-white/40 bg-[#0f1620] p-1.5 shadow-[0_22px_60px_rgba(0,0,0,.42)]">
         <div className="h-[240px] overflow-hidden rounded-[.9rem] bg-white">
-          <div className="web-scroll-demo web-scroll-demo-fast min-h-[460px]">
-            <MobilePreviewContent selected={selected} locale={locale} />
+          <div className="web-scroll-demo web-scroll-demo-fast">
+            <PreviewImageSlot device="mobile" typeTitle={selected.title} locale={locale} variant="light" />
           </div>
         </div>
       </div>
