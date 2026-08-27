@@ -237,26 +237,6 @@ function previewTemplate(id: string, locale: Locale): PreviewTemplate {
   return (t as Record<string, Record<string, PreviewTemplate>>)[locale][id];
 }
 
-function PreviewPlaceholderBlock({
-  title,
-  subtitle,
-  className = '',
-  dark = false,
-}: {
-  title: string;
-  subtitle: string;
-  className?: string;
-  dark?: boolean;
-}) {
-  return (
-    <div className={`rounded-2xl border border-dashed p-4 shadow-sm ${dark ? 'border-white/12 bg-white/10 text-white' : 'border-[#D4AF37]/35 bg-white/80 text-[#061523]'} ${className}`}>
-      <div className="h-2 w-16 rounded-full bg-[#D4AF37]/70" />
-      <p className="mt-4 text-sm font-black">{title}</p>
-      <p className={`mt-2 text-xs leading-5 ${dark ? 'text-white/68' : 'text-[#061523]/55'}`}>{subtitle}</p>
-    </div>
-  );
-}
-
 function PreviewImageSlot({
   device,
   typeTitle,
@@ -273,24 +253,22 @@ function PreviewImageSlot({
   const isDark = variant === 'dark';
   const copy = locale === 'es'
     ? {
-        slot: 'Espacio para imagen larga',
-        title: 'Aquí se cargará el mockup de esta categoría',
-        hintDesktop: 'Mockup vertical para escritorio. Ideal para una captura larga del landing completo.',
-        hintTablet: 'Mockup vertical para tablet. Mantiene el desplazamiento automático suave.',
-        hintMobile: 'Mockup vertical para móvil. Úsalo para mostrar la versión responsive completa.',
+        slot: 'Espacio para imagen completa',
+        title: 'Haz clic aquí para subir el ejemplo completo de esta categoría.',
+        hintDesktop: 'Sube una captura larga de escritorio. La imagen se mostrará completa y se desplazará suavemente de arriba hacia abajo.',
+        hintTablet: 'Sube una captura larga para tablet. La vista mantendrá el desplazamiento automático suave.',
+        hintMobile: 'Sube una captura larga para móvil. Ideal para mostrar toda la versión responsive.',
         autoScroll: 'Desplazamiento automático suave',
-        path: 'Aquí irá la imagen del preview',
-        sections: ['Hero', 'Contenido', 'CTA final'],
+        path: 'Toda esta pantalla será reemplazada por tu imagen',
       }
     : {
-        slot: 'Long image placeholder',
-        title: 'The mockup for this category will appear here',
-        hintDesktop: 'Vertical desktop mockup. Ideal for a long full landing page screenshot.',
-        hintTablet: 'Vertical tablet mockup with smooth auto-scroll behaviour.',
-        hintMobile: 'Vertical mobile mockup for the full responsive version.',
+        slot: 'Full image area',
+        title: 'Click here to upload the full example for this category.',
+        hintDesktop: 'Upload a long desktop screenshot. It will be shown in full with smooth top-to-bottom scrolling.',
+        hintTablet: 'Upload a long tablet screenshot. The view will keep the smooth auto-scroll behaviour.',
+        hintMobile: 'Upload a long mobile screenshot. Ideal for the full responsive version.',
         autoScroll: 'Smooth auto-scroll',
-        path: 'Preview image will go here',
-        sections: ['Hero', 'Content', 'Final CTA'],
+        path: 'This whole screen will be replaced by your image',
       };
 
   const deviceLabel =
@@ -322,42 +300,26 @@ function PreviewImageSlot({
   const cardClass = isDark ? 'bg-white/8 border-white/12 text-white' : 'bg-white/85 border-[#D4AF37]/20 text-[#061523]';
 
   return (
-    <div className={`${minHeightClass} ${shellClass}`}>
+    <div data-directus={imageAttr} className={`${minHeightClass} ${shellClass} flex flex-col`}>
       <div className={`flex items-center justify-between border-b px-4 py-3 text-[10px] font-black uppercase tracking-[.18em] ${isDark ? 'border-white/10 text-white/60' : 'border-[#D4AF37]/18 text-[#061523]/45'}`}>
         <span>{deviceLabel}</span>
         <span>{copy.autoScroll}</span>
       </div>
 
-      <div className={`p-4 ${innerClass}`}>
-        <div className={`rounded-[1.4rem] border p-4 ${cardClass}`}>
-          <div className="flex items-start justify-between gap-3">
+      <div className={`flex-1 p-4 ${innerClass}`}>
+        <div className={`flex h-full flex-col justify-center rounded-[1.4rem] border-2 border-dashed p-5 text-center ${cardClass}`}>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#D4AF37]">{typeTitle}</p>
+            <h4 className={`mt-3 text-xl font-black leading-tight ${isDark ? 'text-white' : 'text-[#061523]'}`}>{copy.slot}</h4>
+            <p className={`mx-auto mt-3 max-w-sm text-xs leading-5 ${textClass}`}>{copy.title}</p>
+          </div>
+
+          <div className={`mx-auto mt-6 flex h-36 w-full max-w-xl items-center justify-center rounded-[1.4rem] border-2 border-dashed px-6 ${isDark ? 'border-white/14 bg-black/10' : 'border-[#D4AF37]/25 bg-[#F7F3EA]'}`}>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#D4AF37]">{typeTitle}</p>
-              <h4 className={`mt-3 text-xl font-black leading-tight ${isDark ? 'text-white' : 'text-[#061523]'}`}>{copy.slot}</h4>
-              <p className={`mt-3 max-w-sm text-xs leading-5 ${textClass}`}>{copy.title}</p>
+              <div className="mx-auto h-3 w-28 rounded-full bg-[#D4AF37]/70" />
+              <p className={`mt-5 text-base font-black ${isDark ? 'text-white' : 'text-[#061523]'}`}>{copy.path}</p>
+              <p className={`mx-auto mt-3 max-w-md text-[11px] leading-5 ${textClass}`}>{hint}</p>
             </div>
-            <span className={`rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[.18em] ${isDark ? 'bg-white/10 text-white' : 'bg-[#D4AF37]/18 text-[#061523]'}`}>{device}</span>
-          </div>
-
-          <div data-directus={imageAttr} className={`mt-5 rounded-2xl border border-dashed p-4 ${isDark ? 'border-white/16 bg-black/10' : 'border-[#D4AF37]/30 bg-white/70'}`}>
-            <div className="h-2 w-24 rounded-full bg-[#D4AF37]/70" />
-            <div className={`mt-4 flex h-32 items-center justify-center rounded-2xl border border-dashed ${isDark ? 'border-white/14 bg-white/5' : 'border-[#D4AF37]/22 bg-[#F7F3EA]'}`}>
-              <div className="text-center">
-                <p className={`text-sm font-black ${isDark ? 'text-white' : 'text-[#061523]'}`}>{copy.path}</p>
-                <p className={`mt-2 text-[11px] ${textClass}`}>{hint}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-5 grid gap-3">
-            {copy.sections.map((section) => (
-              <PreviewPlaceholderBlock
-                key={section}
-                title={section}
-                subtitle={locale === 'es' ? 'Zona visual reservada para la captura larga del ejemplo.' : 'Reserved visual area for the long sample capture.'}
-                dark={isDark}
-              />
-            ))}
           </div>
         </div>
       </div>
@@ -380,42 +342,69 @@ function DevicePreview({
   const tablet = previewItem(`preview.${selected.id}.tablet`);
   const mobile = previewItem(`preview.${selected.id}.mobile`);
 
+  const PreviewFrame = ({
+    device,
+    item,
+    height,
+    animationClass,
+    variant = 'light',
+  }: {
+    device: 'desktop' | 'tablet' | 'mobile';
+    item?: PageElement;
+    height: string;
+    animationClass: string;
+    variant?: 'light' | 'dark';
+  }) => {
+    const key = `preview.${selected.id}.${device}`;
+    return (
+      <div className={`${height} overflow-hidden rounded-[1.1rem] bg-white`} data-directus={previewAttr(key, 'image')}>
+        <div className={`web-scroll-demo ${animationClass}`}>
+          {item?.image_url ? (
+            <img src={item.image_url} alt={`${selected.title} ${device} preview`} className="block w-full max-w-none" />
+          ) : (
+            <PreviewImageSlot device={device} typeTitle={selected.title} locale={locale} variant={variant} imageAttr={previewAttr(key, 'image')} />
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="relative min-h-[470px] w-full">
-      <div className="absolute left-[5%] top-8 w-[70%] rounded-[1.7rem] border border-white/30 bg-[#131922] p-3 shadow-[0_35px_90px_rgba(0,0,0,.35)]">
-        <div className="h-[360px] overflow-hidden rounded-[1.2rem] bg-white">
-          <div className="web-scroll-demo web-scroll-demo-slow">
-            {desktop?.image_url ? (
-              <img src={desktop.image_url} alt={`${selected.title} desktop preview`} className="block w-full max-w-none" data-directus={previewAttr(`preview.${selected.id}.desktop`, 'image')} />
-            ) : (
-              <PreviewImageSlot device="desktop" typeTitle={selected.title} locale={locale} variant="light" imageAttr={previewAttr(`preview.${selected.id}.desktop`, 'image')} />
-            )}
+    <>
+      <div className="grid gap-5 lg:hidden">
+        <div className="rounded-[1.6rem] border border-white/30 bg-[#131922] p-3 shadow-[0_25px_70px_rgba(0,0,0,.32)]">
+          <div className="mb-2 flex items-center justify-between px-2 text-[10px] font-black uppercase tracking-[.18em] text-white/55">
+            <span>Desktop</span>
+            <span>{locale === 'es' ? 'Imagen completa' : 'Full image'}</span>
+          </div>
+          <PreviewFrame device="desktop" item={desktop} height="h-[300px]" animationClass="web-scroll-demo-mobile-desktop" variant="light" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="rounded-[1.45rem] border border-white/30 bg-[#101923] p-2 shadow-[0_20px_55px_rgba(0,0,0,.30)]">
+            <div className="mb-2 px-2 text-[10px] font-black uppercase tracking-[.18em] text-white/55">Tablet</div>
+            <PreviewFrame device="tablet" item={tablet} height="h-[285px]" animationClass="web-scroll-demo-mobile-tablet" variant="dark" />
+          </div>
+
+          <div className="rounded-[1.45rem] border border-white/30 bg-[#101923] p-2 shadow-[0_20px_55px_rgba(0,0,0,.30)]">
+            <div className="mb-2 px-2 text-[10px] font-black uppercase tracking-[.18em] text-white/55">Mobile</div>
+            <PreviewFrame device="mobile" item={mobile} height="h-[285px]" animationClass="web-scroll-demo-mobile-phone" variant="light" />
           </div>
         </div>
       </div>
-      <div className="absolute right-[10%] top-24 w-[22%] min-w-[150px] rounded-[1.5rem] border border-white/40 bg-[#0f1620] p-2 shadow-[0_25px_70px_rgba(0,0,0,.38)]">
-        <div className="h-[305px] overflow-hidden rounded-[1rem] bg-white">
-          <div className="web-scroll-demo web-scroll-demo-medium">
-            {tablet?.image_url ? (
-              <img src={tablet.image_url} alt={`${selected.title} tablet preview`} className="block w-full max-w-none" data-directus={previewAttr(`preview.${selected.id}.tablet`, 'image')} />
-            ) : (
-              <PreviewImageSlot device="tablet" typeTitle={selected.title} locale={locale} variant="dark" imageAttr={previewAttr(`preview.${selected.id}.tablet`, 'image')} />
-            )}
-          </div>
+
+      <div className="relative hidden min-h-[470px] w-full lg:block">
+        <div className="absolute left-[5%] top-8 w-[70%] rounded-[1.7rem] border border-white/30 bg-[#131922] p-3 shadow-[0_35px_90px_rgba(0,0,0,.35)]">
+          <PreviewFrame device="desktop" item={desktop} height="h-[360px]" animationClass="web-scroll-demo-slow" variant="light" />
+        </div>
+        <div className="absolute right-[10%] top-24 w-[22%] min-w-[150px] rounded-[1.5rem] border border-white/40 bg-[#0f1620] p-2 shadow-[0_25px_70px_rgba(0,0,0,.38)]">
+          <PreviewFrame device="tablet" item={tablet} height="h-[305px]" animationClass="web-scroll-demo-medium" variant="dark" />
+        </div>
+        <div className="absolute right-[1%] top-36 w-[13%] min-w-[92px] rounded-[1.25rem] border border-white/40 bg-[#0f1620] p-1.5 shadow-[0_22px_60px_rgba(0,0,0,.42)]">
+          <PreviewFrame device="mobile" item={mobile} height="h-[240px]" animationClass="web-scroll-demo-fast" variant="light" />
         </div>
       </div>
-      <div className="absolute right-[1%] top-36 w-[13%] min-w-[92px] rounded-[1.25rem] border border-white/40 bg-[#0f1620] p-1.5 shadow-[0_22px_60px_rgba(0,0,0,.42)]">
-        <div className="h-[240px] overflow-hidden rounded-[.9rem] bg-white">
-          <div className="web-scroll-demo web-scroll-demo-fast">
-            {mobile?.image_url ? (
-              <img src={mobile.image_url} alt={`${selected.title} mobile preview`} className="block w-full max-w-none" data-directus={previewAttr(`preview.${selected.id}.mobile`, 'image')} />
-            ) : (
-              <PreviewImageSlot device="mobile" typeTitle={selected.title} locale={locale} variant="light" imageAttr={previewAttr(`preview.${selected.id}.mobile`, 'image')} />
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+    </>
   );
 }
 
@@ -481,6 +470,9 @@ export default function WebDevelopmentPageClient({ pageElements = [] }: { pageEl
         .web-scroll-demo-slow { --preview-height: 360px; animation-duration: 13s; }
         .web-scroll-demo-medium { --preview-height: 305px; animation-duration: 11s; }
         .web-scroll-demo-fast { --preview-height: 240px; animation-duration: 10s; }
+        .web-scroll-demo-mobile-desktop { --preview-height: 300px; animation-duration: 13s; }
+        .web-scroll-demo-mobile-tablet { --preview-height: 285px; animation-duration: 11s; }
+        .web-scroll-demo-mobile-phone { --preview-height: 285px; animation-duration: 10s; }
         @media (prefers-reduced-motion: reduce) { .web-scroll-demo { animation: none; } }
       `}</style>
       <DirectusVisualEditing enabled={visualEditingEnabled} refreshKey={`web-development:${locale}:${pageElements.length}`} />
