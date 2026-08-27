@@ -262,11 +262,13 @@ function PreviewImageSlot({
   typeTitle,
   locale,
   variant,
+  imageAttr,
 }: {
   device: 'desktop' | 'tablet' | 'mobile';
   typeTitle: string;
   locale: Locale;
   variant: 'light' | 'dark';
+  imageAttr?: string;
 }) {
   const isDark = variant === 'dark';
   const copy = locale === 'es'
@@ -337,7 +339,7 @@ function PreviewImageSlot({
             <span className={`rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[.18em] ${isDark ? 'bg-white/10 text-white' : 'bg-[#D4AF37]/18 text-[#061523]'}`}>{device}</span>
           </div>
 
-          <div className={`mt-5 rounded-2xl border border-dashed p-4 ${isDark ? 'border-white/16 bg-black/10' : 'border-[#D4AF37]/30 bg-white/70'}`}>
+          <div data-directus={imageAttr} className={`mt-5 rounded-2xl border border-dashed p-4 ${isDark ? 'border-white/16 bg-black/10' : 'border-[#D4AF37]/30 bg-white/70'}`}>
             <div className="h-2 w-24 rounded-full bg-[#D4AF37]/70" />
             <div className={`mt-4 flex h-32 items-center justify-center rounded-2xl border border-dashed ${isDark ? 'border-white/14 bg-white/5' : 'border-[#D4AF37]/22 bg-[#F7F3EA]'}`}>
               <div className="text-center">
@@ -386,7 +388,7 @@ function DevicePreview({
             {desktop?.image_url ? (
               <img src={desktop.image_url} alt={`${selected.title} desktop preview`} className="block w-full max-w-none" data-directus={previewAttr(`preview.${selected.id}.desktop`, 'image')} />
             ) : (
-              <PreviewImageSlot device="desktop" typeTitle={selected.title} locale={locale} variant="light" />
+              <PreviewImageSlot device="desktop" typeTitle={selected.title} locale={locale} variant="light" imageAttr={previewAttr(`preview.${selected.id}.desktop`, 'image')} />
             )}
           </div>
         </div>
@@ -397,7 +399,7 @@ function DevicePreview({
             {tablet?.image_url ? (
               <img src={tablet.image_url} alt={`${selected.title} tablet preview`} className="block w-full max-w-none" data-directus={previewAttr(`preview.${selected.id}.tablet`, 'image')} />
             ) : (
-              <PreviewImageSlot device="tablet" typeTitle={selected.title} locale={locale} variant="dark" />
+              <PreviewImageSlot device="tablet" typeTitle={selected.title} locale={locale} variant="dark" imageAttr={previewAttr(`preview.${selected.id}.tablet`, 'image')} />
             )}
           </div>
         </div>
@@ -408,7 +410,7 @@ function DevicePreview({
             {mobile?.image_url ? (
               <img src={mobile.image_url} alt={`${selected.title} mobile preview`} className="block w-full max-w-none" data-directus={previewAttr(`preview.${selected.id}.mobile`, 'image')} />
             ) : (
-              <PreviewImageSlot device="mobile" typeTitle={selected.title} locale={locale} variant="light" />
+              <PreviewImageSlot device="mobile" typeTitle={selected.title} locale={locale} variant="light" imageAttr={previewAttr(`preview.${selected.id}.mobile`, 'image')} />
             )}
           </div>
         </div>
