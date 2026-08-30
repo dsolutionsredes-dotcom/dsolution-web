@@ -17,14 +17,12 @@ import {
   DatabaseZap,
   FileCheck2,
   Layers3,
-  LockKeyhole,
   MessageCircle,
   MonitorSmartphone,
   PanelTop,
   Rocket,
   ScrollText,
   ShoppingCart,
-  Target,
   Workflow,
 } from 'lucide-react';
 
@@ -188,7 +186,6 @@ const copy = {
 
 const typeIcons = [PanelTop, Rocket, ShoppingCart, ScrollText, CalendarDays, Layers3];
 const extraIcons = [DatabaseZap, MessageCircle, Bot, CreditCard, Workflow, BarChart3, CalendarDays, FileCheck2];
-const deliverableIcons = [Target, Rocket, LockKeyhole, BarChart3];
 
 function previewTemplate(id: string, locale: Locale): PreviewTemplate {
   const t = {
@@ -243,12 +240,24 @@ function PreviewImageSlot({
   locale,
   variant,
   imageAttr,
+  title,
+  titleAttr,
+  hint,
+  hintAttr,
+  badge,
+  badgeAttr,
 }: {
   device: 'desktop' | 'tablet' | 'mobile';
   typeTitle: string;
   locale: Locale;
   variant: 'light' | 'dark';
   imageAttr?: string;
+  title?: string;
+  titleAttr?: string;
+  hint?: string;
+  hintAttr?: string;
+  badge?: string;
+  badgeAttr?: string;
 }) {
   const isDark = variant === 'dark';
   const copy = locale === 'es'
@@ -284,12 +293,16 @@ function PreviewImageSlot({
           ? 'Tablet view'
           : 'Mobile view';
 
-  const hint =
+  const fallbackHint =
     device === 'desktop'
       ? copy.hintDesktop
       : device === 'tablet'
         ? copy.hintTablet
         : copy.hintMobile;
+
+  const editableTitle = title || copy.path;
+  const editableHint = hint || fallbackHint;
+  const editableBadge = badge || copy.autoScroll;
 
   const minHeightClass =
     device === 'desktop' ? 'min-h-[980px]' : device === 'tablet' ? 'min-h-[760px]' : 'min-h-[620px]';
@@ -303,7 +316,7 @@ function PreviewImageSlot({
     <div data-directus={imageAttr} className={`${minHeightClass} ${shellClass} flex flex-col`}>
       <div className={`flex items-center justify-between border-b px-4 py-3 text-[10px] font-black uppercase tracking-[.18em] ${isDark ? 'border-white/10 text-white/60' : 'border-[#D4AF37]/18 text-[#061523]/45'}`}>
         <span>{deviceLabel}</span>
-        <span>{copy.autoScroll}</span>
+        <span data-directus={badgeAttr}>{editableBadge}</span>
       </div>
 
       <div className={`flex-1 p-4 ${innerClass}`}>
@@ -317,8 +330,8 @@ function PreviewImageSlot({
           <div className={`mx-auto mt-6 flex h-36 w-full max-w-xl items-center justify-center rounded-[1.4rem] border-2 border-dashed px-6 ${isDark ? 'border-white/14 bg-black/10' : 'border-[#D4AF37]/25 bg-[#F7F3EA]'}`}>
             <div>
               <div className="mx-auto h-3 w-28 rounded-full bg-[#D4AF37]/70" />
-              <p className={`mt-5 text-base font-black ${isDark ? 'text-white' : 'text-[#061523]'}`}>{copy.path}</p>
-              <p className={`mx-auto mt-3 max-w-md text-[11px] leading-5 ${textClass}`}>{hint}</p>
+              <p className={`mt-5 text-base font-black ${isDark ? 'text-white' : 'text-[#061523]'}`} data-directus={titleAttr}>{editableTitle}</p>
+              <p className={`mx-auto mt-3 max-w-md text-[11px] leading-5 ${textClass}`} data-directus={hintAttr}>{editableHint}</p>
             </div>
           </div>
         </div>
@@ -342,6 +355,7 @@ function DevicePreview({
   const desktop = previewItem(`preview.${selected.id}.desktop`);
   const tablet = previewItem(`preview.${selected.id}.tablet`);
   const mobile = previewItem(`preview.${selected.id}.mobile`);
+  const previewText = (key: string, fallback: string, field: 'text' | 'secondary_text' | 'tertiary_text' = 'text') => elementText(previewItem(key), fallback, field);
 
   const PreviewFrame = ({
     device,
@@ -365,7 +379,19 @@ function DevicePreview({
           {item?.image_url ? (
             <img src={item.image_url} alt={`${selected.title} ${device} preview`} className="block w-full max-w-none" />
           ) : (
-            <PreviewImageSlot device={device} typeTitle={selected.title} locale={locale} variant={variant} imageAttr={previewAttr(key, 'image')} />
+            <PreviewImageSlot
+              device={device}
+              typeTitle={selected.title}
+              locale={locale}
+              variant={variant}
+              imageAttr={previewAttr(key, 'image')}
+              title={previewText(key, locale === 'es' ? 'Toda esta pantalla será reemplazada por tu imagen' : 'This whole screen will be replaced by your image')}
+              titleAttr={previewAttr(key, 'text')}
+              hint={previewText(key, locale === 'es' ? 'Sube una captura larga. La imagen se mostrará completa y se desplazará suavemente de arriba hacia abajo.' : 'Upload a long screenshot. It will be shown in full with smooth top-to-bottom scrolling.', 'secondary_text')}
+              hintAttr={previewAttr(key, 'secondary_text')}
+              badge={previewText('preview.badge.fullImage', locale === 'es' ? 'Imagen completa' : 'Full image')}
+              badgeAttr={previewAttr('preview.badge.fullImage')}
+            />
           )}
         </div>
       </div>
@@ -374,34 +400,34 @@ function DevicePreview({
 
   const mobileFrames = {
     desktop: {
-      label: 'Desktop',
+      label: previewText('preview.tab.desktop', 'Desktop'),
       item: desktop,
       height: 'h-[245px]',
       animation: 'web-scroll-demo-mobile-desktop',
       variant: 'light' as const,
       shell: 'mx-auto w-full rounded-[1.55rem] p-3',
       screenRounded: 'rounded-[1.05rem]',
-      note: locale === 'es' ? 'Vista horizontal' : 'Landscape view',
+      note: previewText('preview.note.desktop', locale === 'es' ? 'Vista horizontal' : 'Landscape view'),
     },
     tablet: {
-      label: 'Tablet',
+      label: previewText('preview.tab.tablet', 'Tablet'),
       item: tablet,
       height: 'h-[430px]',
       animation: 'web-scroll-demo-mobile-tablet',
       variant: 'dark' as const,
       shell: 'mx-auto w-[72%] min-w-[250px] max-w-[330px] rounded-[1.8rem] p-3',
       screenRounded: 'rounded-[1.25rem]',
-      note: locale === 'es' ? 'Más ancha que móvil' : 'Wider than phone',
+      note: previewText('preview.note.tablet', locale === 'es' ? 'Más ancha que móvil' : 'Wider than phone'),
     },
     mobile: {
-      label: 'Mobile',
+      label: previewText('preview.tab.mobile', 'Mobile'),
       item: mobile,
       height: 'h-[430px]',
       animation: 'web-scroll-demo-mobile-phone',
       variant: 'light' as const,
       shell: 'mx-auto w-[54%] min-w-[185px] max-w-[235px] rounded-[1.9rem] p-2.5',
       screenRounded: 'rounded-[1.45rem]',
-      note: locale === 'es' ? 'Vista estrecha' : 'Narrow view',
+      note: previewText('preview.note.mobile', locale === 'es' ? 'Vista estrecha' : 'Narrow view'),
     },
   };
   const currentMobileFrame = mobileFrames[mobileDevice];
@@ -421,7 +447,7 @@ function DevicePreview({
                   isActive ? 'bg-[#D4AF37] text-[#061523] shadow-[0_12px_30px_rgba(212,175,55,.24)]' : 'text-white/62 hover:bg-white/10 hover:text-white'
                 }`}
               >
-                {mobileFrames[device].label}
+                <span data-directus={previewAttr(`preview.tab.${device}`)}>{mobileFrames[device].label}</span>
               </button>
             );
           })}
@@ -429,8 +455,8 @@ function DevicePreview({
 
         <div className={`${currentMobileFrame.shell} border border-white/30 bg-[#131922] shadow-[0_25px_70px_rgba(0,0,0,.32)]`}>
           <div className="mb-2 flex items-center justify-between px-2 text-[10px] font-black uppercase tracking-[.18em] text-white/55">
-            <span>{currentMobileFrame.label}</span>
-            <span>{currentMobileFrame.note}</span>
+            <span data-directus={previewAttr(`preview.tab.${mobileDevice}`)}>{currentMobileFrame.label}</span>
+            <span data-directus={previewAttr(`preview.note.${mobileDevice}`)}>{currentMobileFrame.note}</span>
           </div>
           <PreviewFrame
             device={mobileDevice}
@@ -505,9 +531,7 @@ export default function WebDevelopmentPageClient({ pageElements = [] }: { pageEl
   const extraTitleA = value('extras.titleA', base.extraTitleA);
   const extraTitleB = value('extras.titleB', base.extraTitleB);
   const extraText = value('extras.text', base.extraText);
-  const receiveTitle = value('deliverables.title', base.receiveTitle);
   const editableExtras = base.extras.map(([title, text], index) => [value(`extras.${index + 1}`, title), value(`extras.${index + 1}`, text, 'secondary_text')] as const);
-  const editableDeliverables = base.deliverables.map(([title, text], index) => [value(`deliverables.${index + 1}`, title), value(`deliverables.${index + 1}`, text, 'secondary_text')] as const);
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#F7F3EA] text-[#002147]">
@@ -594,35 +618,6 @@ export default function WebDevelopmentPageClient({ pageElements = [] }: { pageEl
               <p className="mt-3 text-base leading-7 text-[#061523]/64" data-directus={attr(`extras.${index + 1}`, 'secondary_text')}>{text}</p>
             </article>;
           })}
-        </div>
-      </section>
-
-      <section className="bg-[#07315C] px-5 py-18 text-white md:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-10 flex items-center justify-center gap-5 text-center">
-            <span className="hidden h-px flex-1 bg-[linear-gradient(90deg,transparent,#D4AF37)] md:block"/>
-            <h2 className="text-4xl font-black uppercase tracking-[-.035em] md:text-6xl" data-directus={attr('deliverables.title')}>{receiveTitle}</h2>
-            <span className="hidden h-px flex-1 bg-[linear-gradient(90deg,#D4AF37,transparent)] md:block"/>
-          </div>
-          <div className="grid gap-6 lg:grid-cols-4">
-            {editableDeliverables.map(([title, text], index) => {
-              const Icon = deliverableIcons[index];
-              const gradients = ['from-[#E9EEF5] to-[#FFFFFF]', 'from-[#071827] to-[#0B2C4F]', 'from-[#05223D] to-[#0B5B8F]', 'from-[#071827] to-[#0B2C4F]'];
-              return <article key={title} className="overflow-hidden rounded-[1.45rem] border border-[#D4AF37]/38 bg-[#061523] shadow-[0_24px_60px_rgba(0,0,0,.20)]">
-                <div className={`relative h-36 bg-gradient-to-br ${gradients[index]}`}>
-                  <span className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#D4AF37] text-sm font-black text-[#061523]">0{index + 1}</span>
-                  <div className="absolute inset-x-5 bottom-5 h-20 rounded-2xl border border-white/15 bg-black/20 p-4 backdrop-blur-sm">
-                    <div className="h-full rounded-xl bg-[linear-gradient(90deg,rgba(212,175,55,.75),rgba(255,255,255,.18))] opacity-60" />
-                  </div>
-                </div>
-                <div className="p-6">
-                  <Icon size={28} className="text-[#D4AF37]" />
-                  <h3 className="mt-4 text-xl font-black" data-directus={attr(`deliverables.${index + 1}`)}>{title}</h3>
-                  <p className="mt-3 text-base leading-7 text-white/72" data-directus={attr(`deliverables.${index + 1}`, 'secondary_text')}>{text}</p>
-                </div>
-              </article>;
-            })}
-          </div>
         </div>
       </section>
 
