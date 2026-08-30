@@ -215,8 +215,8 @@ export default function MarketingDigitalPageClient({ cms, pageElements = [] }: {
 
       <section className="relative min-h-[760px] overflow-hidden bg-[#020912] px-5 pb-10 pt-28 text-white md:px-8 md:pt-32">
         <div className="absolute inset-0">
-          <Image src={heroImage} alt="Marketing digital" fill priority className="object-cover opacity-45" data-directus={attr('hero.image', 'image')} />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_20%,rgba(212,175,55,.16),transparent_30%),linear-gradient(90deg,rgba(2,9,18,.94)_0%,rgba(2,9,18,.76)_42%,rgba(2,9,18,.44)_100%)]" />
+          <Image src={heroImage} alt="Marketing digital" fill priority className="object-cover opacity-100" data-directus={attr('hero.image', 'image')} />
+          <div className="absolute inset-y-0 left-0 w-[68%] bg-[linear-gradient(90deg,rgba(2,9,18,.96)_0%,rgba(2,9,18,.88)_42%,rgba(2,9,18,.58)_68%,transparent_100%)]" />
         </div>
 
         <div className="relative mx-auto max-w-7xl">
@@ -305,7 +305,7 @@ export default function MarketingDigitalPageClient({ cms, pageElements = [] }: {
               const Icon = audienceIcons[index];
               return (
                 <article key={title} className="group relative min-h-[250px] overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/5 shadow-[0_25px_70px_rgba(0,0,0,.25)]">
-                  <Image src={currentAudienceImages[index] || audienceImages[index]} alt={title} fill className="object-cover opacity-54 grayscale transition duration-500 group-hover:scale-105 group-hover:opacity-72 group-hover:grayscale-0" data-directus={directusAttr(visualEditingEnabled, 'page_elements', item(`audience.${index + 1}`)?.id, 'image')} />
+                  <Image src={currentAudienceImages[index] || audienceImages[index]} alt={title} fill className="object-cover opacity-78 transition duration-500 group-hover:scale-105 group-hover:opacity-92" data-directus={directusAttr(visualEditingEnabled, 'page_elements', item(`audience.${index + 1}`)?.id, 'image')} />
                   <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,9,18,.90),rgba(2,9,18,.44))]" />
                   <div className="relative z-10 flex h-full min-h-[250px] items-end gap-5 p-7">
                     <span className="text-5xl font-black text-[#D4AF37]">0{index + 1}</span>

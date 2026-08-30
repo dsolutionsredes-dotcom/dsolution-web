@@ -338,6 +338,7 @@ function DevicePreview({
   previewItem: (key: string) => PageElement | undefined;
   previewAttr: (key: string, field?: 'text' | 'secondary_text' | 'tertiary_text' | 'image') => string | undefined;
 }) {
+  const [mobileDevice, setMobileDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const desktop = previewItem(`preview.${selected.id}.desktop`);
   const tablet = previewItem(`preview.${selected.id}.tablet`);
   const mobile = previewItem(`preview.${selected.id}.mobile`);
@@ -348,16 +349,18 @@ function DevicePreview({
     height,
     animationClass,
     variant = 'light',
+    rounded = 'rounded-[1.1rem]',
   }: {
     device: 'desktop' | 'tablet' | 'mobile';
     item?: PageElement;
     height: string;
     animationClass: string;
     variant?: 'light' | 'dark';
+    rounded?: string;
   }) => {
     const key = `preview.${selected.id}.${device}`;
     return (
-      <div className={`${height} overflow-hidden rounded-[1.1rem] bg-white`} data-directus={previewAttr(key, 'image')}>
+      <div className={`${height} overflow-hidden ${rounded} bg-white`} data-directus={previewAttr(key, 'image')}>
         <div className={`web-scroll-demo ${animationClass}`}>
           {item?.image_url ? (
             <img src={item.image_url} alt={`${selected.title} ${device} preview`} className="block w-full max-w-none" />
@@ -369,27 +372,74 @@ function DevicePreview({
     );
   };
 
+  const mobileFrames = {
+    desktop: {
+      label: 'Desktop',
+      item: desktop,
+      height: 'h-[245px]',
+      animation: 'web-scroll-demo-mobile-desktop',
+      variant: 'light' as const,
+      shell: 'mx-auto w-full rounded-[1.55rem] p-3',
+      screenRounded: 'rounded-[1.05rem]',
+      note: locale === 'es' ? 'Vista horizontal' : 'Landscape view',
+    },
+    tablet: {
+      label: 'Tablet',
+      item: tablet,
+      height: 'h-[430px]',
+      animation: 'web-scroll-demo-mobile-tablet',
+      variant: 'dark' as const,
+      shell: 'mx-auto w-[72%] min-w-[250px] max-w-[330px] rounded-[1.8rem] p-3',
+      screenRounded: 'rounded-[1.25rem]',
+      note: locale === 'es' ? 'Más ancha que móvil' : 'Wider than phone',
+    },
+    mobile: {
+      label: 'Mobile',
+      item: mobile,
+      height: 'h-[430px]',
+      animation: 'web-scroll-demo-mobile-phone',
+      variant: 'light' as const,
+      shell: 'mx-auto w-[54%] min-w-[185px] max-w-[235px] rounded-[1.9rem] p-2.5',
+      screenRounded: 'rounded-[1.45rem]',
+      note: locale === 'es' ? 'Vista estrecha' : 'Narrow view',
+    },
+  };
+  const currentMobileFrame = mobileFrames[mobileDevice];
+
   return (
     <>
-      <div className="grid gap-5 lg:hidden">
-        <div className="rounded-[1.6rem] border border-white/30 bg-[#131922] p-3 shadow-[0_25px_70px_rgba(0,0,0,.32)]">
-          <div className="mb-2 flex items-center justify-between px-2 text-[10px] font-black uppercase tracking-[.18em] text-white/55">
-            <span>Desktop</span>
-            <span>{locale === 'es' ? 'Imagen completa' : 'Full image'}</span>
-          </div>
-          <PreviewFrame device="desktop" item={desktop} height="h-[300px]" animationClass="web-scroll-demo-mobile-desktop" variant="light" />
+      <div className="lg:hidden">
+        <div className="mb-5 grid grid-cols-3 gap-2 rounded-2xl border border-white/15 bg-white/[.06] p-1.5 backdrop-blur">
+          {(['desktop', 'tablet', 'mobile'] as const).map((device) => {
+            const isActive = mobileDevice === device;
+            return (
+              <button
+                key={device}
+                type="button"
+                onClick={() => setMobileDevice(device)}
+                className={`rounded-xl px-3 py-3 text-[11px] font-black uppercase tracking-[.14em] transition ${
+                  isActive ? 'bg-[#D4AF37] text-[#061523] shadow-[0_12px_30px_rgba(212,175,55,.24)]' : 'text-white/62 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                {mobileFrames[device].label}
+              </button>
+            );
+          })}
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="rounded-[1.45rem] border border-white/30 bg-[#101923] p-2 shadow-[0_20px_55px_rgba(0,0,0,.30)]">
-            <div className="mb-2 px-2 text-[10px] font-black uppercase tracking-[.18em] text-white/55">Tablet</div>
-            <PreviewFrame device="tablet" item={tablet} height="h-[285px]" animationClass="web-scroll-demo-mobile-tablet" variant="dark" />
+        <div className={`${currentMobileFrame.shell} border border-white/30 bg-[#131922] shadow-[0_25px_70px_rgba(0,0,0,.32)]`}>
+          <div className="mb-2 flex items-center justify-between px-2 text-[10px] font-black uppercase tracking-[.18em] text-white/55">
+            <span>{currentMobileFrame.label}</span>
+            <span>{currentMobileFrame.note}</span>
           </div>
-
-          <div className="rounded-[1.45rem] border border-white/30 bg-[#101923] p-2 shadow-[0_20px_55px_rgba(0,0,0,.30)]">
-            <div className="mb-2 px-2 text-[10px] font-black uppercase tracking-[.18em] text-white/55">Mobile</div>
-            <PreviewFrame device="mobile" item={mobile} height="h-[285px]" animationClass="web-scroll-demo-mobile-phone" variant="light" />
-          </div>
+          <PreviewFrame
+            device={mobileDevice}
+            item={currentMobileFrame.item}
+            height={currentMobileFrame.height}
+            animationClass={currentMobileFrame.animation}
+            variant={currentMobileFrame.variant}
+            rounded={currentMobileFrame.screenRounded}
+          />
         </div>
       </div>
 
@@ -470,9 +520,9 @@ export default function WebDevelopmentPageClient({ pageElements = [] }: { pageEl
         .web-scroll-demo-slow { --preview-height: 360px; animation-duration: 13s; }
         .web-scroll-demo-medium { --preview-height: 305px; animation-duration: 11s; }
         .web-scroll-demo-fast { --preview-height: 240px; animation-duration: 10s; }
-        .web-scroll-demo-mobile-desktop { --preview-height: 300px; animation-duration: 13s; }
-        .web-scroll-demo-mobile-tablet { --preview-height: 285px; animation-duration: 11s; }
-        .web-scroll-demo-mobile-phone { --preview-height: 285px; animation-duration: 10s; }
+        .web-scroll-demo-mobile-desktop { --preview-height: 245px; animation-duration: 13s; }
+        .web-scroll-demo-mobile-tablet { --preview-height: 430px; animation-duration: 12s; }
+        .web-scroll-demo-mobile-phone { --preview-height: 430px; animation-duration: 11s; }
         @media (prefers-reduced-motion: reduce) { .web-scroll-demo { animation: none; } }
       `}</style>
       <DirectusVisualEditing enabled={visualEditingEnabled} refreshKey={`web-development:${locale}:${pageElements.length}`} />
