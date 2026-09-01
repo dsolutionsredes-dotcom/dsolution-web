@@ -117,6 +117,6 @@ export default function AudiovisualSolutionsPageClient({ pageElements = [] }: { 
 
     <section className="bg-[#F7F3EA] px-5 py-20 md:px-8"><div className="mx-auto grid max-w-7xl gap-8 rounded-[2rem] border border-[#D4AF37]/22 bg-white p-8 shadow-[0_22px_70px_rgba(0,33,71,.08)] lg:grid-cols-[.85fr_1.15fr]"><div><p className="text-xs font-black uppercase tracking-[.22em] text-[#B88A1A]" data-directus={attr('final.eyebrow')}>{value('final.eyebrow', base.finalEyebrow)}</p><h2 className="mt-3 text-4xl font-black tracking-[-.04em]" data-directus={attr('final.title')}>{value('final.title', base.finalTitle)}</h2><p className="mt-5 text-lg leading-8 text-[#061523]/65" data-directus={attr('final.text')}>{value('final.text', base.finalText)}</p></div><ContactSection locale={locale} source="d-solution.org/tecnologia-audiovisual" visualEditingEnabled={visualEditingEnabled} pageElements={pageElements} /></div></section>
 
-    <SiteFooter locale={locale} pageElements={pageElements} visualEditingEnabled={visualEditingEnabled} />
+    <SiteFooter locale={locale} links={links} pageElements={pageElements} visualEditingEnabled={visualEditingEnabled} />
   </main>;
 }
