@@ -1,4 +1,4 @@
-use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import Navbar, { type NavLink } from '@/components/Navbar';
