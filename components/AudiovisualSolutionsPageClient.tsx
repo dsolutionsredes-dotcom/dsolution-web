@@ -31,7 +31,7 @@ import {
 
 type Locale = 'es' | 'en';
 
-type Copy = typeof copy.es;
+type Copy = (typeof copy)[Locale];
 const LOCALE_KEY = 'dsolution-language';
 
 const navLinks = {
